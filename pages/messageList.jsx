@@ -25,7 +25,7 @@ import { baseUrl } from '../store/config.json'
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import Feather from 'react-native-vector-icons/Feather'
 import Entypo from 'react-native-vector-icons/Entypo'
-
+import Ionicons from 'react-native-vector-icons/Ionicons'
 
 
 const MessageList = () => {
@@ -113,8 +113,10 @@ const MessageList = () => {
     });
     const navigation = useNavigation();
     const [recentChats, setRecentChats] = useState([])
-    const [loader, setLoader] = useState(false)
+    const [filterText, setFilterText] = useState("")
     
+    const [loader, setLoader] = useState(false)
+
     const loadRecentChats = async () => {
         if (focus == true) {
             const Token = await AsyncStorage.getItem('Token');
@@ -132,13 +134,16 @@ const MessageList = () => {
         }
     }
 
-
-    
+    useEffect(()=>{
+        loadRecentChats()
+    },[focus])
 
     useEffect(() => {
         setLoader(true)
         loadRecentChats()
-    }, [focus]);
+    }, []);
+
+    console.log(recentChats)
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -167,17 +172,13 @@ const MessageList = () => {
                     </View>
                 </View>
                 <View style={styles.bodyWrapper}>
-                    <View style={styles.SearchInputWrapper}>
-                        <AntDesign style={styles.SearchIcon} name='search1' color={global.primaryColor} size={ResponsiveSize(22)} />
-                        <TextInput style={styles.SearchInput} placeholder="Search" />
-                    </View>
                     {loader ?
                         <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
                             <ActivityIndicator size={'large'} color={global.primaryColor} />
                         </View>
                         :
                         <View>
-                            {recentChats !== undefined && recentChats !== "" && recentChats !== null && recentChats.length > 0 ? recentChats?.map(recentChats => {
+                            {recentChats !== undefined && recentChats !== "" && recentChats !== null && recentChats.length > 0 ? recentChats.map(recentChats => {
                                 return (
                                     recentChats.type == 'direct' ?
                                         <TouchableOpacity onPress={() => navigation.navigate('Message', {
@@ -200,12 +201,24 @@ const MessageList = () => {
                                                         text={recentChats?.userDetails?.user_name}
                                                         font={'Montserrat-Bold'}
                                                     />
-                                                    <TextC
-                                                        size={ResponsiveSize(10)}
-                                                        text={recentChats?.message}
-                                                        font={'Montserrat-Medium'}
-                                                        style={{ color: global.placeholderColor, width: ResponsiveSize(140) }} ellipsizeMode={"tail"} numberOfLines={1}
-                                                    />
+                                                    {recentChats?.isLastMessageMedia ?
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <Ionicons name="image-outline" size={ResponsiveSize(12)} style={{marginRight:ResponsiveSize(2)}}/>
+                                                            <TextC
+                                                                size={ResponsiveSize(10)}
+                                                                text={"Media"}
+                                                                font={'Montserrat-Medium'}
+                                                                style={{ color: global.placeholderColor, width: ResponsiveSize(140) }} ellipsizeMode={"tail"} numberOfLines={1}
+                                                            />
+                                                        </View>
+                                                        :
+                                                        <TextC
+                                                            size={ResponsiveSize(10)}
+                                                            text={recentChats?.message}
+                                                            font={'Montserrat-Medium'}
+                                                            style={{ color: global.placeholderColor, width: ResponsiveSize(140) }} ellipsizeMode={"tail"} numberOfLines={1}
+                                                        />
+                                                    }
                                                 </View>
                                             </View>
                                             <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -283,7 +296,7 @@ const MessageList = () => {
                             }
                             ) :
                                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
-                                    <TextC text={'No chats found'} font={'Montserrat-Medium'} size={ResponsiveSize(11)} />
+                                    <TextC text={'No chats found'} font={'Montserrat-Medium'} size={ResponsiveSize(11)} style={{color:global.black}}/>
                                 </View>
                             }
                         </View>

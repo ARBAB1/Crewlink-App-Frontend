@@ -284,9 +284,9 @@ const GroupMessage = ({ route }) => {
             })
         }
     }
-
+    let lastElement = recentChats[recentChats.length - 1]
     const renderItem = useCallback((items) => {
-        console.log(items?.item, 'item render item render')
+        const isVideo = items?.item?.media_url?.split('.mp')
         const date = new Date(items.item.created_at);
         const hours = date.getHours();
         const minutes = date.getMinutes();
@@ -295,43 +295,313 @@ const GroupMessage = ({ route }) => {
             <>
                 <View style={styles.messageWrapper}>
                     {items?.item?.senderUserId == user_id ?
-                        <View style={styles.messageContainer2}>
+                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer2}>
                             <View style={styles.empty}></View>
-                            <View style={styles.otherUserText}>
-                                <Text style={styles.messageUser}>{items.item.message}</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Text style={styles.TimeAgo}>{formattedTime}</Text>
-                                    {items?.item?.isSend == false ?
-                                        <AntDesign name="clockcircleo" />
-                                        :
-                                        <>
-                                            < AntDesign name="check" />
-                                        </>
+                            {items?.item?.is_media == "Y" ?
+                                <>
+                                    <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)}>
+                                        <View style={styles.otherMedia}>
+                                            {isVideo[1] == '4' ?
+                                                <>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                        <TextC text={'Video'} font={'Montserrat-Medium'} size={ResponsiveSize(12)} style={{ color: global.white }} />
+                                                        <Feather name="video" color={global.white} size={ResponsiveSize(14)} style={{ marginLeft: ResponsiveSize(5) }} />
+                                                    </View>
+                                                    {items?.item?.message !== "" ?
+                                                        <View style={styles.ImageMessage}>
+                                                            <Text style={styles.messageUser}>{items.item.message}</Text>
+                                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                                {items?.item?.isSend == false ?
+                                                                    <AntDesign name="clockcircleo" />
+                                                                    :
+                                                                    <>
+                                                                        {items?.item?.read_status == "N" ?
+                                                                            < AntDesign name="check" />
+                                                                            :
+                                                                            ""
+                                                                        }
+                                                                    </>
+                                                                }
+                                                            </View>
+                                                        </View>
+                                                        :
+                                                        <View style={styles.BottomInfoBar}>
+                                                            <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                            {items?.item?.isSend == false ?
+                                                                <AntDesign name="clockcircleo" color={global.white} />
+                                                                :
+                                                                <>
+                                                                    {items?.item?.read_status == "N" ?
+                                                                        <AntDesign name="check" />
+                                                                        :
+                                                                        ""
+                                                                    }
+                                                                </>
+                                                            }
+                                                        </View>
+                                                    }
+                                                </>
+                                                :
+                                                <>
+                                                    <FastImage
+                                                        source={
+                                                            items?.item?.media_url == ''
+                                                                ? require('../assets/icons/avatar.png')
+                                                                : { uri: items?.item?.media_url, priority: FastImage.priority.high }
+                                                        }
+                                                        style={styles.otherMediaThumbnail}
+                                                        resizeMode="cover"
+                                                    />
+                                                    {items?.item?.message !== "" ?
+                                                        <View style={styles.ImageMessage}>
+                                                            <Text style={styles.messageUser}>{items.item.message}</Text>
+                                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                                {items?.item?.isSend == false ?
+                                                                    <AntDesign name="clockcircleo" />
+                                                                    :
+                                                                    <>
+                                                                        {items?.item?.read_status == "N" ?
+                                                                            < AntDesign name="check" />
+                                                                            :
+                                                                            ""
+                                                                        }
+                                                                    </>
+                                                                }
+                                                            </View>
+                                                        </View>
+                                                        :
+                                                        <View style={styles.BottomInfoBar}>
+                                                            <Text style={styles.TimeAgoWhite}>{formattedTime}</Text>
+                                                            {items?.item?.isSend == false ?
+                                                                <AntDesign name="clockcircleo" color={global.white} />
+                                                                :
+                                                                <>
+                                                                    {items?.item?.read_status == "N" ?
+                                                                        <AntDesign name="check" color={global.white} />
+                                                                        :
+                                                                        ""
+                                                                    }
+                                                                </>
+                                                            }
+                                                        </View>
+                                                    }
+                                                </>
+                                            }
+
+                                        </View>
+                                        {lastElement?.message_id == items?.item?.message_id && items?.item?.read_status == "Y" ?
+                                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingTop: ResponsiveSize(5) }}>
+                                                <TextC text={"seen by"} font={'Montserrat-Medium'} size={ResponsiveSize(9)} style={{ color: global.black }} />
+                                                <FastImage
+                                                    source={{ uri: route?.params?.profile_picture_url, priority: FastImage.priority.high }}
+                                                    style={{
+                                                        height: ResponsiveSize(15),
+                                                        width: ResponsiveSize(15),
+                                                        borderRadius: ResponsiveSize(15),
+                                                        marginLeft: ResponsiveSize(3)
+                                                    }}
+                                                    resizeMode="cover"
+                                                />
+                                            </View>
+                                            : ""
+                                        }
+                                    </Pressable>
+                                </>
+                                :
+                                <View>
+                                    <View style={styles.otherUserText}>
+                                        {items?.item?.isReplyingWait ?
+                                            <View style={{ paddingHorizontal: ResponsiveSize(5), width: '100%' }}>
+                                                <View style={{
+                                                    backgroundColor: '#84c750',
+                                                    borderTopLeftRadius: ResponsiveSize(10),
+                                                    borderBottomLeftRadius: ResponsiveSize(10),
+                                                    borderBottomRightRadius: ResponsiveSize(10),
+                                                    padding: ResponsiveSize(5)
+                                                }}>
+                                                    <View style={{ flexDirection: "row", alignItems: 'center' }}>
+                                                        <Text style={styles.ReplyMsgUserName}>Replying</Text>
+                                                        <ActivityIndicator size={'small'} color={global.white} style={{ marginLeft: ResponsiveSize(10) }} />
+                                                    </View>
+                                                </View>
+                                            </View>
+                                            :
+                                            <>
+                                                {items?.item?.repliedMessage != null &&
+                                                    <View style={{ paddingHorizontal: ResponsiveSize(5), width: '100%', marginBottom: ResponsiveSize(5) }}>
+                                                        {items?.item?.repliedMessage?.is_media == "Y" ?
+                                                            <View style={{ ...styles.ReplyMsgBoxMine, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                                {items?.item?.repliedMessage?.senderUserId == user_id ?
+                                                                    <View>
+                                                                        <Text style={styles.ReplyMsgUserName}>You</Text>
+                                                                        <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>Photo</Text>
+                                                                    </View>
+                                                                    :
+                                                                    <View>
+                                                                        <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                                        <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>Photo</Text>
+                                                                    </View>
+                                                                }
+                                                                <FastImage
+                                                                    source={{ uri: items?.item?.repliedMessageMedia?.media_url, priority: FastImage.priority.high }}
+                                                                    style={{
+                                                                        height: ResponsiveSize(25),
+                                                                        width: ResponsiveSize(25),
+                                                                        borderRadius: ResponsiveSize(5),
+                                                                        marginLeft: ResponsiveSize(10)
+                                                                    }}
+                                                                    resizeMode="cover"
+                                                                />
+                                                            </View>
+                                                            :
+                                                            <View style={styles.ReplyMsgBoxMine}>
+                                                                {items?.item?.repliedMessage?.senderUserId == user_id ?
+                                                                    <Text style={styles.ReplyMsgUserName}>You</Text>
+                                                                    :
+                                                                    <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                                }
+                                                                <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>{items?.item?.repliedMessage?.message}</Text>
+                                                            </View>
+                                                        }
+                                                    </View>
+                                                }
+                                            </>
+                                        }
+                                        <View style={{ paddingHorizontal: ResponsiveSize(10), paddingVertical: ResponsiveSize(1) }}>
+                                            <Text style={styles.messageUser}>{items.item.message}</Text>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                {items?.item?.isSend == false ?
+                                                    <AntDesign name="clockcircleo" />
+                                                    :
+                                                    <>
+                                                        {items?.item?.read_status == "N" ?
+                                                            < AntDesign name="check" />
+                                                            :
+                                                            ""
+                                                        }
+                                                    </>
+                                                }
+                                            </View>
+                                        </View>
+                                    </View>
+                                    {lastElement?.message_id == items?.item?.message_id && items?.item?.read_status == "Y" ?
+                                        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingTop: ResponsiveSize(5) }}>
+                                            <TextC text={"seen by"} font={'Montserrat-Medium'} size={ResponsiveSize(9)} style={{ color: global.black }} />
+                                            <FastImage
+                                                source={{ uri: route?.params?.profile_picture_url, priority: FastImage.priority.high }}
+                                                style={{
+                                                    height: ResponsiveSize(15),
+                                                    width: ResponsiveSize(15),
+                                                    borderRadius: ResponsiveSize(15),
+                                                    marginLeft: ResponsiveSize(3)
+                                                }}
+                                                resizeMode="cover"
+                                            />
+                                        </View>
+                                        : ""
                                     }
                                 </View>
-                            </View>
-                        </View>
+                            }
+                        </Pressable>
                         :
-                        <View style={styles.messageContainer1}>
-                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                <ImageBackground
-                                    source={
-                                        items?.item?.userDetails?.profile_picture_url == ''
-                                            ? require('../assets/icons/avatar.png')
-                                            : { uri: items?.item?.userDetails?.profile_picture_url }
+                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer1}>
+                            {items?.item?.is_media == "Y" ?
+                                <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)} style={styles.otherMedia2}>
+                                    <FastImage
+                                        source={
+                                            items?.item?.media_url == ''
+                                                ? require('../assets/icons/avatar.png')
+                                                : { uri: items?.item?.media_url, priority: FastImage.priority.high }
+                                        }
+                                        style={styles.otherMediaThumbnail}
+                                        resizeMode="cover"
+                                    />
+                                    {items?.item?.message !== "" ?
+                                        <View style={styles.ImageMessage2}>
+                                            <Text style={styles.message}>{items.item.message}</Text>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                {items?.item?.isSend == false ?
+                                                    <AntDesign name="clockcircleo" />
+                                                    :
+                                                    < AntDesign name="check" />
+                                                }
+                                            </View>
+                                        </View>
+                                        :
+                                        <View style={styles.BottomInfoBar}>
+                                            <Text style={styles.TimeAgoWhite}>{formattedTime}</Text>
+                                            {items?.item?.isSend == false ?
+                                                <AntDesign name="clockcircleo" color={global.white} />
+                                                :
+                                                <AntDesign name="check" color={global.white} />
+                                            }
+                                        </View>
                                     }
-                                    style={styles.PostProfileImage2}
-                                    resizeMode="cover" />
-                                <View style={styles.thisUserText}>
-                                    <Text style={styles.messageOwner}>{items?.item?.userDetails?.user_name}</Text>
-                                    <Text style={styles.message}>{items.item.message}</Text>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                </Pressable>
+                                :
+                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                    <ImageBackground
+                                        source={
+                                            route?.params?.profile_picture_url == ''
+                                                ? require('../assets/icons/avatar.png')
+                                                : { uri: route?.params?.profile_picture_url }
+                                        }
+                                        style={styles.PostProfileImage2}
+                                        resizeMode="cover" />
+                                    <View style={styles.thisUserText}>
+                                        {items?.item?.repliedMessage != null &&
+                                            <View style={{ width: '100%', marginBottom: ResponsiveSize(5), paddingHorizontal: ResponsiveSize(5) }}>
+                                                {items?.item?.repliedMessage?.is_media == "Y" ?
+                                                    <View style={{ ...styles.ReplyMsgBoxMine2, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                        {items?.item?.repliedMessage?.senderUserId == user_id ?
+                                                            <View>
+                                                                <Text style={styles.ReplyMsgUserName}>You</Text>
+                                                                <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%', color: global.black }}>Photo</Text>
+                                                            </View>
+                                                            :
+                                                            <View>
+                                                                <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                                <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%', color: global.black }}>Photo</Text>
+                                                            </View>
+                                                        }
+                                                        <FastImage
+                                                            source={{ uri: items?.item?.repliedMessageMedia?.media_url, priority: FastImage.priority.high }}
+                                                            style={{
+                                                                height: ResponsiveSize(25),
+                                                                width: ResponsiveSize(25),
+                                                                borderRadius: ResponsiveSize(5),
+                                                                marginLeft: ResponsiveSize(10)
+                                                            }}
+                                                            resizeMode="cover"
+                                                        />
+                                                    </View>
+                                                    :
+                                                    <View style={styles.ReplyMsgBoxMine2}>
+                                                        {items?.item?.repliedMessage?.senderUserId == user_id ?
+                                                            <Text style={styles.ReplyMsgUserName}>You</Text>
+                                                            :
+                                                            <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                        }
+                                                        <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%', color: global.black }}>{items?.item?.repliedMessage?.message}</Text>
+                                                    </View>
+                                                }
+                                            </View>
+                                        }
+                                        <View style={{ paddingHorizontal: ResponsiveSize(10) }}>
+                                            <Text style={styles.message}>{items.item.message}</Text>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                            </View>
+                                        </View>
                                     </View>
                                 </View>
-                            </View>
+                            }
                             <View style={styles.empty}></View>
-                        </View>
+                        </Pressable>
                     }
                 </View>
             </>

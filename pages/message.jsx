@@ -29,7 +29,7 @@ import { TextInput } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import io from "socket.io-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { baseUrl } from '../store/config.json'
+import { baseUrl, apiKey } from '../store/config.json'
 import { Animated } from "react-native";
 import FastImage from "react-native-fast-image";
 import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
@@ -38,7 +38,6 @@ import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Modal from "react-native-modal";
-
 
 
 const Message = ({ route }) => {
@@ -334,6 +333,11 @@ const Message = ({ route }) => {
             fontSize: ResponsiveSize(11),
             color: global.primaryColor,
             fontFamily: 'Montserrat-Bold',
+        },
+        LoadMoreAbsolute: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center'
         }
     });
     const [newMessage, setNewMessage] = useState("")
@@ -359,21 +363,34 @@ const Message = ({ route }) => {
     };
 
     const [isMediaDetail, setIsMediaDetail] = useState(false)
-    const [detailUrl, setDetailUrl] = useState()
-    const MediaDetail = (address) => {
-        console.log(address)
+    const MediaDetail = (address, isImage) => {
         setIsMediaDetail(true)
-        Image.getSize(
-            address?.media_url,
-            (width, height) => {
-                const ratio = width / height;
-                setImageRatio(ratio)
-                setDetailUrl(address?.media_url)
-            },
-            (error) => {
-                console.error(`Couldn't get the image size: ${error}`);
-            }
-        );
+        if (isImage) {
+            Image.getSize(
+                address?.media_url,
+                (width, height) => {
+                    const ratio = width / height;
+                    navigation.navigate('MediaDetail', {
+                        uri: address,
+                        ratio: ratio,
+                        profile_picture_url: route?.params?.profile_picture_url,
+                        user_name: route?.params?.user_name,
+                        isImage: isImage
+                    })
+                },
+                (error) => {
+                    console.error(`Couldn't get the image size: ${error}`);
+                }
+            );
+        }
+        else {
+            navigation.navigate('MediaDetail', {
+                uri: address,
+                profile_picture_url: route?.params?.profile_picture_url,
+                user_name: route?.params?.user_name,
+                isImage: isImage
+            })
+        }
     }
     const handleOpenSheet = () => {
         openBottomSheet(
@@ -416,7 +433,6 @@ const Message = ({ route }) => {
                 receiverUserId: route?.params?.receiverUserId,
                 profile_picture_url: route?.params?.profile_picture_url,
                 user_name: route?.params?.user_name
-
             })
         }
     };
@@ -439,6 +455,7 @@ const Message = ({ route }) => {
             if (data?.message.length > 0) {
                 setLoader(false)
                 setRecentChats(data?.message);
+                scrollViewRef.current.scrollToEnd({ animated: true })
             }
             setLoader(false)
         }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId })
@@ -462,15 +479,47 @@ const Message = ({ route }) => {
         }
     }, []);
 
-    const sendMessage = async () => {
-        if (newMessage !== "") {
+    const [queue, setQueue] = useState([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const addToQueue = (message) => {
+        setQueue(prevQueue => [...prevQueue, message]);
+        setNewMessage('')
+        scrollViewRef.current.scrollToEnd({ animated: true })
+    };
+
+
+    const processQueue = useCallback(async () => {
+        if (queue.length === 0 || isProcessing) return;
+        setIsProcessing(true);
+        const messagecache = queue[0];
+        try {
+            await sendMessage(messagecache);
+        } catch (error) {
+            console.error('Failed to send message:', error);
+        } finally {
+            setQueue(prevQueue => prevQueue.slice(1));
+            setIsProcessing(false);
+        }
+    }, [queue, isProcessing]);
+
+    useEffect(() => {
+        if (queue.length > 0 && !isProcessing) {
+            processQueue();
+        }
+    }, [queue, isProcessing, processQueue]);
+
+
+    const sendMessage = async (message_Props) => {
+        if (message_Props !== "") {
             setRecentChats(prev => [
                 ...prev,
                 {
                     created_at: Date.now(),
-                    message: newMessage,
+                    message: message_Props,
                     isSend: false,
-                    senderUserId: user_id
+                    senderUserId: user_id,
+                    isReplyingWait: ReplyMessage == undefined ? false : true
                 },
             ]);
             const Token = await AsyncStorage.getItem('Token');
@@ -482,16 +531,15 @@ const Message = ({ route }) => {
                 }
             });
             socket.on('connect').emit('createDirectMessage', {
-                "message": newMessage,
+                "message": message_Props,
                 "receiverUserId": route?.params?.receiverUserId,
                 "repliedMessageId": ReplyMessage?.message_id
             }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
-                setNewMessage("")
+                CancelReply()
                 setRecentChats(data?.message);
             })
         }
     }
-
     const [ReplyMessage, setReplyMessage] = useState()
     const GetReply = (Address) => {
         fadeIn()
@@ -518,7 +566,10 @@ const Message = ({ route }) => {
         }).start();
     };
     let lastElement = recentChats[recentChats.length - 1]
+
+
     const renderItem = useCallback((items) => {
+        const isVideo = items?.item?.media_url?.split('.mp')
         const date = new Date(items.item.created_at);
         const hours = date.getHours();
         const minutes = date.getMinutes();
@@ -531,51 +582,97 @@ const Message = ({ route }) => {
                             <View style={styles.empty}></View>
                             {items?.item?.is_media == "Y" ?
                                 <>
-                                    <Pressable onPress={() => MediaDetail(items?.item)}>
+                                    <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)}>
                                         <View style={styles.otherMedia}>
-                                            <FastImage
-                                                source={
-                                                    items?.item?.media_url == ''
-                                                        ? require('../assets/icons/avatar.png')
-                                                        : { uri: items?.item?.media_url, priority: FastImage.priority.high }
-                                                }
-                                                style={styles.otherMediaThumbnail}
-                                                resizeMode="cover"
-                                            />
-                                            {items?.item?.message !== "" ?
-                                                <View style={styles.ImageMessage}>
-                                                    <Text style={styles.messageUser}>{items.item.message}</Text>
+                                            {isVideo[1] == '4' ?
+                                                <>
                                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                        <Text style={styles.TimeAgo}>{formattedTime}</Text>
-                                                        {items?.item?.isSend == false ?
-                                                            <AntDesign name="clockcircleo" />
-                                                            :
-                                                            <>
-                                                                {items?.item?.read_status == "N" ?
-                                                                    < AntDesign name="check" />
-                                                                    :
-                                                                    ""
-                                                                }
-                                                            </>
-                                                        }
+                                                        <TextC text={'Video'} font={'Montserrat-Medium'} size={ResponsiveSize(12)} style={{ color: global.white }} />
+                                                        <Feather name="video" color={global.white} size={ResponsiveSize(14)} style={{ marginLeft: ResponsiveSize(5) }} />
                                                     </View>
-                                                </View>
-                                                :
-                                                <View style={styles.BottomInfoBar}>
-                                                    <Text style={styles.TimeAgoWhite}>{formattedTime}</Text>
-                                                    {items?.item?.isSend == false ?
-                                                        <AntDesign name="clockcircleo" color={global.white} />
+                                                    {items?.item?.message !== "" ?
+                                                        <View style={styles.ImageMessage}>
+                                                            <Text style={styles.messageUser}>{items.item.message}</Text>
+                                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                                {items?.item?.isSend == false ?
+                                                                    <AntDesign name="clockcircleo" />
+                                                                    :
+                                                                    <>
+                                                                        {items?.item?.read_status == "N" ?
+                                                                            < AntDesign name="check" />
+                                                                            :
+                                                                            ""
+                                                                        }
+                                                                    </>
+                                                                }
+                                                            </View>
+                                                        </View>
                                                         :
-                                                        <>
-                                                            {items?.item?.read_status == "N" ?
-                                                                <AntDesign name="check" color={global.white} />
+                                                        <View style={styles.BottomInfoBar}>
+                                                            <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                            {items?.item?.isSend == false ?
+                                                                <AntDesign name="clockcircleo" color={global.white} />
                                                                 :
-                                                                ""
+                                                                <>
+                                                                    {items?.item?.read_status == "N" ?
+                                                                        <AntDesign name="check" />
+                                                                        :
+                                                                        ""
+                                                                    }
+                                                                </>
                                                             }
-                                                        </>
+                                                        </View>
                                                     }
-                                                </View>
+                                                </>
+                                                :
+                                                <>
+                                                    <FastImage
+                                                        source={
+                                                            items?.item?.media_url == ''
+                                                                ? require('../assets/icons/avatar.png')
+                                                                : { uri: items?.item?.media_url, priority: FastImage.priority.high }
+                                                        }
+                                                        style={styles.otherMediaThumbnail}
+                                                        resizeMode="cover"
+                                                    />
+                                                    {items?.item?.message !== "" ?
+                                                        <View style={styles.ImageMessage}>
+                                                            <Text style={styles.messageUser}>{items.item.message}</Text>
+                                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                                {items?.item?.isSend == false ?
+                                                                    <AntDesign name="clockcircleo" />
+                                                                    :
+                                                                    <>
+                                                                        {items?.item?.read_status == "N" ?
+                                                                            < AntDesign name="check" />
+                                                                            :
+                                                                            ""
+                                                                        }
+                                                                    </>
+                                                                }
+                                                            </View>
+                                                        </View>
+                                                        :
+                                                        <View style={styles.BottomInfoBar}>
+                                                            <Text style={styles.TimeAgoWhite}>{formattedTime}</Text>
+                                                            {items?.item?.isSend == false ?
+                                                                <AntDesign name="clockcircleo" color={global.white} />
+                                                                :
+                                                                <>
+                                                                    {items?.item?.read_status == "N" ?
+                                                                        <AntDesign name="check" color={global.white} />
+                                                                        :
+                                                                        ""
+                                                                    }
+                                                                </>
+                                                            }
+                                                        </View>
+                                                    }
+                                                </>
                                             }
+
                                         </View>
                                         {lastElement?.message_id == items?.item?.message_id && items?.item?.read_status == "Y" ?
                                             <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingTop: ResponsiveSize(5) }}>
@@ -598,45 +695,64 @@ const Message = ({ route }) => {
                                 :
                                 <View>
                                     <View style={styles.otherUserText}>
-                                        {items?.item?.repliedMessage != null &&
-                                            <View style={{ paddingHorizontal: ResponsiveSize(5), width: '100%', marginBottom: ResponsiveSize(5) }}>
-                                                {items?.item?.repliedMessage?.is_media == "Y" ?
-                                                    <View style={{ ...styles.ReplyMsgBoxMine, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                        {items?.item?.repliedMessage?.senderUserId == user_id ?
-                                                            <View>
-                                                                <Text style={styles.ReplyMsgUserName}>You</Text>
-                                                                <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>Photo</Text>
-                                                            </View>
-                                                            :
-                                                            <View>
-                                                                <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
-                                                                <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>Photo</Text>
-                                                            </View>
-                                                        }
-                                                        <FastImage
-                                                            source={{ uri: items?.item?.repliedMessageMedia?.media_url, priority: FastImage.priority.high }}
-                                                            style={{
-                                                                height: ResponsiveSize(25),
-                                                                width: ResponsiveSize(25),
-                                                                borderRadius: ResponsiveSize(5),
-                                                                marginLeft: ResponsiveSize(10)
-                                                            }}
-                                                            resizeMode="cover"
-                                                        />
+                                        {items?.item?.isReplyingWait ?
+                                            <View style={{ paddingHorizontal: ResponsiveSize(5), width: '100%' }}>
+                                                <View style={{
+                                                    backgroundColor: '#84c750',
+                                                    borderTopLeftRadius: ResponsiveSize(10),
+                                                    borderBottomLeftRadius: ResponsiveSize(10),
+                                                    borderBottomRightRadius: ResponsiveSize(10),
+                                                    padding: ResponsiveSize(5)
+                                                }}>
+                                                    <View style={{ flexDirection: "row", alignItems: 'center' }}>
+                                                        <Text style={styles.ReplyMsgUserName}>Replying</Text>
+                                                        <ActivityIndicator size={'small'} color={global.white} style={{ marginLeft: ResponsiveSize(10) }} />
                                                     </View>
-                                                    :
-                                                    <View style={styles.ReplyMsgBoxMine}>
-                                                        {items?.item?.repliedMessage?.senderUserId == user_id ?
-                                                            <Text style={styles.ReplyMsgUserName}>You</Text>
+                                                </View>
+                                            </View>
+                                            :
+                                            <>
+                                                {items?.item?.repliedMessage != null &&
+                                                    <View style={{ paddingHorizontal: ResponsiveSize(5), width: '100%', marginBottom: ResponsiveSize(5) }}>
+                                                        {items?.item?.repliedMessage?.is_media == "Y" ?
+                                                            <View style={{ ...styles.ReplyMsgBoxMine, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                                {items?.item?.repliedMessage?.senderUserId == user_id ?
+                                                                    <View>
+                                                                        <Text style={styles.ReplyMsgUserName}>You</Text>
+                                                                        <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>Photo</Text>
+                                                                    </View>
+                                                                    :
+                                                                    <View>
+                                                                        <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                                        <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>Photo</Text>
+                                                                    </View>
+                                                                }
+                                                                <FastImage
+                                                                    source={{ uri: items?.item?.repliedMessageMedia?.media_url, priority: FastImage.priority.high }}
+                                                                    style={{
+                                                                        height: ResponsiveSize(25),
+                                                                        width: ResponsiveSize(25),
+                                                                        borderRadius: ResponsiveSize(5),
+                                                                        marginLeft: ResponsiveSize(10)
+                                                                    }}
+                                                                    resizeMode="cover"
+                                                                />
+                                                            </View>
                                                             :
-                                                            <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                            <View style={styles.ReplyMsgBoxMine}>
+                                                                {items?.item?.repliedMessage?.senderUserId == user_id ?
+                                                                    <Text style={styles.ReplyMsgUserName}>You</Text>
+                                                                    :
+                                                                    <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                                }
+                                                                <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>{items?.item?.repliedMessage?.message}</Text>
+                                                            </View>
                                                         }
-                                                        <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>{items?.item?.repliedMessage?.message}</Text>
                                                     </View>
                                                 }
-                                            </View>
+                                            </>
                                         }
-                                        <View style={{ paddingHorizontal: ResponsiveSize(10) }}>
+                                        <View style={{ paddingHorizontal: ResponsiveSize(10), paddingVertical: ResponsiveSize(1) }}>
                                             <Text style={styles.messageUser}>{items.item.message}</Text>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <Text style={styles.TimeAgo}>{formattedTime}</Text>
@@ -676,7 +792,7 @@ const Message = ({ route }) => {
                         :
                         <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer1}>
                             {items?.item?.is_media == "Y" ?
-                                <Pressable onPress={() => MediaDetail(items?.item)} style={styles.otherMedia2}>
+                                <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)} style={styles.otherMedia2}>
                                     <FastImage
                                         source={
                                             items?.item?.media_url == ''
@@ -775,6 +891,45 @@ const Message = ({ route }) => {
         );
     }, [recentChats]);
 
+    const [page, setPage] = useState(2)
+    const [loadMoreLoader, setLoadMoreLoader] = useState(false)
+    const [hasMoreContent, setHasMoreContent] = useState(true);
+
+
+
+    const GetChatHistory = async () => {
+        setLoadMoreLoader(true)
+        const Token = await AsyncStorage.getItem('Token');
+        try {
+            const response = await fetch(`${baseUrl}/messages/get-old-messages/${page}/25`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'accesstoken': `Bearer ${Token}`
+                },
+                body: JSON.stringify({
+                    receiverUserId: route?.params?.receiverUserId,
+                })
+            });
+            const dataRe = await response.json();
+            if (dataRe?.message.length >= 25) {
+                setRecentChats((prevMessages) => [...dataRe?.message, ...prevMessages])
+                setPage(page + 1)
+                setLoadMoreLoader(false)
+            }
+            else {
+                setHasMoreContent(false)
+                setRecentChats((prevMessages) => [...dataRe?.message, ...prevMessages])
+                setPage(page + 1)
+                setLoadMoreLoader(false)
+            }
+        } catch (error) {
+            Alert.alert('Error', error.message);
+            setLoadMoreLoader(false)
+        }
+    }
+
 
     return (
         <KeyboardAvoidingView
@@ -783,9 +938,9 @@ const Message = ({ route }) => {
             keyboardVerticalOffset={
                 Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0
             }>
-            <SafeAreaView style={{ flex: 1 }}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
                 <StatusBar
-                    backgroundColor={isMediaDetail ? 'rgba(0,0,0,0.7)' : global.white}
+                    backgroundColor={global.white}
                     barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
                 />
                 <View style={styles.wrapper}>
@@ -806,9 +961,27 @@ const Message = ({ route }) => {
                 </View>
                 <ScrollView
                     ref={scrollViewRef}
-                    onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
                     contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white, position: 'relative', paddingTop: ResponsiveSize(10), paddingBottom: ResponsiveSize(ReplyMessage?.message_id ? 100 : 65) }}
                 >
+                    {hasMoreContent &&
+                        <>
+                            {!loader &&
+                                <>
+                                    {loadMoreLoader ?
+                                        <View style={styles.LoadMoreAbsolute}>
+                                            <ActivityIndicator color={global.black} size={'small'} />
+                                        </View>
+                                        :
+                                        <View style={styles.LoadMoreAbsolute}>
+                                            <TouchableOpacity onPress={GetChatHistory} style={{ backgroundColor: global.secondaryColor, paddingHorizontal: ResponsiveSize(10), paddingVertical: ResponsiveSize(5), borderRadius: ResponsiveSize(20) }}>
+                                                <TextC text={'Load More'} size={ResponsiveSize(11)} font={"Montserrat-Regular"} style={{ color: global.white }} />
+                                            </TouchableOpacity>
+                                        </View>
+                                    }
+                                </>
+                            }
+                        </>
+                    }
                     {loader ?
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
                             <ActivityIndicator size={'large'} color={global.primaryColor} />
@@ -820,19 +993,11 @@ const Message = ({ route }) => {
                             data={recentChats}
                             keyExtractor={(items, index) => index?.toString()}
                             renderItem={renderItem}
+                            scrollEventThrottle={16}
                         />
                     }
 
                 </ScrollView>
-                <Modal
-                    isVisible={isMediaDetail}
-                    animationIn={'bounceInUp'}
-                    avoidKeyboard={true}
-                    onBackdropPress={() => setIsMediaDetail(!isMediaDetail)}
-                    statusBarTranslucent={false}
-                >
-                    <FastImage style={{ aspectRatio: imageRatio, width: windowWidth }} source={{ uri: detailUrl }} />
-                </Modal>
                 <View style={styles.MessageInputWrapper}>
                     {ReplyMessage?.message_id &&
                         <Animated.View style={{ ...styles.ReplyBox, opacity: fadeAnim }}>
@@ -878,7 +1043,7 @@ const Message = ({ route }) => {
                             } onChangeText={(e) => setNewMessage(e)} />
                         </View>
                         <View style={styles.SentBtnWrapper}>
-                            <TouchableOpacity onPress={sendMessage} style={styles.SentBtn}>
+                            <TouchableOpacity onPress={() => addToQueue(newMessage)} style={styles.SentBtn}>
                                 <Feather name="send" color={global.white} size={ResponsiveSize(16)} />
                             </TouchableOpacity>
                         </View>

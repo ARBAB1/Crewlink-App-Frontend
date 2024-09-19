@@ -146,7 +146,6 @@ const Announcement = () => {
   const [refreshing, setRefreshing] = React.useState(false);
   const focus = useIsFocused();
 
-
   const styles = StyleSheet.create({
     ContainerHeader: {
       paddingHorizontal: ResponsiveSize(15),
@@ -235,7 +234,6 @@ const Announcement = () => {
     loadRecentChats()
   }, [focus])
 
-
   const loadRecentChats = async () => {
     if (focus == true) {
       setRefreshing(true);
@@ -289,6 +287,7 @@ const Announcement = () => {
       SetAnnouncement(data)
     })
   }
+
   const GetUnLike = async (Like_id) => {
     const Token = await AsyncStorage.getItem('Token');
     const filterCommentDat = announcement.map(comment => {
@@ -334,7 +333,7 @@ const Announcement = () => {
           />
         </View>
         <View style={styles.TextSide}>
-          <TouchableOpacity onPress={() => navigation.navigate("announcementDetail",{details:item})}>
+          <TouchableOpacity onPress={() => navigation.navigate("announcementDetail", { details: item })}>
             <View style={styles.ProfileDetail}>
               <TextC text={`${item?.user_details?.user_name}`} font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
             </View>
@@ -360,8 +359,6 @@ const Announcement = () => {
   },
     [profilePicture, announcement],
   );
-
-
 
   return (
     <KeyboardAvoidingView

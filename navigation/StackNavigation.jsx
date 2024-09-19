@@ -20,7 +20,7 @@ import PostSetting from '../pages/PostSetting';
 import PostDetail from '../pages/PostDetail';
 import MyPost from '../pages/myPost';
 import Connections from '../pages/Connections';
-import Notification from '../pages/notification';
+import Notification from '../pages/Notification.jsx';
 import UserProfileScreen from '../pages/UserProfileScreen';
 import InAppCheckIn from '../pages/InAppCheckin';
 import MessageList from '../pages/messageList';
@@ -34,6 +34,7 @@ import MessageMedia from '../pages/messageMedia.jsx';
 import Announcement from '../pages/Announcement.jsx';
 import CreateAnnouncement from '../pages/CreateAnnouncement.jsx';
 import AnnouncementDetail from '../pages/AnnouncementDetail.jsx';
+import ChatMediaDetail from '../pages/mediaDetail.jsx';
 
 
 
@@ -85,12 +86,16 @@ const HomeStackNavigation = () => {
     <Stack.Navigator initialRouteName='Home'>
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Home" component={HomeScreen} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="PostDetail" component={PostDetail} />
-      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Notification" component={Notification} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="InAppCheckIn" component={InAppCheckIn} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="MessageList" component={MessageList} />
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="Message" component={Message} />
+
+      <Stack.Screen options={{
+        headerShown: false, navigationBarHidden: true,
+      }} name="MediaDetail" component={ChatMediaDetail} />
+
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="NewMessage" component={NewMessage} />
@@ -106,6 +111,10 @@ const HomeStackNavigation = () => {
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="messageMedia" component={MessageMedia} />
+      <Stack.Screen options={{
+        headerShown: false, navigationBarHidden: true,
+      }} name="Notification" component={Notification} />
+
     </Stack.Navigator>
   )
 }

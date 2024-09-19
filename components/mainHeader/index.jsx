@@ -5,6 +5,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { useNavigation } from '@react-navigation/native';
 import * as UserProfile from '../../store/actions/UserProfile/index';
 import { connect } from 'react-redux';
+import Ionicons from 'react-native-vector-icons/Ionicons'
 const width = Dimensions.get('window').width;
 
 
@@ -29,8 +30,8 @@ const MainHeader = ({ GetUserProfileReducer, loading }) => {
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={{ paddingVertical: 4, paddingLeft: 10, paddingRight: 5 }}>
-                    <Image source={require('../../assets/icons/HeaderIcon1.png')} style={{ objectFit: 'contain', width: ResponsiveSize(21), height: ResponsiveSize(21) }} />
+                <TouchableOpacity style={{ paddingVertical: 4, paddingLeft: 10, paddingRight: 5 }} onPress={() => navigation.navigate('Notification')}>
+                    <Ionicons name='notifications-outline' size={ResponsiveSize(21)} color={global.primaryColor}/>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={{ padding: 4 }} onPress={() => navigation.navigate('MessageList')}>
