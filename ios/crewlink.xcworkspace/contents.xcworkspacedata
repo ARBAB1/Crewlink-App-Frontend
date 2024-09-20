@@ -2,12 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Crewlink.xcodeproj">
+      location = "group:crewlink.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:crewlink.xcodeproj">
    </FileRef>
 </Workspace>

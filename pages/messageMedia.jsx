@@ -75,7 +75,8 @@ const MessageMedia = ({ route }) => {
             width: windowWidth - ResponsiveSize(80),
             borderRadius: ResponsiveSize(20),
             paddingHorizontal: ResponsiveSize(15),
-            fontFamily: 'Montserrat-Medium'
+            fontFamily: 'Montserrat-Medium',
+            height:ResponsiveSize(45)
         },
         SentBtn: {
             height: ResponsiveSize(40),

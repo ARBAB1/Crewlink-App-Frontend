@@ -18,17 +18,16 @@
 		252D5A809D48477486067E06 /* Inter-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2666E3572F3547CC9B32F353 /* Inter-Light.ttf */; };
 		329E694FD7934E7BAB2B2095 /* Montserrat-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9834D7AB8AD244249A37602E /* Montserrat-Light.ttf */; };
 		38D2A0438583451FB20A1849 /* Montserrat-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 253DECB2414749C591FE5464 /* Montserrat-SemiBold.ttf */; };
-		3D6D35C03C0A45DB27D307D1 /* libPods-Crewlink.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A095CFFE041349C441DC8816 /* libPods-Crewlink.a */; };
 		415A05777829412D9BDB0442 /* Inter-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9F328ECFA03D445583CCC93F /* Inter-ExtraLight.ttf */; };
 		426D057BEDD9450FB739D3E7 /* Montserrat-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3AFE0E8DD8DA4984B9A6511F /* Montserrat-BoldItalic.ttf */; };
 		4BD32F11B82342D995F92FFA /* Montserrat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 83E07507CC38493E8EC932BD /* Montserrat-Regular.ttf */; };
 		4C5C541338CD43C2A41BE064 /* Montserrat-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1EC508FC2004586ABC62168 /* Montserrat-Italic.ttf */; };
-		4DCE1C5CEAAE081C4720D739 /* libPods-Crewlink-CrewlinkTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 000560347065B9B8CD38D7B1 /* libPods-Crewlink-CrewlinkTests.a */; };
 		5690CD03707D4D509C83113F /* Montserrat-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D384F50160F148378DE34CEC /* Montserrat-MediumItalic.ttf */; };
 		68BC9411F6334D7CB04D029E /* Montserrat-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 158DA80224204865B4D8FA63 /* Montserrat-LightItalic.ttf */; };
 		6B4CCF0941D94CB08A120248 /* Montserrat-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C096BCD386004258B1420E3F /* Montserrat-ThinItalic.ttf */; };
 		6FFFFD3898B34B2F943AB9E4 /* Montserrat-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 31B97D33DEE04BBDB99BE1A1 /* Montserrat-ExtraBoldItalic.ttf */; };
 		7E7625730A9E46C3818C0297 /* Inter-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 67037CEF7D6C4496B79EAC0A /* Inter-Thin.ttf */; };
+		8029CF1E3D9C8B08C5C6119A /* libPods-Crewlink.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 80BE52F7E29B842789F2D4B9 /* libPods-Crewlink.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8E7A56DAFCDF4FA790C56B73 /* Montserrat-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CA23BB5A2000430D9480E5FA /* Montserrat-SemiBoldItalic.ttf */; };
 		8FE571BFC846463EAA1B2EE4 /* Inter-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2F20634364754EE69370D718 /* Inter-Black.ttf */; };
@@ -56,6 +55,7 @@
 		9EC5C6502C1917F000373A89 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9EC5C63C2C1917F000373A89 /* Octicons.ttf */; };
 		9EC5C6512C1917F000373A89 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9EC5C63D2C1917F000373A89 /* SimpleLineIcons.ttf */; };
 		9EC5C6522C1917F000373A89 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9EC5C63E2C1917F000373A89 /* Zocial.ttf */; };
+		B1A4D07D1B0122CC7F3CA1BB /* libPods-Crewlink-CrewlinkTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B03B7690DC969699FF5099 /* libPods-Crewlink-CrewlinkTests.a */; };
 		C092E69C6B684D7D997D2801 /* Inter-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AE8841015C3C4962A7477CDB /* Inter-ExtraBold.ttf */; };
 		CFFA4BAD12EB4C86A3EF4673 /* Montserrat-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 56D731115D8D42E3B44B7675 /* Montserrat-ExtraBold.ttf */; };
 		DB7DEC49DAB5468DAC47DCCA /* Montserrat-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5C7B1BDEE99F404BAFB1AE6D /* Montserrat-BlackItalic.ttf */; };
@@ -76,10 +76,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		000560347065B9B8CD38D7B1 /* libPods-Crewlink-CrewlinkTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Crewlink-CrewlinkTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356EE1AD99517003FC87E /* CrewlinkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CrewlinkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* CrewlinkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CrewlinkTests.m; sourceTree = "<group>"; };
+		01B90AC37A8C4A665817DBCE /* Pods-Crewlink-CrewlinkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Crewlink-CrewlinkTests.debug.xcconfig"; path = "Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests.debug.xcconfig"; sourceTree = "<group>"; };
+		0E79629A2658098A9E9F2BA7 /* Pods-Crewlink.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Crewlink.debug.xcconfig"; path = "Target Support Files/Pods-Crewlink/Pods-Crewlink.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Crewlink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Crewlink.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Crewlink/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Crewlink/AppDelegate.mm; sourceTree = "<group>"; };
@@ -88,16 +89,18 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Crewlink/main.m; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = Crewlink/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		158DA80224204865B4D8FA63 /* Montserrat-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-LightItalic.ttf"; path = "../assets/fonts/Montserrat-LightItalic.ttf"; sourceTree = "<group>"; };
-		1DBD9BA4696D3A1B7E75EAF3 /* Pods-Crewlink.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Crewlink.debug.xcconfig"; path = "Target Support Files/Pods-Crewlink/Pods-Crewlink.debug.xcconfig"; sourceTree = "<group>"; };
 		253DECB2414749C591FE5464 /* Montserrat-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-SemiBold.ttf"; path = "../assets/fonts/Montserrat-SemiBold.ttf"; sourceTree = "<group>"; };
 		2666E3572F3547CC9B32F353 /* Inter-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Light.ttf"; path = "../assets/fonts/Inter-Light.ttf"; sourceTree = "<group>"; };
 		2F20634364754EE69370D718 /* Inter-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Black.ttf"; path = "../assets/fonts/Inter-Black.ttf"; sourceTree = "<group>"; };
 		31B97D33DEE04BBDB99BE1A1 /* Montserrat-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraBoldItalic.ttf"; path = "../assets/fonts/Montserrat-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
+		32B03B7690DC969699FF5099 /* libPods-Crewlink-CrewlinkTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Crewlink-CrewlinkTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AFE0E8DD8DA4984B9A6511F /* Montserrat-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-BoldItalic.ttf"; path = "../assets/fonts/Montserrat-BoldItalic.ttf"; sourceTree = "<group>"; };
 		56D731115D8D42E3B44B7675 /* Montserrat-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraBold.ttf"; path = "../assets/fonts/Montserrat-ExtraBold.ttf"; sourceTree = "<group>"; };
 		5C7B1BDEE99F404BAFB1AE6D /* Montserrat-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-BlackItalic.ttf"; path = "../assets/fonts/Montserrat-BlackItalic.ttf"; sourceTree = "<group>"; };
 		67037CEF7D6C4496B79EAC0A /* Inter-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Thin.ttf"; path = "../assets/fonts/Inter-Thin.ttf"; sourceTree = "<group>"; };
+		710038929FD8E3DD673EB00A /* Pods-Crewlink.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Crewlink.release.xcconfig"; path = "Target Support Files/Pods-Crewlink/Pods-Crewlink.release.xcconfig"; sourceTree = "<group>"; };
 		71646B3039754E85BA27A99E /* Montserrat-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Medium.ttf"; path = "../assets/fonts/Montserrat-Medium.ttf"; sourceTree = "<group>"; };
+		80BE52F7E29B842789F2D4B9 /* libPods-Crewlink.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Crewlink.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Crewlink/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		83E07507CC38493E8EC932BD /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Regular.ttf"; path = "../assets/fonts/Montserrat-Regular.ttf"; sourceTree = "<group>"; };
 		89B443B0D42F4CD896C38BCE /* Inter-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Medium.ttf"; path = "../assets/fonts/Inter-Medium.ttf"; sourceTree = "<group>"; };
@@ -127,23 +130,20 @@
 		9EC5C63D2C1917F000373A89 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SimpleLineIcons.ttf; sourceTree = "<group>"; };
 		9EC5C63E2C1917F000373A89 /* Zocial.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Zocial.ttf; sourceTree = "<group>"; };
 		9F328ECFA03D445583CCC93F /* Inter-ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-ExtraLight.ttf"; path = "../assets/fonts/Inter-ExtraLight.ttf"; sourceTree = "<group>"; };
-		A095CFFE041349C441DC8816 /* libPods-Crewlink.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Crewlink.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1EC508FC2004586ABC62168 /* Montserrat-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Italic.ttf"; path = "../assets/fonts/Montserrat-Italic.ttf"; sourceTree = "<group>"; };
 		A8442CF181BC12AB041CA815 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Crewlink/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AE8841015C3C4962A7477CDB /* Inter-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-ExtraBold.ttf"; path = "../assets/fonts/Inter-ExtraBold.ttf"; sourceTree = "<group>"; };
+		B3A024FE0F552954CCE357A1 /* Pods-Crewlink-CrewlinkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Crewlink-CrewlinkTests.release.xcconfig"; path = "Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests.release.xcconfig"; sourceTree = "<group>"; };
 		BD5697270132411FAB9419D0 /* Montserrat-ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraLight.ttf"; path = "../assets/fonts/Montserrat-ExtraLight.ttf"; sourceTree = "<group>"; };
 		C096BCD386004258B1420E3F /* Montserrat-ThinItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ThinItalic.ttf"; path = "../assets/fonts/Montserrat-ThinItalic.ttf"; sourceTree = "<group>"; };
 		C86080A39FE64EEAA7F7F40B /* Inter-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Regular.ttf"; path = "../assets/fonts/Inter-Regular.ttf"; sourceTree = "<group>"; };
 		C934D18519D84615B96B4F47 /* Montserrat-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Black.ttf"; path = "../assets/fonts/Montserrat-Black.ttf"; sourceTree = "<group>"; };
 		CA23BB5A2000430D9480E5FA /* Montserrat-SemiBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-SemiBoldItalic.ttf"; path = "../assets/fonts/Montserrat-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
 		D384F50160F148378DE34CEC /* Montserrat-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-MediumItalic.ttf"; path = "../assets/fonts/Montserrat-MediumItalic.ttf"; sourceTree = "<group>"; };
-		D3B44F43597C7056D1A5D26B /* Pods-Crewlink-CrewlinkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Crewlink-CrewlinkTests.debug.xcconfig"; path = "Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D621E39C4D5E44B2BA15177D /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Bold.ttf"; path = "../assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; };
 		E18F69FAFC1F411E8BFC79F4 /* Montserrat-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Thin.ttf"; path = "../assets/fonts/Montserrat-Thin.ttf"; sourceTree = "<group>"; };
 		E5BA5E7CC3314C94A56C7019 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		EFE66B0D9C15D46198B71053 /* Pods-Crewlink.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Crewlink.release.xcconfig"; path = "Target Support Files/Pods-Crewlink/Pods-Crewlink.release.xcconfig"; sourceTree = "<group>"; };
-		F4600A8261BE3AFA9BD33F32 /* Pods-Crewlink-CrewlinkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Crewlink-CrewlinkTests.release.xcconfig"; path = "Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,7 +151,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4DCE1C5CEAAE081C4720D739 /* libPods-Crewlink-CrewlinkTests.a in Frameworks */,
+				B1A4D07D1B0122CC7F3CA1BB /* libPods-Crewlink-CrewlinkTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,7 +159,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3D6D35C03C0A45DB27D307D1 /* libPods-Crewlink.a in Frameworks */,
+				8029CF1E3D9C8B08C5C6119A /* libPods-Crewlink.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -203,8 +203,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				A095CFFE041349C441DC8816 /* libPods-Crewlink.a */,
-				000560347065B9B8CD38D7B1 /* libPods-Crewlink-CrewlinkTests.a */,
+				80BE52F7E29B842789F2D4B9 /* libPods-Crewlink.a */,
+				32B03B7690DC969699FF5099 /* libPods-Crewlink-CrewlinkTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -274,10 +274,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				1DBD9BA4696D3A1B7E75EAF3 /* Pods-Crewlink.debug.xcconfig */,
-				EFE66B0D9C15D46198B71053 /* Pods-Crewlink.release.xcconfig */,
-				D3B44F43597C7056D1A5D26B /* Pods-Crewlink-CrewlinkTests.debug.xcconfig */,
-				F4600A8261BE3AFA9BD33F32 /* Pods-Crewlink-CrewlinkTests.release.xcconfig */,
+				0E79629A2658098A9E9F2BA7 /* Pods-Crewlink.debug.xcconfig */,
+				710038929FD8E3DD673EB00A /* Pods-Crewlink.release.xcconfig */,
+				01B90AC37A8C4A665817DBCE /* Pods-Crewlink-CrewlinkTests.debug.xcconfig */,
+				B3A024FE0F552954CCE357A1 /* Pods-Crewlink-CrewlinkTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -323,12 +323,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "CrewlinkTests" */;
 			buildPhases = (
-				091FBD8B7F35B5A2006D4241 /* [CP] Check Pods Manifest.lock */,
+				C8B05ACBF838FEC5F83F4D15 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				16D53C16D3654BA1B4995882 /* [CP] Embed Pods Frameworks */,
-				F9B49D6A9EEFE7A6D8F56CD2 /* [CP] Copy Pods Resources */,
+				FA670F96263EAC12EB94DCAA /* [CP] Embed Pods Frameworks */,
+				3A9363FC8E12467A9FE986BF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -344,13 +344,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Crewlink" */;
 			buildPhases = (
-				F6C6BB24878FDB9890159E5D /* [CP] Check Pods Manifest.lock */,
+				7CE6CBFE4298790B6A89B933 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				4A0CE4712608EB28A9112E64 /* [CP] Embed Pods Frameworks */,
-				157A9970A6CE0F5C9DA6AF62 /* [CP] Copy Pods Resources */,
+				C2459125291F0DCD94577530 /* [CP] Embed Pods Frameworks */,
+				12BC24626EC5ADCD2125D699 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -469,43 +469,25 @@
 /* Begin PBXShellScriptBuildPhase section */
 		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
+			);
+			inputFileListPaths = (
 			);
 			inputPaths = (
 				"$(SRCROOT)/.xcode.env.local",
 				"$(SRCROOT)/.xcode.env",
 			);
 			name = "Bundle React Native code and images";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
-		};
-		091FBD8B7F35B5A2006D4241 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Crewlink-CrewlinkTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "set -e\n\nexport REACT_NATIVE_PATH=/Users/ghayasali/Documents/GitHub/CrewlinkAppFrontend/node_modules/react-native\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		157A9970A6CE0F5C9DA6AF62 /* [CP] Copy Pods Resources */ = {
+		12BC24626EC5ADCD2125D699 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -522,41 +504,24 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Crewlink/Pods-Crewlink-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		16D53C16D3654BA1B4995882 /* [CP] Embed Pods Frameworks */ = {
+		3A9363FC8E12467A9FE986BF /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "[CP] Embed Pods Frameworks";
+			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4A0CE4712608EB28A9112E64 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Crewlink/Pods-Crewlink-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Crewlink/Pods-Crewlink-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Crewlink/Pods-Crewlink-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F6C6BB24878FDB9890159E5D /* [CP] Check Pods Manifest.lock */ = {
+		7CE6CBFE4298790B6A89B933 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -578,21 +543,60 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F9B49D6A9EEFE7A6D8F56CD2 /* [CP] Copy Pods Resources */ = {
+		C2459125291F0DCD94577530 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Crewlink/Pods-Crewlink-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "[CP] Copy Pods Resources";
+			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Crewlink/Pods-Crewlink-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Crewlink/Pods-Crewlink-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C8B05ACBF838FEC5F83F4D15 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Crewlink-CrewlinkTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FA670F96263EAC12EB94DCAA /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Crewlink-CrewlinkTests/Pods-Crewlink-CrewlinkTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -628,7 +632,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D3B44F43597C7056D1A5D26B /* Pods-Crewlink-CrewlinkTests.debug.xcconfig */;
+			baseConfigurationReference = 01B90AC37A8C4A665817DBCE /* Pods-Crewlink-CrewlinkTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -656,7 +660,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F4600A8261BE3AFA9BD33F32 /* Pods-Crewlink-CrewlinkTests.release.xcconfig */;
+			baseConfigurationReference = B3A024FE0F552954CCE357A1 /* Pods-Crewlink-CrewlinkTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -681,7 +685,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1DBD9BA4696D3A1B7E75EAF3 /* Pods-Crewlink.debug.xcconfig */;
+			baseConfigurationReference = 0E79629A2658098A9E9F2BA7 /* Pods-Crewlink.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -712,7 +716,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EFE66B0D9C15D46198B71053 /* Pods-Crewlink.release.xcconfig */;
+			baseConfigurationReference = 710038929FD8E3DD673EB00A /* Pods-Crewlink.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
