@@ -35,6 +35,7 @@ import Announcement from '../pages/Announcement.jsx';
 import CreateAnnouncement from '../pages/CreateAnnouncement.jsx';
 import AnnouncementDetail from '../pages/AnnouncementDetail.jsx';
 import ChatMediaDetail from '../pages/mediaDetail.jsx';
+import GroupmessageMedia from '../pages/GroupmessageMedia.jsx';
 
 
 
@@ -111,6 +112,9 @@ const HomeStackNavigation = () => {
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="messageMedia" component={MessageMedia} />
+      <Stack.Screen options={{
+        headerShown: false, navigationBarHidden: true,
+      }} name="GroupmessageMedia" component={GroupmessageMedia} />
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="Notification" component={Notification} />

@@ -123,6 +123,7 @@ const NewGroupScreen = ({ getAllConnections, AllConnectionsReducer }) => {
     });
     const navigation = useNavigation();
     const [recentChats, setRecentChats] = useState([])
+    const [searchUser, setSearchUser] = useState("")
     const [loader, setLoader] = useState(false)
 
     const allEventDataLoader = async () => {
@@ -151,7 +152,6 @@ const NewGroupScreen = ({ getAllConnections, AllConnectionsReducer }) => {
     };
 
 
-    console.log(members, 'menu')
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <StatusBar
@@ -171,15 +171,15 @@ const NewGroupScreen = ({ getAllConnections, AllConnectionsReducer }) => {
                     </View>
                     <TouchableOpacity style={styles.logoSide3}>
                         {members.length > 0 ?
-                            <TouchableOpacity onPress={() => navigation.navigate('NewGroupSecondScreen',members)} style={styles.NextBtn}>
+                            <TouchableOpacity onPress={() => navigation.navigate('NewGroupSecondScreen', members)} style={styles.NextBtn}>
                                 <TextC size={ResponsiveSize(11)} text={'Next'} font={'Montserrat-SemiBold'} />
-                            </TouchableOpacity>: ""}
+                            </TouchableOpacity> : ""}
                     </TouchableOpacity>
                 </View>
                 <View style={styles.bodyWrapper}>
                     <View style={styles.SearchInputWrapper}>
                         <AntDesign style={styles.SearchIcon} name='search1' color={global.primaryColor} size={ResponsiveSize(22)} />
-                        <TextInput style={styles.SearchInput} placeholder="Search" />
+                        <TextInput onChangeText={(e) => setSearchUser(e)} style={styles.SearchInput} placeholder="Search" />
                     </View>
                     {loader ?
                         <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
@@ -233,7 +233,7 @@ const NewGroupScreen = ({ getAllConnections, AllConnectionsReducer }) => {
                                 : ""}
 
 
-                            {recentChats !== undefined && recentChats !== "" && recentChats !== null && recentChats.length > 0 ? recentChats?.map(recentChats => {
+                            {recentChats !== undefined && recentChats !== "" && recentChats !== null && recentChats.length > 0 ? recentChats?.filter(item => item?.user_name.toLowerCase().includes(searchUser.toLowerCase())).map(recentChats => {
                                 return (
                                     <TouchableOpacity style={styles.PostHeader} onPress={() => addMembers(recentChats)}>
                                         <View style={{ flexDirection: 'row' }}>

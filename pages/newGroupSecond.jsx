@@ -155,29 +155,36 @@ const NewGroupSecondScreen = ({ route }) => {
             },
             body: formData
         })
-        const response = await uploadImage.json()
-        if (groupName !== "" && response.fileUrl !== "") {
-            const socket = io(`${baseUrl}/chat`, {
-                transports: ['websocket'],
-                extraHeaders: {
-                    'x-api-key': apiKey,
-                    'accesstoken': `Bearer ${Token}`
-                }
-            });
-            socket.on('connect').emit('createGroup', {
-                "participants": userIds,
-                "groupName": groupName,
-                "fileUrl": response?.fileUrl
-            }).on('groupCreated', (data) => {
-                console.log(data)
-                if (data?.group_id) {
-                    setLoading(false);
-                    navigation.navigate('MessageList')
-                }
-            })
+        if (uploadImage.ok == true) {
+            const response = await uploadImage.json()
+            if (groupName !== "" && response.fileUrl !== "") {
+                const socket = io(`${baseUrl}/chat`, {
+                    transports: ['websocket'],
+                    extraHeaders: {
+                        'x-api-key': apiKey,
+                        'accesstoken': `Bearer ${Token}`
+                    }
+                });
+                socket.on('connect').emit('createGroup', {
+                    "participants": userIds,
+                    "groupName": groupName,
+                    "fileUrl": response?.fileUrl
+                }).on('groupCreated', (data) => {
+                    console.log(data)
+                    if (data?.group_id) {
+                        setLoading(false);
+                        navigation.navigate('MessageList')
+                    }
+                })
+            }
+        }
+        else {
+            console.log(uploadImage, 'error Response')
+            alert("Failed to send message")
+            setLoading(false)
+            navigation.goBack()
         }
     }
-
     useEffect(() => {
         return () => {
             closeBottomSheet();

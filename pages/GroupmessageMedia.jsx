@@ -17,7 +17,7 @@ import Video from "react-native-video";
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import { useBottomSheet } from "../components/bottomSheet/BottomSheet";
 
-const MessageMedia = ({ route }) => {
+const GroupmessageMedia = ({ route }) => {
     const [imageRatio, setImageRatio] = useState("")
     const [loading, setLoading] = useState(false)
     const [description, setDescription] = useState("")
@@ -159,6 +159,9 @@ const MessageMedia = ({ route }) => {
         })
         if (uploadImage.ok == true) {
             const response = await uploadImage.json()
+
+            console.log(response)
+
             const socket = io(`${baseUrl}/chat`, {
                 transports: ['websocket'],
                 extraHeaders: {
@@ -166,21 +169,15 @@ const MessageMedia = ({ route }) => {
                     'accesstoken': `Bearer ${Token}`
                 }
             });
-
-            console.log(response.fileUrl,'fileKaURL',{
+            socket.on('connect').emit('createGroupMessage', {
                 "message": description,
-                "receiverUserId": route?.params?.receiverUserId,
+                "group_id": route?.params?.group_id,
                 "media_url": response.fileUrl
-            })
-            socket.on('connect').emit('createDirectMessage', {
-                "message": description,
-                "receiverUserId": route?.params?.receiverUserId,
-                "media_url": response.fileUrl
-            }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
+            }).emit('oldGroupMessages', { group_id: route?.params?.group_id }).on('groupMessages', (data) => {
                 setDescription("")
                 setLoading(false)
-                navigation.navigate('Message', {
-                    receiverUserId: route?.params?.receiverUserId,
+                navigation.navigate('GroupMessage', {
+                    group_id: route?.params?.group_id,
                     profile_picture_url: route?.params?.profile_picture_url,
                     user_name: route?.params?.user_name
                 })
@@ -253,4 +250,4 @@ const MessageMedia = ({ route }) => {
 }
 
 
-export default MessageMedia;
+export default GroupmessageMedia;

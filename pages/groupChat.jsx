@@ -4,6 +4,7 @@ import {
     DarkTheme,
     Dimensions,
     Easing,
+    Image,
     ImageBackground,
     KeyboardAvoidingView,
     Pressable,
@@ -14,7 +15,8 @@ import {
     Text,
     TouchableOpacity,
     useColorScheme,
-    View
+    Vibration,
+    View,
 } from "react-native";
 import { global, ResponsiveSize } from "../components/constant";
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -27,20 +29,25 @@ import { TextInput } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import io from "socket.io-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { baseUrl } from '../store/config.json'
+import { baseUrl, apiKey } from '../store/config.json'
 import { Animated } from "react-native";
-
-import LinearGradient from "react-native-linear-gradient";
-import { PanGestureHandler, State } from "react-native-gesture-handler";
-
+import FastImage from "react-native-fast-image";
+import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
+import ButtonC from "../components/button";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
+import Modal from "react-native-modal";
 
 
 const GroupMessage = ({ route }) => {
     const focus = useIsFocused();
     const scheme = useColorScheme();
     const windowWidth = Dimensions.get('window').width;
+    const windowHeight = Dimensions.get('window').height;
     const navigation = useNavigation();
     const headerHeight = useHeaderHeight();
+    const [imageRatio, setImageRatio] = useState("")
     const styles = StyleSheet.create({
         wrapper: {
             flexDirection: 'row',
@@ -113,35 +120,26 @@ const GroupMessage = ({ route }) => {
             alignItems: 'flex-start',
             justifyContent: 'center',
         },
-        MessageInputWrapper: {
-            width: windowWidth,
-            flexDirection: 'row',
-            alignItems: 'center',
-            position: 'absolute',
-            paddingHorizontal: ResponsiveSize(10),
-            paddingTop: ResponsiveSize(5),
-            paddingBottom: ResponsiveSize(10),
-            bottom: 0,
-            backgroundColor: global.white,
-        },
+
         MessageInput: {
             paddingHorizontal: ResponsiveSize(15),
             height: ResponsiveSize(45),
             fontFamily: "Montserrat-Medium",
             backgroundColor: "#EEEEEE",
-            width: windowWidth - ResponsiveSize(20),
             fontSize: ResponsiveSize(12),
             paddingVertical: ResponsiveSize(15),
             borderRadius: ResponsiveSize(15)
         },
         SentBtn: {
-            position: 'absolute',
             height: ResponsiveSize(40),
             width: ResponsiveSize(40),
             backgroundColor: global.secondaryColor,
-            right: ResponsiveSize(13),
-            top: ResponsiveSize(8),
             borderRadius: ResponsiveSize(15),
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'row'
+        },
+        CameraBtn: {
             justifyContent: 'center',
             alignItems: 'center',
             flexDirection: 'row'
@@ -160,13 +158,20 @@ const GroupMessage = ({ route }) => {
             flex: 1,
         },
         message: {
-            fontSize: ResponsiveSize(11),
+            fontSize: ResponsiveSize(12),
             color: global.black,
             fontFamily: 'Montserrat-Regular',
         },
         TimeAgo: {
             fontSize: ResponsiveSize(8),
             color: global.black,
+            fontFamily: 'Montserrat-Regular',
+            marginTop: ResponsiveSize(3),
+            marginRight: ResponsiveSize(3)
+        },
+        TimeAgoWhite: {
+            fontSize: ResponsiveSize(8),
+            color: global.white,
             fontFamily: 'Montserrat-Regular',
             marginTop: ResponsiveSize(3),
             marginRight: ResponsiveSize(3)
@@ -186,7 +191,6 @@ const GroupMessage = ({ route }) => {
             borderBottomRightRadius: ResponsiveSize(10),
             flexDirection: 'column',
             alignItems: 'flex-start',
-            paddingHorizontal: ResponsiveSize(10),
             paddingVertical: ResponsiveSize(5),
             maxWidth: windowWidth * 0.6
         },
@@ -196,27 +200,252 @@ const GroupMessage = ({ route }) => {
             borderBottomLeftRadius: ResponsiveSize(10),
             borderBottomRightRadius: ResponsiveSize(10),
             flexDirection: 'column',
-            alignItems: 'flex-end',
-            paddingHorizontal: ResponsiveSize(10),
+            alignItems: 'flex-start',
             paddingVertical: ResponsiveSize(5),
             maxWidth: windowWidth * 0.7
         },
-        messageOwner: {
+        ImageMessage: {
+            backgroundColor: global.secondaryColor,
+            borderTopLeftRadius: ResponsiveSize(10),
+            borderBottomLeftRadius: ResponsiveSize(10),
+            borderBottomRightRadius: ResponsiveSize(10),
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: ResponsiveSize(10),
+            paddingVertical: ResponsiveSize(5),
+            width: windowWidth * 0.7
+        },
+        messageText: {
+            fontSize: 16,
+        },
+        leftAction: {
+            justifyContent: 'center',
+            flexDirection: 'row',
+            alignItems: 'center',
+            padding: ResponsiveSize(10),
+        },
+        actionText: {
+            color: 'white',
+            fontWeight: 'bold',
+        },
+        otherMedia: {
+            backgroundColor: global.secondaryColor,
+            borderRadius: ResponsiveSize(10),
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: windowWidth * 0.7,
+            paddingVertical: ResponsiveSize(6),
+            position: 'relative'
+        },
+        otherMedia2: {
+            backgroundColor: global.description,
+            borderRadius: ResponsiveSize(10),
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: windowWidth * 0.7,
+            paddingVertical: ResponsiveSize(6),
+            position: 'relative'
+        },
+        ImageMessage2: {
+            backgroundColor: global.description,
+            borderTopLeftRadius: ResponsiveSize(10),
+            borderBottomLeftRadius: ResponsiveSize(10),
+            borderBottomRightRadius: ResponsiveSize(10),
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: ResponsiveSize(10),
+            paddingVertical: ResponsiveSize(5),
+            width: windowWidth * 0.7
+        },
+        otherMediaThumbnail: {
+            borderRadius: ResponsiveSize(10),
+            width: windowWidth * 0.67,
+            height: windowWidth * 0.67
+        },
+        BottomInfoBar: {
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: ResponsiveSize(10),
+            width: windowWidth * 0.7
+        },
+
+
+
+        MessageInputWrapper: {
+            width: windowWidth,
+            position: 'absolute',
+            paddingHorizontal: ResponsiveSize(10),
+            paddingTop: ResponsiveSize(5),
+            paddingBottom: ResponsiveSize(10),
+            bottom: 0,
+            backgroundColor: global.white,
+            borderTopWidth: 1,
+            borderTopColor: "#EEEEEE"
+        },
+        CameraBtnWrapper: {
+            width: windowWidth * 0.12 - ResponsiveSize(10),
+        },
+        InputWrapper: {
+            width: windowWidth * 0.73 - ResponsiveSize(10),
+        },
+        SentBtnWrapper: {
+            width: windowWidth * 0.15 - ResponsiveSize(10),
+        },
+        ReplyBox: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: ResponsiveSize(5),
+            paddingBottom: ResponsiveSize(10),
+        },
+        ReplyInfo: {
+            flexDirection: 'column',
+        },
+        closeReply: {
+            flexDirection: 'row',
+            alignItems: 'center'
+        },
+        ReplyMsgBoxMine: {
+            maxHeight: ResponsiveSize(60),
+            backgroundColor: '#84c750',
+            borderTopLeftRadius: ResponsiveSize(10),
+            borderBottomLeftRadius: ResponsiveSize(10),
+            borderBottomRightRadius: ResponsiveSize(10),
+            padding: ResponsiveSize(5)
+        },
+        ReplyMsgBoxMine2: {
+            maxHeight: ResponsiveSize(60),
+            backgroundColor: '#EEEEEE',
+            borderBottomLeftRadius: ResponsiveSize(10),
+            borderTopRightRadius: ResponsiveSize(10),
+            borderBottomRightRadius: ResponsiveSize(10),
+            padding: ResponsiveSize(5)
+        },
+        ReplyMsgUserName: {
+            fontSize: ResponsiveSize(11),
+            color: global.primaryColor,
             fontFamily: 'Montserrat-Bold',
-            fontSize: ResponsiveSize(9),
-            marginBottom: ResponsiveSize(5),
-            color: global.black,
+        },
+        LoadMoreAbsolute: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center'
+        },
+        EmptyMessage: {
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
         }
     });
-
     const [newMessage, setNewMessage] = useState("")
     const [recentChats, setRecentChats] = useState([])
     const [user_id, setUserId] = useState()
     const [loader, setLoader] = useState(false)
     const scrollViewRef = useRef();
 
+    const { openBottomSheet, closeBottomSheet } = useBottomSheet();
+    const openPhotoLibrary = async () => {
+        const result = await launchImageLibrary({
+            mediaType: 'mixed'
+        });
+        if (result?.assets.length > 0) {
+            closeBottomSheet();
+            navigation.navigate('GroupmessageMedia', {
+                media_url: result?.assets,
+                group_id: route?.params?.group_id,
+                profile_picture_url: route?.params?.profile_picture_url,
+                user_name: route?.params?.user_name
+            })
+        }
+    };
+
+    const [isMediaDetail, setIsMediaDetail] = useState(false)
+    const MediaDetail = (address, isImage) => {
+        setIsMediaDetail(true)
+        if (isImage) {
+            Image.getSize(
+                address?.media_url,
+                (width, height) => {
+                    const ratio = width / height;
+                    navigation.navigate('MediaDetail', {
+                        uri: address,
+                        ratio: ratio,
+                        profile_picture_url: route?.params?.profile_picture_url,
+                        user_name: route?.params?.user_name,
+                        isImage: isImage
+                    })
+                },
+                (error) => {
+                    console.error(`Couldn't get the image size: ${error}`);
+                }
+            );
+        }
+        else {
+            navigation.navigate('MediaDetail', {
+                uri: address,
+                profile_picture_url: route?.params?.profile_picture_url,
+                user_name: route?.params?.user_name,
+                isImage: isImage
+            })
+        }
+    }
+    const handleOpenSheet = () => {
+        openBottomSheet(
+            <>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        height: '100%',
+                        paddingHorizontal: ResponsiveSize(15),
+                    }}>
+                    <ButtonC
+                        onPress={openMobileCamera}
+                        BtnStyle={{ width: windowWidth * 0.45 }}
+                        TextStyle={{ color: global.white }}
+                        bgColor={global.primaryColor}
+                        style={styles.openCamera}
+                        title={'Open camera'}></ButtonC>
+                    <ButtonC
+                        onPress={openPhotoLibrary}
+                        BtnStyle={{ width: windowWidth * 0.45 }}
+                        TextStyle={{ color: global.white }}
+                        bgColor={global.primaryColor}
+                        style={styles.openLibrary}
+                        title={'Open library'}></ButtonC>
+                </View>
+            </>,
+            ['15%'],
+        );
+    };
+
+
+    const openMobileCamera = async () => {
+        const result = await launchCamera();
+        if (result?.assets.length > 0) {
+            closeBottomSheet();
+            navigation.navigate('GroupmessageMedia', {
+                media_url: result?.assets,
+                group_id: route?.params?.group_id,
+                profile_picture_url: route?.params?.profile_picture_url,
+                user_name: route?.params?.user_name
+            })
+        }
+    };
+
     const loadRecentChats = async () => {
-        const Token = await AsyncStorage.getItem('Token'); U_id
+        setLoader(true)
+        const Token = await AsyncStorage.getItem('Token');
         const U_id = await AsyncStorage.getItem('U_id');
         setUserId(U_id)
         const socket = io(`${baseUrl}/chat`, {
@@ -226,22 +455,30 @@ const GroupMessage = ({ route }) => {
                 'accesstoken': `Bearer ${Token}`
             }
         });
-        socket.on('connect').emit('oldGroupMessages', { group_id: route?.params?.group_id }).on('groupMessages', (data) => {
-            if (data?.message.length > 0) {
+        socket.on('connect').emit('oldGroupMessages', {
+            "group_id": route?.params?.group_id,
+        }).on('groupMessages', (data) => {
+            if (data?.message.length >= 25) {
                 setLoader(false)
                 setRecentChats(data?.message);
+                scrollViewRef.current.scrollToEnd({ animated: true })
             }
-            setLoader(false)
+            else {
+                setHasMoreContent(false)
+                setLoader(false)
+                setRecentChats(data?.message);
+                scrollViewRef.current.scrollToEnd({ animated: true })
+            }
         })
     }
 
     useEffect(() => {
-        setLoader(true)
         loadRecentChats()
         navigation.getParent()?.setOptions({
             tabBarStyle: { display: 'none' },
         });
         return () => {
+            closeBottomSheet();
             navigation.getParent()?.setOptions({
                 tabBarStyle: {
                     display: 'flex',
@@ -253,15 +490,47 @@ const GroupMessage = ({ route }) => {
         }
     }, []);
 
-    const sendMessage = async () => {
-        if (newMessage !== "") {
+    const [queue, setQueue] = useState([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const addToQueue = (message) => {
+        setQueue(prevQueue => [...prevQueue, message]);
+        setNewMessage('')
+        scrollViewRef.current.scrollToEnd({ animated: true })
+    };
+
+
+    const processQueue = useCallback(async () => {
+        if (queue.length === 0 || isProcessing) return;
+        setIsProcessing(true);
+        const messagecache = queue[0];
+        try {
+            await sendMessage(messagecache);
+        } catch (error) {
+            console.error('Failed to send message:', error);
+        } finally {
+            setQueue(prevQueue => prevQueue.slice(1));
+            setIsProcessing(false);
+        }
+    }, [queue, isProcessing]);
+
+    useEffect(() => {
+        if (queue.length > 0 && !isProcessing) {
+            processQueue();
+        }
+    }, [queue, isProcessing, processQueue]);
+
+
+    const sendMessage = async (message_Props) => {
+        if (message_Props !== "") {
             setRecentChats(prev => [
                 ...prev,
                 {
                     created_at: Date.now(),
-                    message: newMessage,
+                    message: message_Props,
                     isSend: false,
-                    senderUserId: user_id
+                    senderUserId: user_id,
+                    isReplyingWait: ReplyMessage == undefined ? false : true
                 },
             ]);
             const Token = await AsyncStorage.getItem('Token');
@@ -273,18 +542,42 @@ const GroupMessage = ({ route }) => {
                 }
             });
             socket.on('connect').emit('createGroupMessage', {
-                "message": newMessage,
+                "message": message_Props,
                 "group_id": route?.params?.group_id,
+                "repliedMessageId": ReplyMessage?.message_id
             }).emit('oldGroupMessages', { group_id: route?.params?.group_id }).on('groupMessages', (data) => {
-                if (data?.message.length > 0) {
-                    setNewMessage("")
-                    setRecentChats(data);
-                }
-                setLoader(false)
+                CancelReply()
+                setRecentChats(data?.message);
             })
         }
     }
-    let lastElement = recentChats[recentChats.length - 1]
+    const [ReplyMessage, setReplyMessage] = useState()
+    const GetReply = (Address) => {
+        fadeIn()
+        setReplyMessage(Address)
+        Vibration.vibrate(100)
+    }
+    const CancelReply = () => {
+        fadeOut()
+        setReplyMessage()
+    }
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const fadeIn = () => {
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+        }).start();
+    };
+    const fadeOut = () => {
+        Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+        }).start();
+    };
+
+
     const renderItem = useCallback((items) => {
         const isVideo = items?.item?.media_url?.split('.mp')
         const date = new Date(items.item.created_at);
@@ -391,22 +684,6 @@ const GroupMessage = ({ route }) => {
                                             }
 
                                         </View>
-                                        {lastElement?.message_id == items?.item?.message_id && items?.item?.read_status == "Y" ?
-                                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingTop: ResponsiveSize(5) }}>
-                                                <TextC text={"seen by"} font={'Montserrat-Medium'} size={ResponsiveSize(9)} style={{ color: global.black }} />
-                                                <FastImage
-                                                    source={{ uri: route?.params?.profile_picture_url, priority: FastImage.priority.high }}
-                                                    style={{
-                                                        height: ResponsiveSize(15),
-                                                        width: ResponsiveSize(15),
-                                                        borderRadius: ResponsiveSize(15),
-                                                        marginLeft: ResponsiveSize(3)
-                                                    }}
-                                                    resizeMode="cover"
-                                                />
-                                            </View>
-                                            : ""
-                                        }
                                     </Pressable>
                                 </>
                                 :
@@ -487,68 +764,62 @@ const GroupMessage = ({ route }) => {
                                             </View>
                                         </View>
                                     </View>
-                                    {lastElement?.message_id == items?.item?.message_id && items?.item?.read_status == "Y" ?
-                                        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingTop: ResponsiveSize(5) }}>
-                                            <TextC text={"seen by"} font={'Montserrat-Medium'} size={ResponsiveSize(9)} style={{ color: global.black }} />
-                                            <FastImage
-                                                source={{ uri: route?.params?.profile_picture_url, priority: FastImage.priority.high }}
-                                                style={{
-                                                    height: ResponsiveSize(15),
-                                                    width: ResponsiveSize(15),
-                                                    borderRadius: ResponsiveSize(15),
-                                                    marginLeft: ResponsiveSize(3)
-                                                }}
-                                                resizeMode="cover"
-                                            />
-                                        </View>
-                                        : ""
-                                    }
                                 </View>
                             }
                         </Pressable>
                         :
                         <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer1}>
                             {items?.item?.is_media == "Y" ?
-                                <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)} style={styles.otherMedia2}>
-                                    <FastImage
+                                <>
+                                    <ImageBackground
                                         source={
-                                            items?.item?.media_url == ''
+                                            items.item?.userDetails?.profile_picture_url == ''
                                                 ? require('../assets/icons/avatar.png')
-                                                : { uri: items?.item?.media_url, priority: FastImage.priority.high }
+                                                : { uri: items.item?.userDetails?.profile_picture_url }
                                         }
-                                        style={styles.otherMediaThumbnail}
-                                        resizeMode="cover"
-                                    />
-                                    {items?.item?.message !== "" ?
-                                        <View style={styles.ImageMessage2}>
-                                            <Text style={styles.message}>{items.item.message}</Text>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                        style={styles.PostProfileImage2}
+                                        resizeMode="cover" />
+                                    <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)} style={styles.otherMedia2}>
+                                        <FastImage
+                                            source={
+                                                items?.item?.media_url == ''
+                                                    ? require('../assets/icons/avatar.png')
+                                                    : { uri: items?.item?.media_url, priority: FastImage.priority.high }
+                                            }
+                                            style={styles.otherMediaThumbnail}
+                                            resizeMode="cover"
+                                        />
+                                        {items?.item?.message !== "" ?
+                                            <View style={styles.ImageMessage2}>
+                                                <Text style={styles.message}>{items.item.message}</Text>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                    <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                    {items?.item?.isSend == false ?
+                                                        <AntDesign name="clockcircleo" />
+                                                        :
+                                                        < AntDesign name="check" />
+                                                    }
+                                                </View>
+                                            </View>
+                                            :
+                                            <View style={styles.BottomInfoBar}>
+                                                <Text style={styles.TimeAgoWhite}>{formattedTime}</Text>
                                                 {items?.item?.isSend == false ?
-                                                    <AntDesign name="clockcircleo" />
+                                                    <AntDesign name="clockcircleo" color={global.white} />
                                                     :
-                                                    < AntDesign name="check" />
+                                                    <AntDesign name="check" color={global.white} />
                                                 }
                                             </View>
-                                        </View>
-                                        :
-                                        <View style={styles.BottomInfoBar}>
-                                            <Text style={styles.TimeAgoWhite}>{formattedTime}</Text>
-                                            {items?.item?.isSend == false ?
-                                                <AntDesign name="clockcircleo" color={global.white} />
-                                                :
-                                                <AntDesign name="check" color={global.white} />
-                                            }
-                                        </View>
-                                    }
-                                </Pressable>
+                                        }
+                                    </Pressable>
+                                </>
                                 :
                                 <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                     <ImageBackground
                                         source={
-                                            route?.params?.profile_picture_url == ''
+                                            items.item?.userDetails?.profile_picture_url == ''
                                                 ? require('../assets/icons/avatar.png')
-                                                : { uri: route?.params?.profile_picture_url }
+                                                : { uri: items.item?.userDetails?.profile_picture_url }
                                         }
                                         style={styles.PostProfileImage2}
                                         resizeMode="cover" />
@@ -607,6 +878,47 @@ const GroupMessage = ({ route }) => {
             </>
         );
     }, [recentChats]);
+
+    const [page, setPage] = useState(2)
+    const [loadMoreLoader, setLoadMoreLoader] = useState(false)
+    const [hasMoreContent, setHasMoreContent] = useState(true);
+
+
+
+    const GetChatHistory = async () => {
+        setLoadMoreLoader(true)
+        const Token = await AsyncStorage.getItem('Token');
+        try {
+            const response = await fetch(`${baseUrl}/messages/get-old-messages/${page}/25`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'accesstoken': `Bearer ${Token}`
+                },
+                body: JSON.stringify({
+                    receiverUserId: route?.params?.receiverUserId,
+                })
+            });
+            const dataRe = await response.json();
+            if (dataRe?.message.length >= 25) {
+                setRecentChats((prevMessages) => [...dataRe?.message, ...prevMessages])
+                setPage(page + 1)
+                setLoadMoreLoader(false)
+            }
+            else {
+                setHasMoreContent(false)
+                setRecentChats((prevMessages) => [...dataRe?.message, ...prevMessages])
+                setPage(page + 1)
+                setLoadMoreLoader(false)
+            }
+        } catch (error) {
+            Alert.alert('Error', error.message);
+            setLoadMoreLoader(false)
+        }
+    }
+
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -614,11 +926,9 @@ const GroupMessage = ({ route }) => {
             keyboardVerticalOffset={
                 Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0
             }>
-            <SafeAreaView style={{ flex: 1 }}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
                 <StatusBar
-                    backgroundColor={
-                        scheme === 'dark' ? DarkTheme.colors.background : 'white'
-                    }
+                    backgroundColor={global.white}
                     barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
                 />
                 <View style={styles.wrapper}>
@@ -639,29 +949,102 @@ const GroupMessage = ({ route }) => {
                 </View>
                 <ScrollView
                     ref={scrollViewRef}
-                    onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
-                    contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white, position: 'relative', paddingTop: ResponsiveSize(10), paddingBottom: ResponsiveSize(65) }}>
+                    contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white, position: 'relative', paddingTop: ResponsiveSize(10), paddingBottom: ResponsiveSize(ReplyMessage?.message_id ? 100 : 65) }}
+                >
+                    {hasMoreContent &&
+                        <>
+                            {!loader &&
+                                <>
+                                    {loadMoreLoader ?
+                                        <View style={styles.LoadMoreAbsolute}>
+                                            <ActivityIndicator color={global.black} size={'small'} />
+                                        </View>
+                                        :
+                                        <View style={styles.LoadMoreAbsolute}>
+                                            <TouchableOpacity onPress={GetChatHistory} style={{ backgroundColor: global.secondaryColor, paddingHorizontal: ResponsiveSize(10), paddingVertical: ResponsiveSize(5), borderRadius: ResponsiveSize(20) }}>
+                                                <TextC text={'Load More'} size={ResponsiveSize(11)} font={"Montserrat-Regular"} style={{ color: global.white }} />
+                                            </TouchableOpacity>
+                                        </View>
+                                    }
+                                </>
+                            }
+                        </>
+                    }
                     {loader ?
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
                             <ActivityIndicator size={'large'} color={global.primaryColor} />
                         </View>
                         :
-                        <FlashList
-                            estimatedItemSize={25}
-                            showsVerticalScrollIndicator={false}
-                            data={recentChats}
-                            keyExtractor={(items, index) => index?.toString()}
-                            renderItem={renderItem}
-                        />
+
+                        <>
+                            {recentChats?.length > 0 ?
+                                <FlashList
+                                    estimatedItemSize={25}
+                                    showsVerticalScrollIndicator={false}
+                                    data={recentChats}
+                                    keyExtractor={(items, index) => index?.toString()}
+                                    renderItem={renderItem}
+                                    scrollEventThrottle={16}
+                                />
+                                :
+                                <View style={styles.EmptyMessage}>
+                                    <TextC text={'No messages yet.'} size={ResponsiveSize(14)} font={"Montserrat-Regular"} style={{ color: global.description }} />
+                                </View>
+                            }
+                        </>
                     }
+
                 </ScrollView>
                 <View style={styles.MessageInputWrapper}>
-                    <TextInput placeholder="Message..." style={styles.MessageInput} value={newMessage} onPress={() =>
-                        scrollViewRef.current.scrollToEnd({ animated: true })
-                    } onChangeText={(e) => setNewMessage(e)} />
-                    <TouchableOpacity onPress={sendMessage} style={styles.SentBtn}>
-                        <Feather name="send" color={global.white} size={ResponsiveSize(16)} />
-                    </TouchableOpacity>
+                    {ReplyMessage?.message_id &&
+                        <Animated.View style={{ ...styles.ReplyBox, opacity: fadeAnim }}>
+                            <View style={styles.ReplyInfo}>
+                                {ReplyMessage?.senderUserId == user_id ?
+                                    <TextC text={`Replying to yourself`} font={"Montserrat-Medium"} size={ResponsiveSize(10)} style={{ color: global.description, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
+                                    :
+                                    <TextC text={`Replying to ${route?.params?.user_name}`} font={"Montserrat-Medium"} size={ResponsiveSize(10)} style={{ color: global.description, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
+                                }
+                                {ReplyMessage?.media_url ?
+                                    <TextC text={"Photo"} font={"Montserrat-Medium"} size={ResponsiveSize(11)} style={{ color: global.black, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
+                                    :
+                                    <TextC text={ReplyMessage?.message} font={"Montserrat-Medium"} size={ResponsiveSize(11)} style={{ color: global.black, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
+                                }
+                            </View>
+                            <View style={styles.closeReply}>
+                                {ReplyMessage?.media_url &&
+                                    <FastImage
+                                        source={{ uri: ReplyMessage?.media_url, priority: FastImage.priority.high }}
+                                        style={{
+                                            height: ResponsiveSize(25),
+                                            width: ResponsiveSize(25),
+                                            borderRadius: ResponsiveSize(5),
+                                        }}
+                                        resizeMode="cover"
+                                    />
+                                }
+                                <TouchableOpacity onPress={CancelReply} style={{ paddingLeft: ResponsiveSize(10), paddingVertical: ResponsiveSize(5) }}>
+                                    <AntDesign name="close" color={global.black} size={ResponsiveSize(18)} />
+                                </TouchableOpacity>
+                            </View>
+                        </Animated.View>
+                    }
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <View style={styles.CameraBtnWrapper}>
+                            <TouchableOpacity onPress={handleOpenSheet} style={styles.CameraBtn}>
+                                <Feather name="plus" color={global.black} size={ResponsiveSize(20)} />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.InputWrapper}>
+                            <TextInput placeholder="Message..." style={styles.MessageInput} value={newMessage} onPress={() =>
+                                scrollViewRef.current.scrollToEnd({ animated: true })
+                            } onChangeText={(e) => setNewMessage(e)} />
+                        </View>
+                        <View style={styles.SentBtnWrapper}>
+                            <TouchableOpacity onPress={() => addToQueue(newMessage)} style={styles.SentBtn}>
+                                <Feather name="send" color={global.white} size={ResponsiveSize(16)} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                 </View>
             </SafeAreaView>
         </KeyboardAvoidingView>

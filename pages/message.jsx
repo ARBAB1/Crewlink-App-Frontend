@@ -338,6 +338,12 @@ const Message = ({ route }) => {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center'
+        },
+        EmptyMessage: {
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
         }
     });
     const [newMessage, setNewMessage] = useState("")
@@ -452,12 +458,17 @@ const Message = ({ route }) => {
         socket.on('connect').emit('oldMessages', {
             "receiverUserId": route?.params?.receiverUserId,
         }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
-            if (data?.message.length > 0) {
+            if (data?.message.length >= 25) {
                 setLoader(false)
                 setRecentChats(data?.message);
                 scrollViewRef.current.scrollToEnd({ animated: true })
             }
-            setLoader(false)
+            else {
+                setHasMoreContent(false)
+                setLoader(false)
+                setRecentChats(data?.message);
+                scrollViewRef.current.scrollToEnd({ animated: true })
+            }
         }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId })
     }
 
@@ -672,7 +683,6 @@ const Message = ({ route }) => {
                                                     }
                                                 </>
                                             }
-
                                         </View>
                                         {lastElement?.message_id == items?.item?.message_id && items?.item?.read_status == "Y" ?
                                             <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingTop: ResponsiveSize(5) }}>
@@ -792,39 +802,95 @@ const Message = ({ route }) => {
                         :
                         <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer1}>
                             {items?.item?.is_media == "Y" ?
-                                <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)} style={styles.otherMedia2}>
-                                    <FastImage
+                                <>
+                                    <ImageBackground
                                         source={
-                                            items?.item?.media_url == ''
+                                            route?.params?.profile_picture_url == ''
                                                 ? require('../assets/icons/avatar.png')
-                                                : { uri: items?.item?.media_url, priority: FastImage.priority.high }
+                                                : { uri: route?.params?.profile_picture_url }
                                         }
-                                        style={styles.otherMediaThumbnail}
-                                        resizeMode="cover"
-                                    />
-                                    {items?.item?.message !== "" ?
-                                        <View style={styles.ImageMessage2}>
-                                            <Text style={styles.message}>{items.item.message}</Text>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Text style={styles.TimeAgo}>{formattedTime}</Text>
-                                                {items?.item?.isSend == false ?
-                                                    <AntDesign name="clockcircleo" />
+                                        style={styles.PostProfileImage2}
+                                        resizeMode="cover" />
+                                    <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)} style={styles.otherMedia2}>
+                                        {isVideo[1] == '4' ?
+                                            <>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                    <TextC text={'Video'} font={'Montserrat-Medium'} size={ResponsiveSize(12)} style={{ color: global.black }} />
+                                                    <Feather name="video" color={global.black} size={ResponsiveSize(14)} style={{ marginLeft: ResponsiveSize(5) }} />
+                                                </View>
+                                                {items?.item?.message !== "" ?
+                                                    <View style={styles.ImageMessage}>
+                                                        <Text style={styles.messageUser}>{items.item.message}</Text>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                            {items?.item?.isSend == false ?
+                                                                <AntDesign name="clockcircleo" />
+                                                                :
+                                                                <>
+                                                                    {items?.item?.read_status == "N" ?
+                                                                        < AntDesign name="check" />
+                                                                        :
+                                                                        ""
+                                                                    }
+                                                                </>
+                                                            }
+                                                        </View>
+                                                    </View>
                                                     :
-                                                    < AntDesign name="check" />
+                                                    <View style={styles.BottomInfoBar}>
+                                                        <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                        {items?.item?.isSend == false ?
+                                                            <AntDesign name="clockcircleo" color={global.white} />
+                                                            :
+                                                            <>
+                                                                {items?.item?.read_status == "N" ?
+                                                                    <AntDesign name="check" />
+                                                                    :
+                                                                    ""
+                                                                }
+                                                            </>
+                                                        }
+                                                    </View>
                                                 }
-                                            </View>
-                                        </View>
-                                        :
-                                        <View style={styles.BottomInfoBar}>
-                                            <Text style={styles.TimeAgoWhite}>{formattedTime}</Text>
-                                            {items?.item?.isSend == false ?
-                                                <AntDesign name="clockcircleo" color={global.white} />
-                                                :
-                                                <AntDesign name="check" color={global.white} />
-                                            }
-                                        </View>
-                                    }
-                                </Pressable>
+                                            </>
+                                            :
+                                            <>
+
+                                                <FastImage
+                                                    source={
+                                                        items?.item?.media_url == ''
+                                                            ? require('../assets/icons/avatar.png')
+                                                            : { uri: items?.item?.media_url, priority: FastImage.priority.high }
+                                                    }
+                                                    style={styles.otherMediaThumbnail}
+                                                    resizeMode="cover"
+                                                />
+                                                {items?.item?.message !== "" ?
+                                                    <View style={styles.ImageMessage2}>
+                                                        <Text style={styles.message}>{items.item.message}</Text>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <Text style={styles.TimeAgo}>{formattedTime}</Text>
+                                                            {items?.item?.isSend == false ?
+                                                                <AntDesign name="clockcircleo" />
+                                                                :
+                                                                < AntDesign name="check" />
+                                                            }
+                                                        </View>
+                                                    </View>
+                                                    :
+                                                    <View style={styles.BottomInfoBar}>
+                                                        <Text style={styles.TimeAgoWhite}>{formattedTime}</Text>
+                                                        {items?.item?.isSend == false ?
+                                                            <AntDesign name="clockcircleo" color={global.white} />
+                                                            :
+                                                            <AntDesign name="check" color={global.white} />
+                                                        }
+                                                    </View>
+                                                }
+                                            </>
+                                        }
+                                    </Pressable>
+                                </>
                                 :
                                 <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                     <ImageBackground
@@ -987,14 +1053,23 @@ const Message = ({ route }) => {
                             <ActivityIndicator size={'large'} color={global.primaryColor} />
                         </View>
                         :
-                        <FlashList
-                            estimatedItemSize={25}
-                            showsVerticalScrollIndicator={false}
-                            data={recentChats}
-                            keyExtractor={(items, index) => index?.toString()}
-                            renderItem={renderItem}
-                            scrollEventThrottle={16}
-                        />
+
+                        <>
+                            {recentChats?.length > 0 ?
+                                <FlashList
+                                    estimatedItemSize={25}
+                                    showsVerticalScrollIndicator={false}
+                                    data={recentChats}
+                                    keyExtractor={(items, index) => index?.toString()}
+                                    renderItem={renderItem}
+                                    scrollEventThrottle={16}
+                                />
+                                :
+                                <View style={styles.EmptyMessage}>
+                                    <TextC text={'No messages yet.'} size={ResponsiveSize(14)} font={"Montserrat-Regular"} style={{ color: global.description }} />
+                                </View>
+                            }
+                        </>
                     }
 
                 </ScrollView>

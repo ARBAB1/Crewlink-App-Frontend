@@ -114,7 +114,7 @@ const MessageList = () => {
     const navigation = useNavigation();
     const [recentChats, setRecentChats] = useState([])
     const [filterText, setFilterText] = useState("")
-    
+
     const [loader, setLoader] = useState(false)
 
     const loadRecentChats = async () => {
@@ -134,16 +134,14 @@ const MessageList = () => {
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         loadRecentChats()
-    },[focus])
+    }, [focus])
 
     useEffect(() => {
         setLoader(true)
         loadRecentChats()
     }, []);
-
-    console.log(recentChats)
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -179,6 +177,7 @@ const MessageList = () => {
                         :
                         <View>
                             {recentChats !== undefined && recentChats !== "" && recentChats !== null && recentChats.length > 0 ? recentChats.map(recentChats => {
+                                console.log(recentChats?.group, 'hollla')
                                 return (
                                     recentChats.type == 'direct' ?
                                         <TouchableOpacity onPress={() => navigation.navigate('Message', {
@@ -203,7 +202,7 @@ const MessageList = () => {
                                                     />
                                                     {recentChats?.isLastMessageMedia ?
                                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                            <Ionicons name="image-outline" size={ResponsiveSize(12)} style={{marginRight:ResponsiveSize(2)}}/>
+                                                            <Ionicons name="image-outline" size={ResponsiveSize(12)} style={{ marginRight: ResponsiveSize(2) }} />
                                                             <TextC
                                                                 size={ResponsiveSize(10)}
                                                                 text={"Media"}
@@ -263,12 +262,24 @@ const MessageList = () => {
                                                         text={recentChats?.group?.group_name}
                                                         font={'Montserrat-Bold'}
                                                     />
-                                                    <TextC
-                                                        size={ResponsiveSize(10)}
-                                                        text={recentChats?.group?.lastMessage}
-                                                        font={'Montserrat-Medium'}
-                                                        style={{ color: global.placeholderColor, width: ResponsiveSize(140) }} ellipsizeMode={"tail"} numberOfLines={1}
-                                                    />
+                                                   {recentChats?.group?.isLastMessageMedia ?
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <Ionicons name="image-outline" size={ResponsiveSize(12)} style={{ marginRight: ResponsiveSize(2) }} />
+                                                            <TextC
+                                                                size={ResponsiveSize(10)}
+                                                                text={"Media"}
+                                                                font={'Montserrat-Medium'}
+                                                                style={{ color: global.placeholderColor, width: ResponsiveSize(140) }} ellipsizeMode={"tail"} numberOfLines={1}
+                                                            />
+                                                        </View>
+                                                        :
+                                                        <TextC
+                                                            size={ResponsiveSize(10)}
+                                                            text={recentChats?.group?.lastMessage}
+                                                            font={'Montserrat-Medium'}
+                                                            style={{ color: global.placeholderColor, width: ResponsiveSize(140) }} ellipsizeMode={"tail"} numberOfLines={1}
+                                                        />
+                                                    }
                                                 </View>
                                             </View>
                                             <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -276,7 +287,7 @@ const MessageList = () => {
                                                     style={{ fontFamily: "Montserrat-Medium", fontSize: ResponsiveSize(8) }}
                                                     time={recentChats?.group?.created_at}
                                                 />
-                                                {recentChats?.unreadMessagesCount > 0 &&
+                                                {recentChats?.group?.unreadMessagesCount > 0 &&
                                                     <View style={{
                                                         backgroundColor: global.secondaryColor,
                                                         height: ResponsiveSize(15),
@@ -296,7 +307,7 @@ const MessageList = () => {
                             }
                             ) :
                                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
-                                    <TextC text={'No chats found'} font={'Montserrat-Medium'} size={ResponsiveSize(11)} style={{color:global.black}}/>
+                                    <TextC text={'No chats found'} font={'Montserrat-Medium'} size={ResponsiveSize(11)} style={{ color: global.black }} />
                                 </View>
                             }
                         </View>
