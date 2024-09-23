@@ -52,13 +52,26 @@ const Notification = () => {
             justifyContent: 'flex-end',
             width: '33.33%',
         },
-        NotificationWrapper:{
-            padding:ResponsiveSize(15),
+        NotificationWrapper: {
+            padding: ResponsiveSize(15),
         },
-        NotificationBox:{
-            backgroundColor:'#EEEEEE',
-            padding:ResponsiveSize(20),
-            borderRadius:ResponsiveSize(10)
+        NotificationBox: {
+            backgroundColor: '#EEEEEE',
+            padding: ResponsiveSize(10),
+            borderRadius: ResponsiveSize(10),
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginTop: ResponsiveSize(10),
+            width: windowWidth - ResponsiveSize(30)
+        },
+        NotificationDp: {
+            height: ResponsiveSize(30),
+            width: ResponsiveSize(30),
+            backgroundColor: global.black,
+            borderRadius: ResponsiveSize(30),
+            overflow: 'hidden',
+            justifyContent: 'center',
+            alignItems: 'center',
         }
     });
     const navigation = useNavigation();
@@ -79,9 +92,42 @@ const Notification = () => {
                     </TouchableOpacity>
                 </View>
             </View>
-            <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white,borderTopColor:'#EEEEEE',borderTopWidth:ResponsiveSize(1) }}>
+            <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white, borderTopColor: '#EEEEEE', borderTopWidth: ResponsiveSize(1) }}>
                 <View style={styles.NotificationWrapper}>
-                    <View style={styles.NotificationBox}></View>
+                    <View style={styles.NotificationBox}>
+                        <ImageBackground
+                            source={require('../assets/icons/avatar.png')}
+                            style={styles.NotificationDp}
+                            resizeMode="cover" />
+                        <View style={{ paddingLeft: ResponsiveSize(8), flexDirection: 'row', alignItems: 'flex-end' }}>
+                            <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={"Neo6.1"} />
+                            <TextC size={ResponsiveSize(11)} font={'Montserrat-Regular'} text={"liked your post"} style={{ marginLeft: ResponsiveSize(3) }} />
+                        </View>
+                    </View>
+
+
+                    <View style={styles.NotificationBox}>
+                        <ImageBackground
+                            source={require('../assets/icons/avatar.png')}
+                            style={styles.NotificationDp}
+                            resizeMode="cover" />
+                        <View style={{ paddingLeft: ResponsiveSize(8), flexDirection: 'row', alignItems: 'flex-end' }}>
+                            <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={"Neo6.1"} />
+                            <TextC size={ResponsiveSize(11)} font={'Montserrat-Regular'} text={"comment on you post"} style={{ marginLeft: ResponsiveSize(3) }} />
+                        </View>
+                    </View>
+
+
+                    <View style={styles.NotificationBox}>
+                        <ImageBackground
+                            source={require('../assets/icons/avatar.png')}
+                            style={styles.NotificationDp}
+                            resizeMode="cover" />
+                        <View style={{ paddingLeft: ResponsiveSize(8), flexDirection: 'row', alignItems: 'flex-end' }}>
+                            <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={"Neo6.1"} />
+                            <TextC size={ResponsiveSize(11)} font={'Montserrat-Regular'} text={"sent you a connection request"} style={{ marginLeft: ResponsiveSize(3) }} />
+                        </View>
+                    </View>
                 </View>
             </ScrollView>
         </SafeAreaView>

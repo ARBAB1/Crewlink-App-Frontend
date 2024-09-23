@@ -11,6 +11,18 @@ const width = Dimensions.get('window').width;
 
 const MainHeader = ({ GetUserProfileReducer, loading }) => {
     const navigation = useNavigation()
+    const styles = StyleSheet.create({
+        NotifyPin:{
+            height:ResponsiveSize(8),
+            width:ResponsiveSize(8),
+            borderRadius:ResponsiveSize(8),
+            backgroundColor: global.red,
+            position: 'absolute',
+            top: ResponsiveSize(2),
+            right: ResponsiveSize(2),
+            zIndex:999
+        }
+    })
     return (
         <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", height: 60, width: width, backgroundColor: "white", paddingHorizontal: ResponsiveSize(15) }}>
             <Image source={require('../../assets/icons/Logo.png')} style={{ objectFit: 'contain', width: 130, height: 22 }} />
@@ -31,10 +43,11 @@ const MainHeader = ({ GetUserProfileReducer, loading }) => {
                 </View>
 
                 <TouchableOpacity style={{ paddingVertical: 4, paddingLeft: 10, paddingRight: 5 }} onPress={() => navigation.navigate('Notification')}>
-                    <Ionicons name='notifications-outline' size={ResponsiveSize(21)} color={global.primaryColor}/>
+                    <Ionicons name='notifications-outline' size={ResponsiveSize(24)} color={global.primaryColor} />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{ padding: 4 }} onPress={() => navigation.navigate('MessageList')}>
+                <TouchableOpacity style={{ padding: 4, position: 'relative' }} onPress={() => navigation.navigate('MessageList')}>
+                    <View style={styles.NotifyPin}></View>
                     <Image source={require('../../assets/icons/HeaderIcon2.png')} style={{ objectFit: 'contain', width: ResponsiveSize(21), height: ResponsiveSize(21) }} />
                 </TouchableOpacity>
                 {/* 

@@ -16,7 +16,6 @@ import { baseUrl } from './store/config.json'
 
 const App = () => {
   LogBox.ignoreAllLogs();
-  console.log(baseUrl, 'baseUrl')
   return (
     <>
       <GestureHandlerRootView style={{ flex: 1 }}>
