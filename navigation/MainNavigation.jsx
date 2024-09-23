@@ -6,9 +6,9 @@ import {
   Touchable,
   ActivityIndicator,
 } from 'react-native';
-import React, {useEffect} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HomeScreen from '../pages/HomeScreen';
 import EventScreen from '../pages/EventScreen';
@@ -23,13 +23,13 @@ import ResetPassword from '../pages/ResetPassword';
 import PasswordChanged from '../pages/PasswordChanged';
 import Login from '../pages/Login';
 import SplashScreen from '../pages/SplashScreen';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import MainHeader from '../components/mainHeader';
 import CreatePostHeader from '../components/mainHeader/createPostHeader';
 import EventHeader from '../components/mainHeader/event';
-import {DefaultTheme, DarkTheme} from '@react-navigation/native';
-import {useColorScheme} from 'react-native';
+import { DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { useColorScheme } from 'react-native';
 import {
   ProfileStackNavigation,
   EventStackNavigation,
@@ -38,23 +38,23 @@ import {
   GroupStackNavigation,
 } from './StackNavigation';
 import LoginSwitcher from '../pages/LoginSwitcher';
-import {ResponsiveSize, global} from '../components/constant';
+import { ResponsiveSize, global } from '../components/constant';
 import SignUpSecondStep from '../pages/SignUpSecondStep';
 import ReApplyDocument from '../pages/ReApplyDocument';
 import Approval from '../pages/Approval';
 import * as UserProfile from '../store/actions/UserProfile/index';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import FastImage from 'react-native-fast-image';
 import notifee, { AuthorizationStatus } from '@notifee/react-native';
 import messaging from '@react-native-firebase/messaging';
-const MainNavigation = ({GetUserProfileReducer}) => {
+const MainNavigation = ({ GetUserProfileReducer }) => {
   const [isLoggedIn, setIsLoggedIn] = React.useState(true);
   const Stack = createNativeStackNavigator();
   const Tab = createBottomTabNavigator();
   const scheme = useColorScheme();
   useEffect(() => {
     VerifyToken();
-requestUserPermission();
+    requestUserPermission();
   }, []);
 
   async function requestUserPermission() {
@@ -62,11 +62,13 @@ requestUserPermission();
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-  
+
     if (enabled) {
       console.log('Authorization status:', authStatus);
     }
   }
+
+
   const VerifyToken = async () => {
     try {
       const value = await AsyncStorage.getItem('Token');
@@ -94,11 +96,13 @@ requestUserPermission();
       justifyContent: 'center',
     },
   });
+
+  
   return (
     <NavigationContainer>
       {isLoggedIn ? (
         <Tab.Navigator
-          screenOptions={({route}) => ({
+          screenOptions={({ route }) => ({
             tabBarStyle: {
               backgroundColor: '#69BE25',
               borderTopLeftRadius: ResponsiveSize(20),
@@ -111,8 +115,8 @@ requestUserPermission();
             component={HomeStackNavigation}
             options={{
               navigationBarColor: '#69BE25',
-              tabBarIcon: ({color, size, focused}) => (
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              tabBarIcon: ({ color, size, focused }) => (
+                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
                   <Image
                     source={
                       !focused
@@ -128,7 +132,7 @@ requestUserPermission();
                 </View>
               ),
               tabBarShowLabel: false,
-              headerShown:false,
+              headerShown: false,
             }}
           />
 
@@ -136,8 +140,8 @@ requestUserPermission();
             name="Event"
             component={EventStackNavigation}
             options={{
-              tabBarIcon: ({color, size, focused}) => (
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              tabBarIcon: ({ color, size, focused }) => (
+                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
                   <Image
                     source={
                       !focused
@@ -161,7 +165,7 @@ requestUserPermission();
             name="CreatePost"
             component={PostStackNavigation}
             options={{
-              tabBarIcon: ({color, size, focused}) => (
+              tabBarIcon: ({ color, size, focused }) => (
                 <View style={styles.centerTab}>
                   <Image
                     source={require('../assets/icons/homeTab/centerTab.png')}
@@ -173,13 +177,13 @@ requestUserPermission();
                   />
                 </View>
               ),
-              tabBarStyle: {display: 'none'},
+              tabBarStyle: { display: 'none' },
               headerShown: false,
               tabBarShowLabel: false,
               headerStyle: {
                 ...(scheme === 'dark'
-                  ? {backgroundColor: DarkTheme.colors.background}
-                  : {backgroundColor: 'white'}),
+                  ? { backgroundColor: DarkTheme.colors.background }
+                  : { backgroundColor: 'white' }),
               },
             }}
           />
@@ -187,7 +191,7 @@ requestUserPermission();
             name="Reel"
             component={GroupStackNavigation}
             options={{
-              tabBarIcon: ({color, size, focused}) => (
+              tabBarIcon: ({ color, size, focused }) => (
                 <Image
                   source={
                     !focused
@@ -205,8 +209,8 @@ requestUserPermission();
               headerShown: false,
               headerStyle: {
                 ...(scheme === 'dark'
-                  ? {backgroundColor: DarkTheme.colors.background}
-                  : {backgroundColor: 'white'}),
+                  ? { backgroundColor: DarkTheme.colors.background }
+                  : { backgroundColor: 'white' }),
               },
             }}
           />
@@ -229,7 +233,7 @@ requestUserPermission();
               />
             )}
             options={{
-              tabBarIcon: ({color, size, focused}) => (
+              tabBarIcon: ({ color, size, focused }) => (
                 <>
                   {GetUserProfileReducer?.loading ? (
                     <ActivityIndicator
@@ -242,9 +246,9 @@ requestUserPermission();
                         GetUserProfileReducer?.data?.profile_picture_url === ''
                           ? require('../assets/icons/avatar.png')
                           : {
-                              uri: GetUserProfileReducer?.data?.profile_picture_url,
-                              priority: FastImage.priority.high,
-                            }
+                            uri: GetUserProfileReducer?.data?.profile_picture_url,
+                            priority: FastImage.priority.high,
+                          }
                       }
                       style={{
                         width: ResponsiveSize(30),
@@ -261,8 +265,8 @@ requestUserPermission();
               tabBarShowLabel: false,
               headerStyle: {
                 ...(scheme === 'dark'
-                  ? {backgroundColor: DarkTheme.colors.background}
-                  : {backgroundColor: 'white'}),
+                  ? { backgroundColor: DarkTheme.colors.background }
+                  : { backgroundColor: 'white' }),
               },
             }}
           />
@@ -273,63 +277,63 @@ requestUserPermission();
             headerShown: false,
           }}>
           <Stack.Screen
-            options={{navigationBarHidden: true}}
+            options={{ navigationBarHidden: true }}
             name="SplashScreen"
             component={SplashScreen}
           />
           <Stack.Screen
-            options={{navigationBarHidden: true}}
+            options={{ navigationBarHidden: true }}
             name="LoginSwitcher"
             component={LoginSwitcher}
           />
 
-          <Stack.Screen options={{navigationBarHidden: true}} name="Login">
+          <Stack.Screen options={{ navigationBarHidden: true }} name="Login">
             {props => <Login {...props} onLogin={() => setIsLoggedIn(true)} />}
           </Stack.Screen>
-          <Stack.Screen options={{navigationBarHidden: true}} name="CheckIn">
+          <Stack.Screen options={{ navigationBarHidden: true }} name="CheckIn">
             {props => (
               <CheckIn {...props} onLogin={() => setIsLoggedIn(true)} />
             )}
           </Stack.Screen>
           <Stack.Screen
-            options={{navigationBarHidden: true}}
+            options={{ navigationBarHidden: true }}
             name="CheckInDetail">
             {props => (
               <CheckInDetail {...props} onLogin={() => setIsLoggedIn(true)} />
             )}
           </Stack.Screen>
           <Stack.Screen
-            options={{navigationBarHidden: true}}
+            options={{ navigationBarHidden: true }}
             name="SignUp"
             component={SignUp}
           />
           <Stack.Screen
-            options={{navigationBarHidden: true}}
+            options={{ navigationBarHidden: true }}
             name="SignUpSecond"
             component={SignUpSecondStep}
           />
           <Stack.Screen
-            options={{navigationBarHidden: true}}
+            options={{ navigationBarHidden: true }}
             name="Reapply"
             component={ReApplyDocument}
           />
           <Stack.Screen
-            options={{navigationBarHidden: true}}
+            options={{ navigationBarHidden: true }}
             name="Approval"
             component={Approval}
           />
           <Stack.Screen
-            options={{navigationBarHidden: true}}
+            options={{ navigationBarHidden: true }}
             name="Otp"
             component={Otp}
           />
           <Stack.Screen
-            options={{navigationBarHidden: true}}
+            options={{ navigationBarHidden: true }}
             name="ResetPassword"
             component={ResetPassword}
           />
           <Stack.Screen
-            options={{navigationBarHidden: true}}
+            options={{ navigationBarHidden: true }}
             name="PasswordChanged"
             component={PasswordChanged}
           />
@@ -339,8 +343,8 @@ requestUserPermission();
   );
 };
 
-function mapStateToProps({GetUserProfileReducer}) {
-  return {GetUserProfileReducer};
+function mapStateToProps({ GetUserProfileReducer }) {
+  return { GetUserProfileReducer };
 }
 export default connect(mapStateToProps, UserProfile)(MainNavigation);
 const styles = StyleSheet.create({});

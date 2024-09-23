@@ -115,7 +115,6 @@ const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
   });
   const onSubmit = async data => {
     let token = await messaging().getToken();
-    console.log(token,"token","token")
     const LoginStart = await loginUser({
       email: data.email,
       password: data.password,
