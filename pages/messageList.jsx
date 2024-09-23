@@ -147,7 +147,7 @@ const MessageList = () => {
         <SafeAreaView style={{ flex: 1 }}>
             <StatusBar
                 backgroundColor={
-                    scheme === 'dark' ? DarkTheme.colors.background : 'white'
+                    scheme === 'dark' ? "#000" : 'white'
                 }
                 barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
             />

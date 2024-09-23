@@ -73,7 +73,7 @@ const NewMessage = ({ getAllConnections, AllConnectionsReducer }) => {
             borderColor: global.description,
             borderWidth: ResponsiveSize(1),
             position: "relative",
-            paddingLeft: ResponsiveSize(35)
+            paddingLeft: ResponsiveSize(40)
         },
         SearchIcon: {
             position: 'absolute',
@@ -136,15 +136,15 @@ const NewMessage = ({ getAllConnections, AllConnectionsReducer }) => {
                         <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
                     </Pressable>
                     <View style={styles.logoSide2}>
-                        <TextC size={ResponsiveSize(16)} font={'Montserrat-Bold'} text={"Connections"} />
+                        <TextC size={ResponsiveSize(14)} font={'Montserrat-Bold'} text={"Connections"} />
                     </View>
                     <TouchableOpacity style={styles.logoSide3}>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.bodyWrapper}>
                     <View style={styles.SearchInputWrapper}>
-                        <AntDesign style={styles.SearchIcon} name='search1' color={global.primaryColor} size={ResponsiveSize(22)} />
-                        <TextInput style={styles.SearchInput} placeholder="Search" />
+                        <AntDesign style={styles.SearchIcon} name='search1' color={global.primaryColor} size={ResponsiveSize(18)} />
+                        <TextInput style={styles.SearchInput} placeholder="Search Your Connections" />
                     </View>
                     {loader ?
                         <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>

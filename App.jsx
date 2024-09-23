@@ -10,11 +10,13 @@ import store from './store/index';
 import { Provider } from 'react-redux';
 import { ToastProvider } from './components/Toast/ToastContext';
 import useSWR, { SWRConfig } from 'swr'
+import { baseUrl } from './store/config.json'
 
 
 
 const App = () => {
   LogBox.ignoreAllLogs();
+  console.log(baseUrl, 'baseUrl')
   return (
     <>
       <GestureHandlerRootView style={{ flex: 1 }}>

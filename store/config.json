@@ -1,5 +1,5 @@
 {
-    "baseUrl": "https://crewlink.development.logomish.com",
+    "baseUrl": "https://crewlink.prod.logomish.com",
     "baseUrl3": "https://fz3rqbgd-3000.euw.devtunnels.ms",
     "baseUrl2": "http://192.168.200.163:3000",
     "CountryBaseUrl": "https://countriesnow.space",

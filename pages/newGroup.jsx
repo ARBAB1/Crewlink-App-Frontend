@@ -73,7 +73,8 @@ const NewGroupScreen = ({ getAllConnections, AllConnectionsReducer }) => {
             borderColor: global.description,
             borderWidth: ResponsiveSize(1),
             position: "relative",
-            paddingLeft: ResponsiveSize(35)
+            paddingLeft: ResponsiveSize(35),
+            height:ResponsiveSize(40)
         },
         SearchIcon: {
             position: 'absolute',
@@ -178,9 +179,10 @@ const NewGroupScreen = ({ getAllConnections, AllConnectionsReducer }) => {
                 </View>
                 <View style={styles.bodyWrapper}>
                     <View style={styles.SearchInputWrapper}>
-                        <AntDesign style={styles.SearchIcon} name='search1' color={global.primaryColor} size={ResponsiveSize(22)} />
-                        <TextInput onChangeText={(e) => setSearchUser(e)} style={styles.SearchInput} placeholder="Search" />
+                        <AntDesign style={styles.SearchIcon} name='search1' color={global.primaryColor} size={ResponsiveSize(18)} />
+                        <TextInput onChangeText={(e) => setSearchUser(e)} style={styles.SearchInput} placeholder="Search Your Connection" />
                     </View>
+                  
                     {loader ?
                         <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
                             <ActivityIndicator size={'large'} color={global.primaryColor} />
