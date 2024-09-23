@@ -1,3 +1,4 @@
+
 def node_require(script)
      # Resolve script with node to allow for hoisting
      require Pod::Executable.execute_command('node', ['-p',
@@ -13,10 +14,16 @@ node_require('react-native/scripts/react_native_pods.rb')
 require_relative '../node_modules/react-native-permissions/scripts/setup'
 pod 'SDWebImage', :modular_headers => true
 pod 'SDWebImageWebPCoder', :modular_headers => true
-
+pod 'Firebase', :modular_headers => true
+  pod 'FirebaseCoreInternal', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'FirebaseCore', :modular_headers => true
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
-
+use_frameworks! :linkage => :static
+  
+# Global flag for using static frameworks in React Native Firebase
+$RNFirebaseAsStaticFramework = true
 
 setup_permissions([
   # 'AppTrackingTransparency',
