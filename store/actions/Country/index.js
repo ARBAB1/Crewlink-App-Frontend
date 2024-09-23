@@ -72,7 +72,7 @@ export const CheckInInApp = (body) => async (dispatch) => {
             body: JSON.stringify(body)
         });
         const res = await response.json()
-        console.log(res,'checkINnnn')
+        console.log(res,'checkINnnn',body)
         dispatch({
             type: TASK_CHECKIN_END,
             loading: false,

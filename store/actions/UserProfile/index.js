@@ -157,3 +157,19 @@ export const LoadUserProfile = (body) => async (dispatch) => {
         console.log(error)
     }
 }
+
+export const getAllCountries = (body) => async (dispatch) => {
+    try {
+        const response = await fetch(`${baseUrl.CountryBaseUrl}/api/v0.1/countries/iso`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        const res = await response.json()
+        return res?.data
+    }
+    catch (error) {
+        console.log(error)
+    }
+}

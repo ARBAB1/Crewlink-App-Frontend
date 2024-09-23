@@ -128,7 +128,7 @@ const Setting = ({ onLogin }) => {
                             <TextC text={"Change Airline"} font={'Montserrat-Medium'} />
                             <AntDesign name='right' size={ResponsiveSize(15)} color={global.primaryColor} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.ListWrapper}>
+                        <TouchableOpacity style={styles.ListWrapper} onPress={() => navigation.navigate('PrivacySetting')}>
                             <TextC text={"Privacy"} font={'Montserrat-Medium'} />
                             <AntDesign name='right' size={ResponsiveSize(15)} color={global.primaryColor} />
                         </TouchableOpacity>

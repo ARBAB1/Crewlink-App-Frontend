@@ -36,6 +36,7 @@ import CreateAnnouncement from '../pages/CreateAnnouncement.jsx';
 import AnnouncementDetail from '../pages/AnnouncementDetail.jsx';
 import ChatMediaDetail from '../pages/mediaDetail.jsx';
 import GroupmessageMedia from '../pages/GroupmessageMedia.jsx';
+import PrivacySetting from '../pages/PrivacySetting.jsx';
 
 
 
@@ -77,6 +78,9 @@ const ProfileStackNavigation = ({ onLogin }) => {
         name="DeleteAccount"
         component={(props) => <DeleteAccount {...props} onLogin={onLogin} />}
       />
+
+      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="PrivacySetting" component={PrivacySetting} />
+
     </Stack.Navigator>
   )
 }
@@ -96,7 +100,6 @@ const HomeStackNavigation = () => {
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="MediaDetail" component={ChatMediaDetail} />
-
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="NewMessage" component={NewMessage} />

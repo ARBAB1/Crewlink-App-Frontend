@@ -15,32 +15,36 @@ import {
   useColorScheme,
   TextInput,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
-import {DefaultTheme, DarkTheme, useNavigation} from '@react-navigation/native';
-import {ResponsiveSize, global} from '../components/constant';
+import React, { useEffect, useRef, useState } from 'react';
+import { DefaultTheme, DarkTheme, useNavigation } from '@react-navigation/native';
+import { ResponsiveSize, global } from '../components/constant';
 import TextC from '../components/text/text';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import * as yup from 'yup';
-import {useForm, Controller} from 'react-hook-form';
-import {yupResolver} from '@hookform/resolvers/yup';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import * as UserProfile from '../store/actions/UserProfile/index';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import PhoneInput from 'react-native-phone-number-input';
 import DatePicker from 'react-native-date-picker';
 import ModalSelector from 'react-native-modal-selector';
-import {useToast} from '../components/Toast/ToastContext';
-import {useBottomSheet} from '../components/bottomSheet/BottomSheet';
+import { useToast } from '../components/Toast/ToastContext';
+import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
 import ButtonC from '../components/button';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {check, PERMISSIONS, RESULTS, request} from 'react-native-permissions';
-import {useHeaderHeight} from '@react-navigation/elements';
-import {KeyboardAvoidingView, Platform} from 'react-native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { check, PERMISSIONS, RESULTS, request } from 'react-native-permissions';
+import { useHeaderHeight } from '@react-navigation/elements';
+import { KeyboardAvoidingView, Platform } from 'react-native';
+import Modal from 'react-native-modal';
+import FastImage from 'react-native-fast-image';
+
 
 const EditProfile = ({
   GetUserProfileReducer,
   UpdateProfileData,
   GetProfileData,
   UpdateProfile,
+  getAllCountries
 }) => {
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -54,8 +58,8 @@ const EditProfile = ({
   const headerHeight = useHeaderHeight();
 
   const data = [
-    {key: 1, label: 'Male'},
-    {key: 2, label: 'Female'},
+    { key: 1, label: 'Male' },
+    { key: 2, label: 'Female' },
   ];
 
   useEffect(() => {
@@ -74,6 +78,8 @@ const EditProfile = ({
     };
   }, []);
 
+
+  console.log(GetUserProfileReducer?.data)
   const schema = yup.object().shape({
     name: yup.string().required('Name is required'),
     phone: yup.string(),
@@ -85,7 +91,7 @@ const EditProfile = ({
   const {
     control,
     handleSubmit,
-    formState: {errors},
+    formState: { errors },
     reset,
     getValues,
   } = useForm({
@@ -195,9 +201,94 @@ const EditProfile = ({
       fontSize: ResponsiveSize(12),
       minHeight: windowHeight * 0.07,
       paddingTop: ResponsiveSize(15),
+      textAlignVertical: 'top'
+    },
+    modalTopLayer: {
+      paddingBottom: ResponsiveSize(20),
+      paddingTop: ResponsiveSize(10),
+      width: windowWidth * 0.9,
+      position: 'absolute',
+      backgroundColor: 'white',
+      top: windowHeight * 0.3,
+      borderRadius: ResponsiveSize(10),
+      overflow: 'hidden',
+      zIndex: 999,
+      paddingHorizontal: ResponsiveSize(10),
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    IndicatorDot: {
+      position: 'absolute',
+      height: ResponsiveSize(10),
+      width: ResponsiveSize(10),
+      borderRadius: ResponsiveSize(10),
+      backgroundColor: global.secondaryColor,
+      top: ResponsiveSize(-4),
+      right: ResponsiveSize(8)
+    },
+    AirlineLayer: {
+      height: windowHeight * 0.5,
+      paddingBottom: ResponsiveSize(20),
+      paddingTop: ResponsiveSize(10),
+      width: windowWidth * 0.9,
+      position: 'absolute',
+      backgroundColor: 'white',
+      top: windowHeight * 0.3,
+      borderRadius: ResponsiveSize(10),
+      overflow: 'hidden',
+      zIndex: 999,
+      paddingHorizontal: ResponsiveSize(10),
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    AirlineBoundries: {
+      height: windowHeight * 0.4,
+      width: '100%',
+      overflow: 'hidden',
+      paddingBottom: ResponsiveSize(5)
+    },
+    ModalSearchBar: {
+      backgroundColor: "#EEEEEE",
+      width: '100%',
+      fontFamily: 'Montserrat-Medium',
+      paddingHorizontal: ResponsiveSize(10),
+      paddingVertical: ResponsiveSize(5),
+      borderRadius: ResponsiveSize(10),
+      marginBottom: ResponsiveSize(10)
+    },
+    CountryModalLayers: {
+      maxHeight: windowHeight * 0.7,
+      paddingBottom: ResponsiveSize(20),
+      paddingTop: ResponsiveSize(10),
+      width: windowWidth * 0.9,
+      position: 'absolute',
+      backgroundColor: 'white',
+      top: windowHeight * 0.2,
+      borderRadius: ResponsiveSize(10),
+      overflow: 'hidden',
+      zIndex: 999,
+      paddingHorizontal: ResponsiveSize(10),
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    SelectOptions: {
+      backgroundColor: '#EEEEEE',
+      width: "100%",
+      paddingHorizontal: ResponsiveSize(10),
+      padding: ResponsiveSize(5),
+      borderRadius: ResponsiveSize(10),
+      marginTop: ResponsiveSize(5),
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: ResponsiveSize(10)
     },
   });
-  const {showToast} = useToast();
+  const { showToast } = useToast();
+  const [country, setCountry] = useState([])
 
   const onSubmit = async data => {
     setLoading(true);
@@ -217,6 +308,7 @@ const EditProfile = ({
       date_of_birth: data.dob,
       bio: data.description,
       country_code: dialCode,
+      home_base: country.length > 0 ? country[0] : ""
     });
     if (LoadUpdate?.message == 'User profile updated successfully') {
       showToast({
@@ -240,7 +332,7 @@ const EditProfile = ({
     setLoading(false);
   };
 
-  const {openBottomSheet, closeBottomSheet} = useBottomSheet();
+  const { openBottomSheet, closeBottomSheet } = useBottomSheet();
 
   const handleOpenSheet = () => {
     openBottomSheet(
@@ -250,20 +342,20 @@ const EditProfile = ({
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            height:'100%',
+            height: '100%',
             paddingHorizontal: ResponsiveSize(15),
           }}>
           <ButtonC
             onPress={openMobileCamera}
-            BtnStyle={{width: windowWidth * 0.45}}
-            TextStyle={{color: global.white}}
+            BtnStyle={{ width: windowWidth * 0.45 }}
+            TextStyle={{ color: global.white }}
             bgColor={global.primaryColor}
             style={styles.openCamera}
             title={'Open camera'}></ButtonC>
           <ButtonC
             onPress={openPhotoLibrary}
-            BtnStyle={{width: windowWidth * 0.45}}
-            TextStyle={{color: global.white}}
+            BtnStyle={{ width: windowWidth * 0.45 }}
+            TextStyle={{ color: global.white }}
             bgColor={global.primaryColor}
             style={styles.openLibrary}
             title={'Open library'}></ButtonC>
@@ -299,14 +391,37 @@ const EditProfile = ({
       closeBottomSheet();
     }
   };
+  const [isCountryVisible, setCountryVisible] = useState(false);
+  const [allCountriesData, setAllCountriesData] = useState();
+  const [SearchCountry, setSearchCountry] = useState("");
+
+
+  const AddCountry = async (e) => {
+    setCountry([e]);
+  }
+  const LoadCountry = async () => {
+    const loadAllCountriesDetail = await getAllCountries();
+    setAllCountriesData(loadAllCountriesDetail);
+  };
+
+
+  useEffect(() => {
+    LoadCountry();
+  }, [])
+
+  const ClearCountry = () => {
+    setCountry("")
+  }
+
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{flexGrow: 1}}
+      style={{ flexGrow: 1 }}
       keyboardVerticalOffset={
         Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0
       }>
-      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
         <StatusBar
           backgroundColor={'white'}
           barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
@@ -315,8 +430,8 @@ const EditProfile = ({
           style={{
             flexGrow: 1,
             ...(scheme === 'dark'
-              ? {backgroundColor: DarkTheme.colors.background}
-              : {backgroundColor: 'white'}),
+              ? { backgroundColor: DarkTheme.colors.background }
+              : { backgroundColor: 'white' }),
           }}>
           <View style={styles.wrapper}>
             <Pressable
@@ -358,23 +473,26 @@ const EditProfile = ({
           <View style={styles.bodyWrapper}>
             <View style={styles.updateImage}>
               {documentImage !== '' ? (
-                <Image style={styles.ProfileImage} src={documentImage} />
+                <FastImage style={styles.ProfileImage} src={documentImage} />
               ) : (
-                <Image
+                <FastImage
                   style={styles.ProfileImage}
                   source={
                     GetUserProfileReducer?.data?.profile_picture_url == ''
                       ? require('../assets/icons/avatar.png')
-                      : {uri: GetUserProfileReducer?.data?.profile_picture_url}
+                      : {
+                        uri: GetUserProfileReducer?.data?.profile_picture_url,
+                        priority: FastImage.priority.high,
+                      }
                   }
                 />
               )}
               <TouchableOpacity
                 onPress={requestCameraPermission}
-                style={{paddingTop: ResponsiveSize(10)}}>
+                style={{ paddingTop: ResponsiveSize(10) }}>
                 <TextC
                   size={ResponsiveSize(11)}
-                  style={{color: global.secondaryColor}}
+                  style={{ color: global.secondaryColor }}
                   text={'Update Profile Picture'}
                   font={'Montserrat-Bold'}
                 />
@@ -384,18 +502,18 @@ const EditProfile = ({
           <View style={styles.bodyInitial}>
             <View style={styles.TextFeidContainer}>
               <View style={styles.TextFeidContainerLeft}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <TextC
                     size={ResponsiveSize(12)}
                     text={'Name'}
-                    font={'Montserrat-Medium'}
+                    font={'Montserrat-Bold'}
                   />
                   {errors?.name?.message !== undefined && (
                     <TextC
                       size={ResponsiveSize(12)}
                       text={'*'}
                       font={'Montserrat-Medium'}
-                      style={{color: global.red, marginLeft: ResponsiveSize(5)}}
+                      style={{ color: global.red, marginLeft: ResponsiveSize(5) }}
                     />
                   )}
                 </View>
@@ -405,7 +523,7 @@ const EditProfile = ({
                 rules={{
                   required: true,
                 }}
-                render={({field: {onChange, value}}) => (
+                render={({ field: { onChange, value } }) => (
                   <TextInput
                     placeholder="Name"
                     onChangeText={onChange}
@@ -421,7 +539,7 @@ const EditProfile = ({
                 <TextC
                   size={ResponsiveSize(12)}
                   text={'Phone'}
-                  font={'Montserrat-Medium'}
+                  font={'Montserrat-Bold'}
                 />
               </View>
               <Controller
@@ -429,7 +547,7 @@ const EditProfile = ({
                 rules={{
                   required: false,
                 }}
-                render={({field: {onChange, value}}) => {
+                render={({ field: { onChange, value } }) => {
                   return (
                     <PhoneInput
                       containerStyle={{
@@ -447,7 +565,7 @@ const EditProfile = ({
                         backgroundColor: 'white',
                         paddingHorizontal: 0,
                       }}
-                      codeTextStyle={{display: 'none'}}
+                      codeTextStyle={{ display: 'none' }}
                       textInputStyle={{
                         height: windowHeight * 0.07,
                         fontFamily: 'Montserrat-Medium',
@@ -478,7 +596,7 @@ const EditProfile = ({
                 <TextC
                   size={ResponsiveSize(12)}
                   text={'Gender'}
-                  font={'Montserrat-Medium'}
+                  font={'Montserrat-Bold'}
                 />
               </View>
               <Controller
@@ -486,7 +604,7 @@ const EditProfile = ({
                 rules={{
                   required: false,
                 }}
-                render={({field: {onChange, value}}) => (
+                render={({ field: { onChange, value } }) => (
                   <ModalSelector
                     selectStyle={styles.TextFeidContainerRight}
                     data={data}
@@ -496,7 +614,7 @@ const EditProfile = ({
                     onChange={option => {
                       onChange(option?.label);
                     }}
-                    selectTextStyle={{color: global.placeholderColor}}
+                    selectTextStyle={{ color: global.placeholderColor }}
                   />
                 )}
                 name="gender"
@@ -507,7 +625,7 @@ const EditProfile = ({
                 <TextC
                   size={ResponsiveSize(12)}
                   text={'Date of birth'}
-                  font={'Montserrat-Medium'}
+                  font={'Montserrat-Bold'}
                 />
               </View>
               <Controller
@@ -515,7 +633,7 @@ const EditProfile = ({
                 rules={{
                   required: false,
                 }}
-                render={({field: {onChange, value}}) => {
+                render={({ field: { onChange, value } }) => {
                   const DateInitial = new Date(value).toDateString();
                   const timeDivide = DateInitial?.split(' ');
                   const DateValue = `${timeDivide[1]} ${timeDivide[2]} ${timeDivide[3]}`;
@@ -529,7 +647,7 @@ const EditProfile = ({
                         style={styles.TextFeidContainerRight}>
                         <TextC
                           size={ResponsiveSize(12)}
-                          style={{color: global.placeholderColor}}
+                          style={{ color: global.placeholderColor }}
                           text={DateValue}
                           font={'Montserrat-Medium'}
                         />
@@ -553,12 +671,42 @@ const EditProfile = ({
                 name="dob"
               />
             </View>
+
+            <View style={styles.TextFeidContainer}>
+              <View style={styles.TextFeidContainerLeft}>
+                <TextC
+                  size={ResponsiveSize(12)}
+                  text={'Country'}
+                  font={'Montserrat-Bold'}
+                />
+              </View>
+              <TouchableOpacity
+                onPress={() => setCountryVisible(true)}
+                style={styles.TextFeidContainerRight}>
+                {country.length > 0 && country ?
+                  <TextC
+                    size={ResponsiveSize(12)}
+                    style={{ color: global.placeholderColor }}
+                    text={country[0]}
+                    font={'Montserrat-Medium'}
+                  />
+                  :
+                  <TextC
+                    size={ResponsiveSize(12)}
+                    style={{ color: global.description }}
+                    text={"Select Country"}
+                    font={'Montserrat-Medium'}
+                  />
+                }
+
+              </TouchableOpacity>
+            </View>
             <View style={styles.TextFeidContainer1}>
               <View style={styles.TextFeidContainerLeft}>
                 <TextC
                   size={ResponsiveSize(12)}
                   text={'Description'}
-                  font={'Montserrat-Medium'}
+                  font={'Montserrat-Bold'}
                 />
               </View>
               <Controller
@@ -566,7 +714,7 @@ const EditProfile = ({
                 rules={{
                   required: false,
                 }}
-                render={({field: {onChange, value}}) => (
+                render={({ field: { onChange, value } }) => (
                   <TextInput
                     placeholder="Description"
                     onChangeText={onChange}
@@ -574,6 +722,7 @@ const EditProfile = ({
                     style={styles.TextFeidContainerRight1}
                     multiline={true}
                     numberOfLines={5}
+                    placeholderTextColor={global.description}
                   />
                 )}
                 name="description"
@@ -582,11 +731,52 @@ const EditProfile = ({
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      {/* Country */}
+      <Modal
+        isVisible={isCountryVisible}
+        style={{ margin: 0, paddingHorizontal: windowWidth * 0.05 }}
+        animationIn={'bounceInUp'}
+        avoidKeyboard={true}
+        onBackdropPress={() => {
+          setSearchCountry("")
+          setCountryVisible(false)
+        }}
+        statusBarTranslucent={false}>
+        <View style={styles.CountryModalLayers}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: ResponsiveSize(10), width: '100%' }}>
+            <TextC text={"Country"} font={"Montserrat-Bold"} size={ResponsiveSize(15)} />
+            <TouchableOpacity onPress={() => ClearCountry()} style={{ padding: ResponsiveSize(5) }}>
+              <TextC text={"Clear"} font={"Montserrat-Bold"} style={{ color: global.red }} size={ResponsiveSize(11)} />
+            </TouchableOpacity>
+          </View>
+
+          <TextInput value={SearchCountry} onChangeText={(e) => setSearchCountry(e)} placeholder='Search Country' style={styles.ModalSearchBar} />
+          <ScrollView style={styles.AirlineBoundries} showsVerticalScrollIndicator={false}>
+            {allCountriesData?.filter(item => item?.name.toLowerCase().includes(SearchCountry.toLowerCase())).map(AirLine =>
+              <TouchableOpacity onPress={() => AddCountry(AirLine?.name)} style={styles.SelectOptions}>
+                <TextC
+                  key={AirLine?.name}
+                  size={ResponsiveSize(12)}
+                  font={'Montserrat-Regular'}
+                  text={AirLine?.name}
+                  style={{ color: global.black }}
+                />
+
+                {country == AirLine?.name && (
+                  <AntDesign name='checkcircleo' color='green' size={ResponsiveSize(16)} />
+                )}
+              </TouchableOpacity>
+            )}
+          </ScrollView>
+        </View>
+      </Modal>
+      {/* Country */}
     </KeyboardAvoidingView>
   );
 };
 
-function mapStateToProps({GetUserProfileReducer}) {
-  return {GetUserProfileReducer};
+function mapStateToProps({ GetUserProfileReducer }) {
+  return { GetUserProfileReducer };
 }
 export default connect(mapStateToProps, UserProfile)(EditProfile);

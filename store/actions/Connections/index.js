@@ -32,7 +32,6 @@ export const getAllConnections = ({ page }) => async (dispatch, getState) => {
                 'accesstoken': `Bearer ${Token}`
             },
         });
-
         if (response.ok === true) {
             const res = await response.json()
             console.log(res,'"Response');
