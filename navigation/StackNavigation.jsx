@@ -37,6 +37,7 @@ import AnnouncementDetail from '../pages/AnnouncementDetail.jsx';
 import ChatMediaDetail from '../pages/mediaDetail.jsx';
 import GroupmessageMedia from '../pages/GroupmessageMedia.jsx';
 import PrivacySetting from '../pages/PrivacySetting.jsx';
+import CreateStatus from '../pages/CreateStatus.jsx';
 
 
 
@@ -93,6 +94,7 @@ const HomeStackNavigation = () => {
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="PostDetail" component={PostDetail} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="InAppCheckIn" component={InAppCheckIn} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="MessageList" component={MessageList} />
+      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Status" component={CreateStatus} />
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="Message" component={Message} />

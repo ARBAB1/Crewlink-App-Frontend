@@ -6,7 +6,7 @@ import { useColorScheme } from 'react-native';
 import TextC from "../text/text";
 
 
-const CityScroll = () => {
+const StatusEditList = () => {
     const navigation = useNavigation();
     const scheme = useColorScheme();
     const width = Dimensions.get('window').width;
@@ -96,5 +96,5 @@ const CityScroll = () => {
     )
 }
 
-export default CityScroll;
+export default StatusEditList;
 

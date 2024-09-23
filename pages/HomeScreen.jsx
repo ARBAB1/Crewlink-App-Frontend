@@ -11,6 +11,7 @@ import {
   View,
   Animated,
   KeyboardAvoidingView,
+  TouchableOpacity,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import CityScroll from '../components/citiesScroll';
@@ -248,12 +249,16 @@ const HomeScreen = ({
           </View>
 
           {PostCreationReducer?.uploadLoading && (
-            <View style={styles.UploadingLoader}>
+            <View style={styles.UploadingLoader} >
+              <TouchableOpacity onPress={() => navigation.navigate('Status')}>
+
+     
               <ImageBackground
                 style={styles.profileImageUpload}
                 source={{ uri: `file://${PostCreationReducer?.uploadFiles}` }}>
                 <ActivityIndicator size={'small'} color={global.white} />
               </ImageBackground>
+              </TouchableOpacity>
               <View style={styles.PostDescription}>
                 <TextC
                   text={'Finishing up'}
@@ -287,6 +292,7 @@ const HomeScreen = ({
                 post.length > 0 ?
                 post?.map(data => (
                   <Post
+                    key={data?.post_id}
                     selfLiked={data?.selfLiked}
                     postId={data?.post_id}
                     timeAgo={data?.created_at}

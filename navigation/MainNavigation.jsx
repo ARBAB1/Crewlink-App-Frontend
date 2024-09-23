@@ -45,7 +45,8 @@ import Approval from '../pages/Approval';
 import * as UserProfile from '../store/actions/UserProfile/index';
 import {connect} from 'react-redux';
 import FastImage from 'react-native-fast-image';
-
+import notifee, { AuthorizationStatus } from '@notifee/react-native';
+import messaging from '@react-native-firebase/messaging';
 const MainNavigation = ({GetUserProfileReducer}) => {
   const [isLoggedIn, setIsLoggedIn] = React.useState(true);
   const Stack = createNativeStackNavigator();
@@ -53,12 +54,26 @@ const MainNavigation = ({GetUserProfileReducer}) => {
   const scheme = useColorScheme();
   useEffect(() => {
     VerifyToken();
+requestUserPermission();
   }, []);
+
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+    }
+  }
   const VerifyToken = async () => {
     try {
       const value = await AsyncStorage.getItem('Token');
+
       if (value !== null) {
         setIsLoggedIn(true);
+        await notifee.requestPermission();
       } else {
         setIsLoggedIn(false);
       }

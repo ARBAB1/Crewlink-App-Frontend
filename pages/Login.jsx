@@ -27,7 +27,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-
+import messaging from '@react-native-firebase/messaging';
 
 
 const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
@@ -114,9 +114,12 @@ const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
     },
   });
   const onSubmit = async data => {
+    let token = await messaging().getToken();
+    console.log(token,"token","token")
     const LoginStart = await loginUser({
       email: data.email,
       password: data.password,
+      fcm_token:`${token}`
     });
     if (LoginStart?.message == 'Login successful') {
       console.log(LoginStart?.user_id)
@@ -131,6 +134,7 @@ const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
         email: '',
         password: '',
       });
+      requestUserPermission();
       onLogin();
       // const CheckStatus = await CheckUserStatus({
       //   Token: LoginStart.access_token
@@ -171,7 +175,16 @@ const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
     }
   };
   const headerHeight = useHeaderHeight();
-
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+    }
+  }
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
