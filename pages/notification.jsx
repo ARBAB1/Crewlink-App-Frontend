@@ -1,80 +1,188 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-    ActivityIndicator,
-    DarkTheme,
-    Dimensions,
-    Image,
-    ImageBackground,
-    Pressable,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    TouchableOpacity,
-    useColorScheme,
-    View
-} from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, StyleSheet, FlatList, Pressable, SafeAreaView, StatusBar,ScrollView,Animated, Image } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { connect } from "react-redux";
+import * as NotificationAction from "../store/actions/Notification/index";
+import { RefreshControl } from "react-native-gesture-handler";
+import TextC from "../components/text/text";
+import LinearGradient from 'react-native-linear-gradient';
 import { global, ResponsiveSize } from "../components/constant";
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import TextC from "../components/text/text";
-import { useNavigation, useIsFocused } from "@react-navigation/native";
-
-
-
-const Notification = () => {
-    const scheme = useColorScheme();
-    const windowWidth = Dimensions.get('window').width;
+import { Easing } from 'react-native-reanimated';
+import moment from 'moment'; // Import moment
+const SkeletonPlaceholder = ({ style, refreshing }) => {
+    const translateX = new Animated.Value(-350);
     const styles = StyleSheet.create({
-        wrapper: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: windowWidth,
-            paddingHorizontal: ResponsiveSize(15),
-            paddingVertical: ResponsiveSize(15),
-            backgroundColor: global.white
-        },
-        logoSide1: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            width: '33.33%',
-        },
-        logoSide2: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '33.33%',
-        },
-        logoSide3: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            width: '33.33%',
-        },
-        NotificationWrapper: {
-            padding: ResponsiveSize(15),
-        },
-        NotificationBox: {
-            backgroundColor: '#EEEEEE',
-            padding: ResponsiveSize(10),
-            borderRadius: ResponsiveSize(10),
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginTop: ResponsiveSize(10),
-            width: windowWidth - ResponsiveSize(30)
-        },
-        NotificationDp: {
-            height: ResponsiveSize(30),
-            width: ResponsiveSize(30),
-            backgroundColor: global.black,
-            borderRadius: ResponsiveSize(30),
+        container: {
             overflow: 'hidden',
-            justifyContent: 'center',
+            backgroundColor: '#F5F5F5',
+            padding: ResponsiveSize(10),
+            borderRadius: ResponsiveSize(25),
+            flexDirection: 'row',
             alignItems: 'center',
-        }
+            position: 'relative',
+            marginBottom: ResponsiveSize(10)
+        },
+        imageWrapper: {
+            width: ResponsiveSize(100),
+            height: ResponsiveSize(100),
+            borderRadius: ResponsiveSize(25),
+            overflow: 'hidden',
+        },
+        textWrapper: {
+            paddingLeft: ResponsiveSize(10),
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+        },
+        titleStripe: {
+            width: ResponsiveSize(140),
+            height: ResponsiveSize(10),
+            borderRadius: ResponsiveSize(5),
+            overflow: 'hidden',
+        },
+        descriptionStripe: {
+            width: ResponsiveSize(140),
+            height: ResponsiveSize(40),
+            borderRadius: ResponsiveSize(5),
+            marginTop: ResponsiveSize(12),
+            overflow: 'hidden',
+        },
+        gradient: {
+            ...StyleSheet.absoluteFillObject,
+        },
+        linearGradient: {
+            flex: 1,
+            width: ResponsiveSize(350),
+        },
+        linearGradientLine: {
+            flex: 1,
+            width: ResponsiveSize(350),
+        },
     });
+    Animated.loop(
+        Animated.timing(translateX, {
+            toValue: 350,
+            duration: 2000,
+            easing: Easing.ease,
+            useNativeDriver: true,
+        })
+    ).start();
+
+    return (
+        <View style={[styles.container, style]}>
+            <View style={styles.imageWrapper}>
+                <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
+                    <LinearGradient
+                        colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.linearGradient}
+                    />
+                </Animated.View>
+            </View>
+            <View style={styles.textWrapper}>
+                <View style={styles.titleStripe}>
+                    <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
+                        <LinearGradient
+                            colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.linearGradientLine}
+                        />
+                    </Animated.View>
+                </View>
+                <View style={styles.descriptionStripe}>
+                    <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
+                        <LinearGradient
+                            colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.linearGradientLine}
+                        />
+                    </Animated.View>
+                </View>
+            </View>
+        </View>
+    );
+};
+
+
+
+const Notification = ({ getAllNotifications, NotificationReducer }) => {
     const navigation = useNavigation();
+    
+    const [page, setPage] = useState(1);  // Track current page for pagination
+    const [totalFetchLength, setTotalFetchLength] = useState(100);  // Total fetch length
+    const [renderLength, setRenderLength] = useState(10);  // Number of items to render
+    const [dataList, setDataList] = useState([]);  // Combined notifications
+    const threshold = 0.5;  // Threshold for loading new items (percentage of the list)
+    const [refreshing, setRefreshing] = useState(false);  // Track refreshing state
+
+    const { loading, data: notificationData, unreadCount } = NotificationReducer;  // Extract data from reducer
+
+    // Cache loader to manage the cached notifications
+    const cacheloader = (notifications) => {
+        const preLoad = dataList || [];  // Keep previous data
+        const combinedData = [...preLoad, ...(notifications || [])];  // Combine old and new data
+        const uniqueData = Array.from(new Map(combinedData.map(item => [item.notification_id, item])).values());  // Remove duplicates
+        setDataList(uniqueData);  // Update the state with unique notifications
+    };
+
+    // Asynchronous function to load notifications
+    const allNotificationDataLoader = async ({ refreshing, pageRe }) => {
+        const loadedNotifications = await getAllNotifications({ page: pageRe || page });
+        if (loadedNotifications) {
+            cacheloader(loadedNotifications);  // Load into cache
+        }
+    };
+
+    useEffect(() => {
+        allNotificationDataLoader({ refreshing: false });
+    }, [page]);
+
+    useEffect(() => {
+        if (renderLength >= dataList.length) {
+            setPage((prevPage) => prevPage + 1);  // Increment page for pagination
+            setTotalFetchLength(totalFetchLength + 100);  // Increase the total fetch length
+        }
+    }, [renderLength]);
+
+    // Refresh the data on pull to refresh
+    const onRefresh = async () => {
+        setRefreshing(true);
+        setPage(1);  // Reset to page 1
+        await allNotificationDataLoader({ refreshing: true, pageRe: 1 });
+        setRefreshing(false);
+    };
+
+    // Render each notification item
+    const renderItem = useCallback(({ item }) => {
+        return (
+            <Pressable style={styles.NotificationBox}>
+                <Image 
+                    source={require('../assets/icons/avatar.png')}  // Assuming avatar image exists in assets
+                    style={styles.NotificationDp}
+                />
+                <View style={{ paddingLeft: ResponsiveSize(8), flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <TextC
+                        size={ResponsiveSize(12)}
+                        font={'Montserrat-Bold'}
+                        text={item?.content}
+                        numberOfLines={3}  // Limit content to three lines
+                        ellipsizeMode="tail"
+                        style={{ maxWidth: '90%' }}  // Limit text width for layout
+                    />
+                    <TextC
+                        size={ResponsiveSize(10)}
+                        font={'Montserrat-Regular'}
+                        text={moment(item?.created_at).fromNow()}  // Use moment to format time
+                        style={{ marginTop: ResponsiveSize(4), color: 'black' }}
+                    />
+                </View>
+            </Pressable>
+        );
+    }, []);
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -84,53 +192,107 @@ const Notification = () => {
                     <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
                 </Pressable>
                 <View style={styles.logoSide2}>
-                    <TextC size={ResponsiveSize(16)} font={'Montserrat-Bold'} text={"Notification"} />
+                    <TextC size={ResponsiveSize(13)} font={'Montserrat-Bold'} text={"Notification"} />
                 </View>
                 <View style={styles.logoSide3}>
-                    <TouchableOpacity onPress={() => navigation.navigate("NewMessage")} >
-                        <AntDesign name='setting' color={global.primaryColor} size={ResponsiveSize(22)} />
-                    </TouchableOpacity>
+                    <TextC size={ResponsiveSize(13)} font={'Montserrat-Regular'} text={`Unread: ${unreadCount}`} />
                 </View>
             </View>
-            <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white, borderTopColor: '#EEEEEE', borderTopWidth: ResponsiveSize(1) }}>
-                <View style={styles.NotificationWrapper}>
-                    <View style={styles.NotificationBox}>
-                        <ImageBackground
-                            source={require('../assets/icons/avatar.png')}
-                            style={styles.NotificationDp}
-                            resizeMode="cover" />
-                        <View style={{ paddingLeft: ResponsiveSize(8), flexDirection: 'row', alignItems: 'flex-end' }}>
-                            <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={"Neo6.1"} />
-                            <TextC size={ResponsiveSize(11)} font={'Montserrat-Regular'} text={"liked your post"} style={{ marginLeft: ResponsiveSize(3) }} />
-                        </View>
-                    </View>
 
-
-                    <View style={styles.NotificationBox}>
-                        <ImageBackground
-                            source={require('../assets/icons/avatar.png')}
-                            style={styles.NotificationDp}
-                            resizeMode="cover" />
-                        <View style={{ paddingLeft: ResponsiveSize(8), flexDirection: 'row', alignItems: 'flex-end' }}>
-                            <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={"Neo6.1"} />
-                            <TextC size={ResponsiveSize(11)} font={'Montserrat-Regular'} text={"comment on you post"} style={{ marginLeft: ResponsiveSize(3) }} />
-                        </View>
-                    </View>
-
-
-                    <View style={styles.NotificationBox}>
-                        <ImageBackground
-                            source={require('../assets/icons/avatar.png')}
-                            style={styles.NotificationDp}
-                            resizeMode="cover" />
-                        <View style={{ paddingLeft: ResponsiveSize(8), flexDirection: 'row', alignItems: 'flex-end' }}>
-                            <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={"Neo6.1"} />
-                            <TextC size={ResponsiveSize(11)} font={'Montserrat-Regular'} text={"sent you a connection request"} style={{ marginLeft: ResponsiveSize(3) }} />
-                        </View>
-                    </View>
+            {loading ? (
+                <>
+                    {/* Show loading placeholders */}
+                    <SkeletonPlaceholder />
+                    <SkeletonPlaceholder />
+                    <SkeletonPlaceholder />
+                </>
+            ) : dataList.length === 0 ? (
+                <ScrollView
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    contentContainerStyle={styles.notFound}
+                >
+                    <TextC size={ResponsiveSize(16)} text="No Notifications Found" />
+                </ScrollView>
+            ) : (
+                <View style={{ flex: 1, backgroundColor: global.white }}>
+                    <FlatList
+                        data={dataList.slice(0, renderLength)}  // Limit rendered items to renderLength
+                        renderItem={renderItem}
+                        keyExtractor={(item, index) => index.toString()}
+                        onEndReached={() => {
+                            setRenderLength(renderLength + 10);  // Load more items when reaching the end
+                        }}
+                        onEndReachedThreshold={threshold}  // Trigger when reaching 50% of the content
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    />
                 </View>
-            </ScrollView>
+            )}
         </SafeAreaView>
-    )
+    );
+};
+
+
+// Define styles
+const styles = StyleSheet.create({
+    wrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: ResponsiveSize(15),
+        paddingVertical: ResponsiveSize(15),
+        backgroundColor: global.white
+    },
+    logoSide1: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        width: '33.33%',
+    },
+    logoSide2: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '33.33%',
+    },
+    logoSide3: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        width: '33.33%',
+    },
+    NotificationBox: {
+        backgroundColor: '#EEEEEE',
+        padding: ResponsiveSize(12),
+        borderRadius: ResponsiveSize(10),
+        flexDirection: 'row',
+        borderColor: "black",
+        borderWidth: 1,
+        alignItems: 'center',
+        marginTop: ResponsiveSize(10),
+        marginHorizontal: ResponsiveSize(15),
+    },
+    NotificationDp: {
+        height: ResponsiveSize(50),
+        width: ResponsiveSize(50),
+        backgroundColor: global.black,
+        borderRadius: ResponsiveSize(30),
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    notFound: {
+        padding: ResponsiveSize(10),
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+});
+
+// Map Redux state to component props
+function mapStateToProps({ NotificationReducer }) {
+    return { NotificationReducer };
 }
-export default Notification;
+
+// Connect component to Redux actions and state
+export default connect(mapStateToProps, NotificationAction)(React.memo(Notification));
+
+
+

@@ -11,6 +11,7 @@ import { GetUserProfileReducer } from "./reducers/UserProfile";
 import AuthReducerGlobal from "./reducers/Auth";
 import PostCreationReducer from "./reducers/PostCreation";
 import { AllConnectionsReducer, PendingConnectionsReducer } from "./reducers/Connections";
+import NotificationReducer from "./reducers/Notification";
 
 
 const reducers = combineReducers({
@@ -30,7 +31,8 @@ const reducers = combineReducers({
   AuthReducerGlobal,
   PostCreationReducer,
   AllConnectionsReducer,
-  PendingConnectionsReducer
+  PendingConnectionsReducer,
+  NotificationReducer
 });
 
 const composeEnhancers = window.REDUX_DEVTOOLS_EXTENSION_COMPOSE || compose;
