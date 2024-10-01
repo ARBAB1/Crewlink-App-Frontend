@@ -6,21 +6,22 @@ import { useNavigation } from '@react-navigation/native';
 import * as UserProfile from '../../store/actions/UserProfile/index';
 import { connect } from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import TextC from '../text/text';
 const width = Dimensions.get('window').width;
 
 
 const MainHeader = ({ GetUserProfileReducer, loading }) => {
     const navigation = useNavigation()
     const styles = StyleSheet.create({
-        NotifyPin:{
-            height:ResponsiveSize(8),
-            width:ResponsiveSize(8),
-            borderRadius:ResponsiveSize(8),
+        NotifyPin: {
+            height: ResponsiveSize(8),
+            width: ResponsiveSize(8),
+            borderRadius: ResponsiveSize(8),
             backgroundColor: global.red,
             position: 'absolute',
             top: ResponsiveSize(2),
             right: ResponsiveSize(2),
-            zIndex:999
+            zIndex: 999
         }
     })
     return (
@@ -32,12 +33,13 @@ const MainHeader = ({ GetUserProfileReducer, loading }) => {
                     <TouchableOpacity onPress={() => navigation.navigate('InAppCheckIn')}>
                         {loading ? <ActivityIndicator size={'small'} color={global.secondaryColor} />
                             :
-                            <Text style={styles.LocationTExt}>{
+                            <TextC font={'Montserrat-Bold'} style={{ color: global.secondaryColor }} text={
                                 GetUserProfileReducer?.data?.last_checkin ==
                                     'No last check-in available'
                                     ? 'No Check-in'
                                     : GetUserProfileReducer?.data?.last_checkin
-                            }</Text>
+                            } />
+
                         }
                     </TouchableOpacity>
                 </View>
@@ -46,17 +48,18 @@ const MainHeader = ({ GetUserProfileReducer, loading }) => {
                     <Ionicons name='notifications-outline' size={ResponsiveSize(24)} color={global.primaryColor} />
                 </TouchableOpacity>
 
+                {/* <TouchableOpacity style={{ padding: 4, position: 'relative' }} onPress={() => navigation.navigate('MessageList')}>
+                    <View style={styles.NotifyPin}></View>
+                    <Image source={require('../../assets/icons/HeaderIcon2.png')} style={{ objectFit: 'contain', width: ResponsiveSize(21), height: ResponsiveSize(21) }} />
+                </TouchableOpacity> */}
+
+
+
                 <TouchableOpacity style={{ padding: 4, position: 'relative' }} onPress={() => navigation.navigate('MessageList')}>
-                  
                     <View style={styles.NotifyPin}></View>
                     <Image source={require('../../assets/icons/HeaderIcon2.png')} style={{ objectFit: 'contain', width: ResponsiveSize(21), height: ResponsiveSize(21) }} />
                 </TouchableOpacity>
-                <TouchableOpacity style={{ padding: 4, position: 'relative' }} onPress={() => navigation.navigate('MessageList')}>
-                  
-                  <View style={styles.NotifyPin}></View>
-                  <Image source={require('../../assets/icons/HeaderIcon2.png')} style={{ objectFit: 'contain', width: ResponsiveSize(21), height: ResponsiveSize(21) }} />
-              </TouchableOpacity>
-{/*                 
+                {/*                 
                 <TouchableOpacity onPress={() => navigation.navigate('Notification')} style={{ padding: 4 }}>
                     <MaterialIcons name='notifications-none' size={ResponsiveSize(26)} color={global.primaryColor} />
                 </TouchableOpacity> */}

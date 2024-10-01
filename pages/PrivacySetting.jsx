@@ -154,7 +154,7 @@ const PrivacySetting = ({
     AddButton: {
       backgroundColor: '#69BE25',
       padding: ResponsiveSize(10),
-   
+
       borderRadius: 8,
       marginTop: 10,
       alignItems: 'center',
@@ -183,9 +183,9 @@ const PrivacySetting = ({
   const AddOrRemoveConnection = user_id => {
     setSelectedConnections(prev => {
       if (prev.includes(user_id)) {
-        return prev.filter(id => id !== user_id); // Remove if already selected
+        return prev.filter(id => id !== user_id);
       } else {
-        return [...prev, user_id]; // Add to selected
+        return [...prev, user_id];
       }
     });
   };
@@ -251,7 +251,7 @@ const PrivacySetting = ({
     CheckCustomSettings();
   }, []);
 
-  const filteredConnections = allConnectionData.filter(connection =>
+  const filteredConnections = allConnectionData?.filter(connection =>
     connection.user_name.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -276,7 +276,7 @@ const PrivacySetting = ({
           <TextC size={ResponsiveSize(15)} text={'Account'} font={'Montserrat-Bold'} />
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: ResponsiveSize(15) }}>
             <TextC size={ResponsiveSize(12)} text={'Private account'} font={'Montserrat-SemiBold'} />
-            <ModalSelector
+            {/* <ModalSelector
               selectStyle={styles.TextFeidContainerRight}
               data={[
                 { key: 1, label: 'PUBLIC' },
@@ -286,9 +286,9 @@ const PrivacySetting = ({
               ]}
               initValue={AccountPrivacy}
               onChange={value => AccountPrivacyHandler(value.label)}
-            />
+            /> */}
           </View>
-          <View style={{ paddingTop: ResponsiveSize(10) }}>
+          <View>
             <TextC
               size={ResponsiveSize(11)}
               text={'restricts access to your profile...'}
@@ -297,14 +297,14 @@ const PrivacySetting = ({
             />
           </View>
 
-         
+
         </View>
 
         <View style={styles.SearchCenter}>
           <TextC size={ResponsiveSize(15)} text={'Check-In'} font={'Montserrat-Bold'} />
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15) }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: ResponsiveSize(15) }}>
             <TextC size={ResponsiveSize(12)} text={'Hide Check-in feature'} font={'Montserrat-SemiBold'} />
-            <ModalSelector
+            {/* <ModalSelector
               selectStyle={styles.TextFeidContainerRight}
               data={[
                 { key: 1, label: 'PUBLIC' },
@@ -314,9 +314,9 @@ const PrivacySetting = ({
               ]}
               initValue={CheckInPrivacy}
               onChange={e => CheckInPrivacyHandler(e.label)}
-            />
+            /> */}
           </View>
-          <View style={{ paddingTop: ResponsiveSize(10) }}>
+          <View>
             <TextC
               size={ResponsiveSize(11)}
               text={'Turn off commenting to control discussions on your content.'}
@@ -326,9 +326,9 @@ const PrivacySetting = ({
           </View>
         </View>
 
-     
-  <>
-  <View style={styles.SearchCenter}>
+
+        <>
+          <View style={styles.SearchCenter}>
 
             <TextC size={ResponsiveSize(15)} text={'Connections'} font={'Montserrat-Bold'} />
             <TextC
@@ -337,24 +337,34 @@ const PrivacySetting = ({
               font={'Montserrat-Medium'}
               style={{ color: global.placeholderColor }}
             />
-  </View>
+          </View>
 
-            {!customSetting ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15) }}>
-                <TextC size={ResponsiveSize(12)} text={'Add approved followers'} font={'Montserrat-SemiBold'} />
-                <TouchableOpacity onPress={() => setConnectionVisible(true)}>
-                  <Octicons name="diff-added" color={global.secondaryColor} size={ResponsiveSize(18)} />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15) }}>
-                <TextC size={ResponsiveSize(12)} text={'Approved Connections List'} font={'Montserrat-SemiBold'} />
-                <TouchableOpacity onPress={() => setConnectionVisible(true)}>
-                  <Octicons name="diff-added" color={global.secondaryColor} size={ResponsiveSize(18)} />
-                </TouchableOpacity>
-              </View>
-            )}
-          </>
+          {!customSetting ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15) }}>
+              <TextC size={ResponsiveSize(12)} text={'Add approved followers'} font={'Montserrat-SemiBold'} />
+              <TouchableOpacity onPress={() => setConnectionVisible(true)}>
+                <Octicons name="diff-added" color={global.secondaryColor} size={ResponsiveSize(18)} />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15) }}>
+              <TextC size={ResponsiveSize(12)} text={'Approved Connections List'} font={'Montserrat-SemiBold'} />
+              <TouchableOpacity onPress={() => setConnectionVisible(true)}>
+                <Octicons name="diff-added" color={global.secondaryColor} size={ResponsiveSize(18)} />
+              </TouchableOpacity>
+            </View>
+          )}
+        </>
+
+
+
+
+
+
+
+
+
+
         {/* Modal for selecting connections */}
         <Modal
           isVisible={isConnectionVisible}
@@ -379,21 +389,21 @@ const PrivacySetting = ({
             />
 
             <ScrollView style={styles.AirlineBoundries} showsVerticalScrollIndicator={false}>
-              {filteredConnections.map(connection => (
+              {filteredConnections?.map(connection => (
                 <TouchableOpacity
                   key={connection.user_id}
                   onPress={() => AddOrRemoveConnection(connection.user_id)}
                   style={styles.SelectOptions}>
-                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+
                     <Image source={connection?.profile_picture ? { uri: connection?.profile_picture } : require('../assets/icons/avatar.png')} resizeMode="cover" style={{ width: ResponsiveSize(40), height: ResponsiveSize(40), borderRadius: ResponsiveSize(20) }} />
-                  <TextC
-                    size={ResponsiveSize(12)}
-                    font={'Montserrat-Regular'}
-                    text={connection.user_name}
-                    style={{ color: global.black }}
-                  />
-                     </View>
+                    <TextC
+                      size={ResponsiveSize(12)}
+                      font={'Montserrat-Regular'}
+                      text={connection.user_name}
+                      style={{ color: global.black }}
+                    />
+                  </View>
                   {isUserInClosedConnections(connection.user_id) ? (
                     <AntDesign name="checkcircleo" color="green" size={ResponsiveSize(16)} />
                   ) : (
@@ -412,10 +422,10 @@ const PrivacySetting = ({
               </TouchableOpacity>
             ) : (
               <View >
-                <TouchableOpacity style={styles.EditButton} onPress={handleUpdateCustomConnections}>
+                <TouchableOpacity style={styles.EditButton} onPress={handleAddCustomConnections}>
                   <TextC text="Save" font="Montserrat-Bold" size={ResponsiveSize(12)} style={{ color: global.white }} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.DeleteButton} onPress={()=>  setConnectionVisible(false)}>
+                <TouchableOpacity style={styles.DeleteButton} onPress={() => setConnectionVisible(false)}>
                   <TextC text="Cancel" font="Montserrat-Bold" size={ResponsiveSize(12)} style={{ color: global.white }} />
                 </TouchableOpacity>
               </View>

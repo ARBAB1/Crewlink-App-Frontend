@@ -1,4 +1,4 @@
-import { Platform, StatusBar, StyleSheet, Dimensions, SafeAreaView, KeyboardAvoidingView, View, useColorScheme, ScrollView, TouchableOpacity, TextInput, RefreshControl, Easing } from 'react-native'
+import { Platform, StatusBar, StyleSheet, Dimensions, SafeAreaView, KeyboardAvoidingView, View, useColorScheme, ScrollView, TouchableOpacity, TextInput, RefreshControl, Easing, Image } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useHeaderHeight } from "@react-navigation/elements";
 import { DarkTheme, useNavigation, CommonActions, useIsFocused } from '@react-navigation/native';
@@ -14,6 +14,7 @@ import io from "socket.io-client";
 import { FlashList } from '@shopify/flash-list';
 import { Animated } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import Ionicons from 'react-native-vector-icons/Ionicons'
 
 
 
@@ -183,8 +184,6 @@ const Announcement = () => {
       flexDirection: 'row',
       alignItems: 'flex-start',
       paddingHorizontal: ResponsiveSize(15),
-      borderBottomColor: "#EEEEEE",
-      borderBottomWidth: ResponsiveSize(1),
     },
     ProfileSide: {
       width: windowWidth * 0.22 - ResponsiveSize(15),
@@ -230,9 +229,13 @@ const Announcement = () => {
     }
   })
 
+
   useEffect(() => {
     loadRecentChats()
-  }, [focus])
+  }, [])
+
+
+
 
   const loadRecentChats = async () => {
     if (focus == true) {
@@ -335,15 +338,11 @@ const Announcement = () => {
         <View style={styles.TextSide}>
           <TouchableOpacity onPress={() => navigation.navigate("announcementDetail", { details: item })}>
             <View style={styles.ProfileDetail}>
-              <TextC text={`${item?.user_details?.user_name}`} font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
+              <TextC text={`${item?.user_details?.user_name}`} font={'Montserrat-Bold'} size={ResponsiveSize(12)} />
             </View>
-            <TextC style={{ color: global.placeholderColor }} text={item?.message} font={'Montserrat-Regular'} size={ResponsiveSize(12)} />
+            <TextC style={{ color: global.placeholderColor }} text={item?.message} font={'Montserrat-Regular'} size={ResponsiveSize(11)} />
           </TouchableOpacity>
           <View style={styles.PostSetting}>
-            <TouchableOpacity onPress={() => navigation.navigate('createAnnouncement', { Reply_user_name: item?.user_details?.user_name, user_Profile: profilePicture, isReply: true, announcement_id: item?.announcement_id })} style={styles.Comment}>
-              <Fontisto name='comment' size={ResponsiveSize(13)} />
-              <TextC text={item?.comments_count} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ paddingLeft: ResponsiveSize(3) }} />
-            </TouchableOpacity>
             <TouchableOpacity style={styles.Comment} onPress={() => !item?.self_liked ? GetLike(item?.announcement_id) : GetUnLike(item?.announcement_id)} >
               {item?.self_liked ?
                 <AntDesign color={global.red} name='heart' size={ResponsiveSize(14)} />
@@ -351,6 +350,11 @@ const Announcement = () => {
                 <AntDesign name='hearto' size={ResponsiveSize(14)} />
               }
               <TextC text={item?.likes_count} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ paddingLeft: ResponsiveSize(3) }} />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.navigate('createAnnouncement', { Reply_user_name: item?.user_details?.user_name, user_Profile: profilePicture, isReply: true, announcement_id: item?.announcement_id })} style={styles.Comment}>
+              <Fontisto name='comment' size={ResponsiveSize(13)} />
+              <TextC text={item?.comments_count} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ paddingLeft: ResponsiveSize(3) }} />
             </TouchableOpacity>
           </View>
         </View>
@@ -375,34 +379,54 @@ const Announcement = () => {
           barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
         />
 
-        <View style={styles.ContainerHeader}>
-          <View style={styles.HeaderLeft}>
-            <TextInput style={styles.SearchHeader} placeholder='Search Announcement' />
+
+        <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", width: windowWidth, backgroundColor: global.white, paddingHorizontal: ResponsiveSize(15), paddingVertical: ResponsiveSize(15), borderBottomColor: '#EEEEEE', borderBottomWidth: ResponsiveSize(1) }}>
+
+          <View>
+            <Image source={require('../assets/icons/Logo.png')} style={{ objectFit: 'contain', width: ResponsiveSize(120), height: ResponsiveSize(22) }} />
+            <TextC text={'AirCanada'} font={'Montserrat-Bold'} />
           </View>
-          <View style={styles.HeaderRight}>
-            <TouchableOpacity style={styles.ShareBtn} onPress={() => navigation.navigate('createAnnouncement', { user_name: userName, user_Profile: profilePicture })}>
-              <AntDesign name='plus' size={ResponsiveSize(22)} color={global.white} />
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <TouchableOpacity onPress={() => navigation.navigate('createAnnouncement', { user_name: userName, user_Profile: profilePicture })}>
+              <View style={styles.NotifyPin}></View>
+              <Ionicons size={ResponsiveSize(22)} name='add-circle-outline' style={{ color: global.primaryColor }} />
             </TouchableOpacity>
           </View>
         </View>
+
+
+
+
+
+
         <ScrollView refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         } contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
-          <View style={styles.container}>
-            {refreshing ?
-              <>
-                <SkeletonPlaceholder />
-                <SkeletonPlaceholder />
-                <SkeletonPlaceholder />
-              </>
-              :
-              <FlashList
-                data={announcement}
-                renderItem={renderItem}
-                keyExtractor={item => item.announcement_id}
-              />
-            }
-          </View>
+          {announcement?.length > 0 ?
+            <>
+              <View style={styles.container}>
+                {refreshing ?
+                  <>
+                    <SkeletonPlaceholder />
+                    <SkeletonPlaceholder />
+                    <SkeletonPlaceholder />
+                  </>
+                  :
+                  <FlashList
+                    data={announcement}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.announcement_id}
+                  />
+                }
+
+              </View>
+            </>
+            : 
+              <View style={{flexDirection:'column',alignItems:'center',justifyContent:'center',flex:1}}>
+                <TextC text={"No Announcements found"} font={"Montserrat-Bold"}/>
+              </View>
+          }
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>

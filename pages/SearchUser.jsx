@@ -182,7 +182,7 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
       height: !isVisible && 0,
       backgroundColor: global.description,
       // paddingBottom: ResponsiveSize(!isVisible ? 0 :userfilter ? ResponsiveSize(75) : countryfilter && isVisible ? ResponsiveSize(125) : ResponsiveSize(35)),
-      paddingBottom:  ResponsiveSize(!isVisible ? 0 : (userfilter && country.length!==0) ? 130 : (userfilter && country.length===0) ? 85 : 35),
+      paddingBottom: ResponsiveSize(!isVisible ? 0 : (userfilter && country.length !== 0) ? 130 : (userfilter && country.length === 0) ? 85 : 35),
       backgroundColor: '#EEEEEE',
       borderBottomLeftRadius: ResponsiveSize(20),
       borderBottomRightRadius: ResponsiveSize(20),
@@ -198,7 +198,7 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
       paddingHorizontal: ResponsiveSize(15),
       paddingVertical: ResponsiveSize(5),
       borderRadius: ResponsiveSize(20),
-  
+
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
@@ -582,51 +582,51 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
             <View style={styles.DropdownSeeker}>
               <TextC text={"Sort by"} font={'Montserrat-Bold'} />
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(10) }}>
-              <TouchableOpacity onPress={() => {setPostFilter(!postfilter) ,setUserFilter(false)}} style={styles.filterTab}>
+                <TouchableOpacity onPress={() => { setPostFilter(!postfilter), setUserFilter(false) }} style={styles.filterTab}>
                   <TextC text={"Post"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
-                  {postfilter && 
+                  {postfilter &&
                     <View style={styles.IndicatorDot}></View>
                   }
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {setUserFilter(!userfilter) ,setPostFilter(false)}} style={styles.filterTab}>
+                <TouchableOpacity onPress={() => { setUserFilter(!userfilter), setPostFilter(false) }} style={styles.filterTab}>
                   <TextC text={"User"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
-                  {userfilter  &&
+                  {userfilter &&
                     <View style={styles.IndicatorDot}></View>
                   }
                 </TouchableOpacity>
               </View>
-              
-{ userfilter  && (
+
+              {userfilter && (
 
 
-   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
-              
-   <TouchableOpacity onPress={() => setPositionVisible(true)} style={styles.filterTab}>
-     <TextC text={"Position"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
-     {position.length > 0 &&
-       <View style={styles.IndicatorDot}></View>
-     }
-   </TouchableOpacity>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
 
-   <TouchableOpacity onPress={() => setAirLineVisible(true)} style={styles.filterTab}>
-     <TextC text={"Airline"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
-     {airLine.length > 0 &&
-       <View style={styles.IndicatorDot}></View>
-     }
-   </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setPositionVisible(true)} style={styles.filterTab}>
+                    <TextC text={"Position"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
+                    {position.length > 0 &&
+                      <View style={styles.IndicatorDot}></View>
+                    }
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => setAirLineVisible(true)} style={styles.filterTab}>
+                    <TextC text={"Airline"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
+                    {airLine.length > 0 &&
+                      <View style={styles.IndicatorDot}></View>
+                    }
+                  </TouchableOpacity>
 
 
-   <TouchableOpacity onPress={() => {setCountryVisible(true);setCountryFilter(true);}} style={styles.filterTab}>
-     <TextC text={"Country"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
-     {country.length > 0 &&
-       <View style={styles.IndicatorDot}></View>
-     }
-   </TouchableOpacity>
- </View>
+                  <TouchableOpacity onPress={() => { setCountryVisible(true); setCountryFilter(true); }} style={styles.filterTab}>
+                    <TextC text={"Country"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
+                    {country.length > 0 &&
+                      <View style={styles.IndicatorDot}></View>
+                    }
+                  </TouchableOpacity>
+                </View>
 
-)
-}
-           
+              )
+              }
+
 
 
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(45) }}>
@@ -675,176 +675,176 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
               </View>
             ) : (
               <>
-            
-            <View>
-            {searchedUser !== undefined &&
-                  searchedUser !== null &&
-                  searchedUser !== '' &&
-                  searchedUser?.length > 0
-                  ||
-                  searchedPost !== undefined &&
-                  searchedPost !== null &&
-                  searchedPost !== '' &&
-                  searchedPost?.length > 0
-                  ? (
-                    <>
-                <TextC text={"Users"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{paddingBottom:ResponsiveSize(20)}} />
 
-                  {searchUserfilter && searchedUser.map(data => (
-                    <>
-                    <Pressable onPress={() => navigation.navigate('UserProfileScreen', { user_id: data?.user_id })} style={styles.ListOfSearch}>
-                      <View
-                        style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <FastImage
-                          style={styles.ProfileImage}
-                          source={{
-                            uri: data?.profile_picture_url,
-                            priority: FastImage.priority.high,
-                          }}
-                        />
-                        <View style={styles.UpcomingContent}>
+                <View>
+                  {searchedUser !== undefined &&
+                    searchedUser !== null &&
+                    searchedUser !== '' &&
+                    searchedUser?.length > 0
+                    ||
+                    searchedPost !== undefined &&
+                    searchedPost !== null &&
+                    searchedPost !== '' &&
+                    searchedPost?.length > 0
+                    ? (
+                      <>
+                        <TextC text={"Users"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{ paddingBottom: ResponsiveSize(20) }} />
+
+                        {searchedUser.map(data => (
+                          <>
+                            <Pressable onPress={() => navigation.navigate('UserProfileScreen', { user_id: data?.user_id })} style={styles.ListOfSearch}>
+                              <View
+                                style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <FastImage
+                                  style={styles.ProfileImage}
+                                  source={{
+                                    uri: data?.profile_picture_url,
+                                    priority: FastImage.priority.high,
+                                  }}
+                                />
+                                <View style={styles.UpcomingContent}>
+                                  <TextC
+                                    text={data.user_name}
+                                    font={'Montserrat-Bold'}
+                                    size={ResponsiveSize(12)}
+                                    style={{ width: ResponsiveSize(80) }}
+                                    ellipsizeMode={'tail'}
+                                    numberOfLines={1}
+                                  />
+                                </View>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <TextC
+                                  text={data.airline_abbreviation}
+                                  style={{
+                                    color: global.placeholderColor,
+                                    paddingVertical: ResponsiveSize(2),
+                                  }}
+                                  font={'Montserrat-Medium'}
+                                  size={ResponsiveSize(11)}
+                                />
+                                <TextC
+                                  text={"|"}
+                                  style={{
+                                    color: global.placeholderColor,
+                                    paddingHorizontal: ResponsiveSize(2),
+                                    paddingBottom: ResponsiveSize(2),
+                                  }}
+                                  font={'Montserrat-Medium'}
+                                  size={ResponsiveSize(11)}
+                                />
+                                <TextC
+                                  text={
+                                    data.user_type == 'PILOT'
+                                      ? 'P'
+                                      : data.user_type == 'FLIGHT ATTENDANT'
+                                        ? 'FA'
+                                        : data?.user_type == 'TECHNICIAN'
+                                          ? 'TE'
+                                          : ''
+                                  }
+                                  style={{
+                                    color: global.placeholderColor,
+                                    paddingVertical: ResponsiveSize(2),
+                                  }}
+                                  font={'Montserrat-Medium'}
+                                  size={ResponsiveSize(11)}
+                                />
+                              </View>
+
+
+                              <TextC
+                                text={`${data.checkin_remaining_time}h`}
+                                style={{
+                                  color: global.placeholderColor,
+                                  paddingVertical: ResponsiveSize(2),
+                                }}
+                                font={'Montserrat-Medium'}
+                                size={ResponsiveSize(11)}
+                              />
+                            </Pressable>
+                          </>
+                        ))
+
+                        }
+
+                        <>
+
+                          <Pressable onPress={() => setUserFilter(true)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }} >
+                            <TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)} />
+                          </Pressable>
+                        </>
+                        <TextC text={"Posts"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{ paddingBottom: ResponsiveSize(20) }} />
+
+                        {searchedPost?.map(data => (
+                          <>
+                            <Pressable onPress={() => navigation.navigate('UserProfileScreen', { user_id: data?.user_id })} style={styles.ListOfSearch}>
+                              <View
+                                style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <FastImage
+                                  style={styles.ProfileImage}
+                                  source={{
+                                    uri: data?.userDetails?.profile_picture_url,
+                                    priority: FastImage.priority.high,
+                                  }}
+                                />
+                                <View style={styles.UpcomingContent}>
+                                  <TextC
+                                    text={data?.userDetails?.user_name}
+                                    font={'Montserrat-Bold'}
+                                    size={ResponsiveSize(12)}
+                                    style={{ width: ResponsiveSize(80) }}
+                                    ellipsizeMode={'tail'}
+                                    numberOfLines={1}
+                                  />
+                                </View>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+
+                              </View>
+
+
+                              <TextC
+                                text={`${data?.caption}`}
+                                style={{
+                                  color: global.placeholderColor,
+                                  paddingVertical: ResponsiveSize(2),
+                                }}
+                                font={'Montserrat-Medium'}
+                                size={ResponsiveSize(11)}
+                              />
+                            </Pressable>
+                          </>
+                        ))
+                        }
+                        <>
+
+                          <Pressable onPress={() => setUserFilter(true)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }} >
+                            <TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)} />
+                          </Pressable>
+                        </>
+                      </>
+
+                    ) : (
+                      <>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexDirection: 'row',
+                          }}>
                           <TextC
-                            text={data.user_name}
-                            font={'Montserrat-Bold'}
-                            size={ResponsiveSize(12)}
-                            style={{ width: ResponsiveSize(80) }}
-                            ellipsizeMode={'tail'}
-                            numberOfLines={1}
+                            size={ResponsiveSize(10)}
+                            font={'Montserrat-Medium'}
+                            text={'No result found'}
                           />
                         </View>
-                      </View>
-
-                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <TextC
-                          text={data.airline_abbreviation}
-                          style={{
-                            color: global.placeholderColor,
-                            paddingVertical: ResponsiveSize(2),
-                          }}
-                          font={'Montserrat-Medium'}
-                          size={ResponsiveSize(11)}
-                        />
-                        <TextC
-                          text={"|"}
-                          style={{
-                            color: global.placeholderColor,
-                            paddingHorizontal: ResponsiveSize(2),
-                            paddingBottom: ResponsiveSize(2),
-                          }}
-                          font={'Montserrat-Medium'}
-                          size={ResponsiveSize(11)}
-                        />
-                        <TextC
-                          text={
-                            data.user_type == 'PILOT'
-                              ? 'P'
-                              : data.user_type == 'FLIGHT ATTENDANT'
-                                ? 'FA'
-                                : data?.user_type == 'TECHNICIAN'
-                                  ? 'TE'
-                                  : ''
-                          }
-                          style={{
-                            color: global.placeholderColor,
-                            paddingVertical: ResponsiveSize(2),
-                          }}
-                          font={'Montserrat-Medium'}
-                          size={ResponsiveSize(11)}
-                        />
-                      </View>
-
-
-                      <TextC
-                        text={`${data.checkin_remaining_time}h`}
-                        style={{
-                          color: global.placeholderColor,
-                          paddingVertical: ResponsiveSize(2),
-                        }}
-                        font={'Montserrat-Medium'}
-                        size={ResponsiveSize(11)}
-                      />
-                    </Pressable>
-                    </>
-                    ))
-                  
-                    }
-
-<>
-
-<Pressable onPress={() => setUserFilter(true)}  style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%'}} >
-<TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)}/>
-</Pressable>
-</>
-                <TextC text={"Posts"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{paddingBottom:ResponsiveSize(20)}} />
-
-{searchPostfilter && searchedPost?.map(data => (
-                    <>
-                    <Pressable onPress={() => navigation.navigate('UserProfileScreen', { user_id: data?.user_id })} style={styles.ListOfSearch}>
-                      <View
-                        style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <FastImage
-                          style={styles.ProfileImage}
-                          source={{
-                            uri: data?.userDetails?.profile_picture_url,
-                            priority: FastImage.priority.high,
-                          }}
-                        />
-                        <View style={styles.UpcomingContent}>
-                          <TextC
-                            text={data?.userDetails?.user_name}
-                            font={'Montserrat-Bold'}
-                            size={ResponsiveSize(12)}
-                            style={{ width: ResponsiveSize(80) }}
-                            ellipsizeMode={'tail'}
-                            numberOfLines={1}
-                          />
-                        </View>
-                      </View>
-
-                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    
-                      </View>
-
-
-                      <TextC
-                        text={`${data?.caption}`}
-                        style={{
-                          color: global.placeholderColor,
-                          paddingVertical: ResponsiveSize(2),
-                        }}
-                        font={'Montserrat-Medium'}
-                        size={ResponsiveSize(11)}
-                      />
-                    </Pressable>
-                    </>
-                    ))
-                    }
-                    <>
-
-<Pressable onPress={() => setUserFilter(true)}  style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%'}} >
-<TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)}/>
-</Pressable>
-</>
-                    </>
-                  
-                ) : (
-                  <>
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexDirection: 'row',
-                      }}>
-                      <TextC
-                        size={ResponsiveSize(10)}
-                        font={'Montserrat-Medium'}
-                        text={'No result found'}
-                      />
-                    </View>
-                  </>
-                )}
-            </View>
+                      </>
+                    )}
+                </View>
               </>
             )}
           </View>

@@ -71,7 +71,6 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
       marginTop: ResponsiveSize(12),
       overflow: 'hidden',
     },
-
     gradient: {
       ...StyleSheet.absoluteFillObject,
     },
@@ -312,7 +311,15 @@ const AnnouncementDetail = ({ route }) => {
         }
       })
       const Result = await CommentResult.json()
-      SetAnnouncement(Result?.comments)
+      if (Result.comments.length >= 10) {
+        SetAnnouncement(prev => [...prev, ...Result?.comments])
+        setModeLoader(false);
+      }
+      else {
+        SetAnnouncement(prev => [...prev, ...Result?.comments])
+        setIsMore(false)
+
+      }
       setRefreshing(false);
     }
   }
@@ -333,7 +340,6 @@ const AnnouncementDetail = ({ route }) => {
       }
     })
     const Result = await CommentResult.json()
-  
     if (Result.comments.length >= 10) {
       SetAnnouncement(prev => [...prev, ...Result?.comments])
       setModeLoader(false);
@@ -341,7 +347,6 @@ const AnnouncementDetail = ({ route }) => {
     else {
       SetAnnouncement(prev => [...prev, ...Result?.comments])
       setIsMore(false)
-
     }
   }
 
@@ -409,7 +414,6 @@ const AnnouncementDetail = ({ route }) => {
   }
 
   const renderItem = useCallback(({ item }) => {
-    console.log(item)
     return (
       <View style={styles.SinglePost2}>
         <View style={styles.ProfileSide2}>
@@ -429,12 +433,12 @@ const AnnouncementDetail = ({ route }) => {
         <View style={styles.TextSide2}>
           <TouchableOpacity>
             <View style={styles.ProfileDetail}>
-              <TextC text={`${item?.user_details?.user_name}`} font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
+              <TextC text={`${item?.user_details?.user_name}`} font={'Montserrat-Bold'} size={ResponsiveSize(12)} />
             </View>
-            <TextC style={{ color: global.placeholderColor }} text={item?.comment} font={'Montserrat-Regular'} size={ResponsiveSize(12)} />
+            <TextC style={{ color: global.placeholderColor }} text={item?.comment} font={'Montserrat-Regular'} size={ResponsiveSize(11)} />
           </TouchableOpacity>
           <View style={styles.PostSetting}>
-          <TouchableOpacity style={styles.Comment} onPress={() => !item?.self_liked ? GetLike(item?.comment_id) : GetUnLike(item?.comment_id)} >
+            <TouchableOpacity style={styles.Comment} onPress={() => !item?.self_liked ? GetLike(item?.comment_id) : GetUnLike(item?.comment_id)} >
               {item?.self_liked ?
                 <AntDesign color={global.red} name='heart' size={ResponsiveSize(14)} />
                 :
@@ -452,7 +456,6 @@ const AnnouncementDetail = ({ route }) => {
 
 
 
-  
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -505,23 +508,9 @@ const AnnouncementDetail = ({ route }) => {
               </View>
               <View style={styles.TextSide}>
                 <View style={styles.ProfileDetail}>
-                  <TextC text={route.params.details?.user_details?.user_name} font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
+                  <TextC text={route.params.details?.user_details?.user_name} font={'Montserrat-Bold'} size={ResponsiveSize(12)} />
                 </View>
-                <TextC style={{ color: global.placeholderColor }} text={route.params.details?.message} font={'Montserrat-Regular'} size={ResponsiveSize(12)} />
-                {/* <View style={styles.PostSetting}>
-                  <TouchableOpacity style={styles.Comment}>
-                    <Fontisto name='comment' size={ResponsiveSize(13)} />
-                    <TextC text={route.params.details?.comments_count} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ paddingLeft: ResponsiveSize(3) }} />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.Comment} onPress={() => !route.params.details?.self_liked ? GetLike(route.params.details?.announcement_id) : GetUnLike(route.params.details?.announcement_id)}>
-                    {route.params.details?.self_liked ?
-                      <AntDesign color={global.red} name='heart' size={ResponsiveSize(14)} />
-                      :
-                      <AntDesign name='hearto' size={ResponsiveSize(14)} />
-                    }
-                    <TextC text={route.params.details?.likes_count} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ paddingLeft: ResponsiveSize(3) }} />
-                  </TouchableOpacity>
-                </View> */}
+                <TextC style={{ color: global.placeholderColor }} text={route.params.details?.message} font={'Montserrat-Regular'} size={ResponsiveSize(11)} />
               </View>
             </View>
 
@@ -534,11 +523,18 @@ const AnnouncementDetail = ({ route }) => {
                 </>
                 :
                 <>
+                {announcement.length > 0 ?
                   <FlashList
                     data={announcement}
                     renderItem={renderItem}
                     keyExtractor={item => item.comment_id}
                   />
+                
+                :
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',paddingTop:ResponsiveSize(20)}}>
+                <TextC text={"No comment found"}/>
+                </View>
+                }
                   {isMore &&
                     <View style={{ width: windowWidth, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(20) }}>
                       <TouchableOpacity disabled={moreLoader} onPress={() => loadMoreComments(page + 1)} style={styles.LoadMore}>
