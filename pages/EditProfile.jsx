@@ -413,7 +413,7 @@ const EditProfile = ({
     setCountry("")
   }
 
-
+console.log(GetUserProfileReducer?.data)
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -574,11 +574,11 @@ const EditProfile = ({
                       }}
                       disableArrowIcon={true}
                       defaultCode={
-                        GetUserProfileReducer?.data?.country_code == 0
-                          ? 'US'
-                          : GetUserProfileReducer?.data?.country_code
+                        GetUserProfileReducer?.data?.country_code 
+                          ? GetUserProfileReducer?.data?.country_code
+                          : 'US'
                       }
-                      defaultValue={GetUserProfileReducer?.data?.phone_number}
+                      defaultValue={GetUserProfileReducer?.data?.phone_number || ''}
                       onChangeText={text => {
                         onChange(text);
                       }}

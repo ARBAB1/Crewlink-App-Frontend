@@ -28,6 +28,8 @@ import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
 import Modal from 'react-native-modal';
 import * as UserRegisterAction from "../store/actions/UserRegister/index";
 import { connect } from "react-redux";
+import { set } from 'react-hook-form';
+import post from '../components/post';
 
 
 const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities }) => {
@@ -36,6 +38,33 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
 
   const scheme = useColorScheme();
   const [isVisible, setIsVisible] = useState(false);
+  const [postfilter, setPostFilter] = useState(false);
+  const [searchPostfilter, setSearchPostFilter] = useState(false);
+  const [searchUserfilter, setSearchUserFilter] = useState(false);
+  const [userfilter, setUserFilter] = useState(false);
+  const [position, setPosition] = useState([])
+  const [airLine, setAirline] = useState([])
+  const [stayTime, setStayTime] = useState([])
+  const [country, setCountry] = useState([])
+  const [state, setState] = useState([])
+  const [SearchCountry, setSearchCountry] = useState("");
+  const [SearchState, setSearchState] = useState("");
+  const [SearchCity, setSearchCity] = useState("");
+
+  const [isPositionVisible, setPositionVisible] = useState(false);
+  const [isAirLineVisible, setAirLineVisible] = useState(false);
+  const [isCountryVisible, setCountryVisible] = useState(false);
+  const [isStateVisible, setStateVisible] = useState(false);
+  const [isCityVisible, setCityVisible] = useState(false);
+  const [isTimeVisible, setTimeVisible] = useState(false);
+
+  const [city, setCity] = useState([])
+  const navigation = useNavigation();
+  const [searchedUser, setSearchedUser] = useState([]);
+  const [searchedPost, setSearchedPost] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [countryfilter, setCountryFilter] = useState(false);
   const opacity = useRef(new Animated.Value(1)).current;
   const { openBottomSheet, closeBottomSheet } = useBottomSheet();
   useEffect(() => {
@@ -152,7 +181,8 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
     DropdownSeeker: {
       height: !isVisible && 0,
       backgroundColor: global.description,
-      paddingBottom: ResponsiveSize(!isVisible ? 0 : ResponsiveSize(15)),
+      // paddingBottom: ResponsiveSize(!isVisible ? 0 :userfilter ? ResponsiveSize(75) : countryfilter && isVisible ? ResponsiveSize(125) : ResponsiveSize(35)),
+      paddingBottom:  ResponsiveSize(!isVisible ? 0 : (userfilter && country.length!==0) ? 130 : (userfilter && country.length===0) ? 85 : 35),
       backgroundColor: '#EEEEEE',
       borderBottomLeftRadius: ResponsiveSize(20),
       borderBottomRightRadius: ResponsiveSize(20),
@@ -168,12 +198,14 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
       paddingHorizontal: ResponsiveSize(15),
       paddingVertical: ResponsiveSize(5),
       borderRadius: ResponsiveSize(20),
+  
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       marginHorizontal: ResponsiveSize(2),
       position: 'relative',
-      width: windowWidth - ResponsiveSize(65) * 3.6
+      width: windowWidth - ResponsiveSize(65) * 3.6,
+      height: ResponsiveSize(35),
     },
     container: {
       flex: 1,
@@ -272,10 +304,6 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
   });
 
 
-  const navigation = useNavigation();
-  const [searchedUser, setSearchedUser] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [searchText, setSearchText] = useState('');
 
   const LoadUserId = async () => {
     const U_id = await AsyncStorage.getItem('U_id');
@@ -286,22 +314,10 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
     LoadUserId();
   }, []);
 
-
-  const [position, setPosition] = useState([])
-  const [airLine, setAirline] = useState([])
-  const [stayTime, setStayTime] = useState([])
-  const [country, setCountry] = useState([])
-  const [state, setState] = useState([])
-  const [city, setCity] = useState([])
-
-
-
-
-
-
   const SearchUsers = async () => {
     setLoading(true);
     const Token = await AsyncStorage.getItem('Token');
+
     const response = await fetch(
       `${baseUrl.baseUrl}/users/get-all-users-filter`,
       {
@@ -313,17 +329,37 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
         },
         body: JSON.stringify({
           airline_ids: airLine,
-          check_in_cities: city,
+          check_in_cities: city ? city : [],
           user_types: position,
-          time_left: stayTime,
-          search: searchText,
+          time_left: stayTime ? stayTime : [],
+          user_search: searchText,
           countries: country,
-          states: state
+          states: state,
+          post_search: searchText,
+          is_user_search: true,
+          is_post_search: true
+
+
         }),
       },
     );
+    console.log({
+      airline_ids: airLine,
+      check_in_cities: city ? city : [],
+      user_types: position,
+      time_left: stayTime ? stayTime : [],
+      user_search: searchText,
+      countries: country,
+      states: state,
+      post_search: searchText,
+      is_user_search: true,
+      is_post_search: true
+
+    })
     const result = await response.json();
-    setSearchedUser(result?.data);
+    console.log(result, 'result');
+    setSearchedUser(result?.users);
+    setSearchedPost(result?.post);
     setLoading(false);
   };
   const SearchUsersDirect = async (e) => {
@@ -343,12 +379,20 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
           check_in_cities: [],
           user_types: [],
           time_left: [],
-          search: e
+          countries: [],
+          states: [],
+          states: state,
+          user_search: e,
+          post_search: e,
+          is_user_search: true,
+          is_post_search: true
         }),
       },
     );
     const result = await response.json();
-    setSearchedUser(result?.data);
+    console.log(result, 'result');
+    setSearchedUser(result?.users);
+    setSearchedPost(result?.posts);
     setLoading(false);
   };
 
@@ -357,17 +401,7 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
 
 
 
-  const [SearchCountry, setSearchCountry] = useState("");
-  const [SearchState, setSearchState] = useState("");
-  const [SearchCity, setSearchCity] = useState("");
 
-
-  const [isPositionVisible, setPositionVisible] = useState(false);
-  const [isAirLineVisible, setAirLineVisible] = useState(false);
-  const [isCountryVisible, setCountryVisible] = useState(false);
-  const [isStateVisible, setStateVisible] = useState(false);
-  const [isCityVisible, setCityVisible] = useState(false);
-  const [isTimeVisible, setTimeVisible] = useState(false);
 
   const ClearPosition = () => {
     setPosition([])
@@ -425,6 +459,7 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
       }
     });
   }
+
   const AddTime = (e) => {
     setStayTime([e]);
   }
@@ -463,7 +498,7 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
 
   const PositionData = [
     { key: 1, label: 'Pilot', data: 'PILOT' },
-    { key: 2, label: 'Fligh Attendant', data: 'FLIGHT ATTENDANT' },
+    { key: 2, label: 'Flight Attendant', data: 'FLIGHT ATTENDANT' },
     { key: 3, label: 'Technician', data: 'TECHNICIAN' },
   ];
 
@@ -533,6 +568,7 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
             backgroundColor: global.white,
           }}>
           <View style={styles.SearchCenterInput}>
+
             <View style={{ position: 'relative' }}>
               <TextInput
                 style={styles.SearchUserInput}
@@ -546,32 +582,54 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
             <View style={styles.DropdownSeeker}>
               <TextC text={"Sort by"} font={'Montserrat-Bold'} />
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(10) }}>
-                <TouchableOpacity onPress={() => setPositionVisible(true)} style={styles.filterTab}>
-                  <TextC text={"Position"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
-                  {position.length > 0 &&
+              <TouchableOpacity onPress={() => {setPostFilter(!postfilter) ,setUserFilter(false)}} style={styles.filterTab}>
+                  <TextC text={"Post"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
+                  {postfilter && 
                     <View style={styles.IndicatorDot}></View>
                   }
                 </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => setAirLineVisible(true)} style={styles.filterTab}>
-                  <TextC text={"Airline"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
-                  {airLine.length > 0 &&
-                    <View style={styles.IndicatorDot}></View>
-                  }
-                </TouchableOpacity>
-
-
-                <TouchableOpacity onPress={() => setCountryVisible(true)} style={styles.filterTab}>
-                  <TextC text={"Country"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
-                  {country.length > 0 &&
+                <TouchableOpacity onPress={() => {setUserFilter(!userfilter) ,setPostFilter(false)}} style={styles.filterTab}>
+                  <TextC text={"User"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
+                  {userfilter  &&
                     <View style={styles.IndicatorDot}></View>
                   }
                 </TouchableOpacity>
               </View>
+              
+{ userfilter  && (
 
 
+   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
+              
+   <TouchableOpacity onPress={() => setPositionVisible(true)} style={styles.filterTab}>
+     <TextC text={"Position"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
+     {position.length > 0 &&
+       <View style={styles.IndicatorDot}></View>
+     }
+   </TouchableOpacity>
 
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(10) }}>
+   <TouchableOpacity onPress={() => setAirLineVisible(true)} style={styles.filterTab}>
+     <TextC text={"Airline"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
+     {airLine.length > 0 &&
+       <View style={styles.IndicatorDot}></View>
+     }
+   </TouchableOpacity>
+
+
+   <TouchableOpacity onPress={() => {setCountryVisible(true);setCountryFilter(true);}} style={styles.filterTab}>
+     <TextC text={"Country"} style={{ color: global.white }} size={ResponsiveSize(10)} font={'Montserrat-SemiBold'} />
+     {country.length > 0 &&
+       <View style={styles.IndicatorDot}></View>
+     }
+   </TouchableOpacity>
+ </View>
+
+)
+}
+           
+
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(45) }}>
                 {country.length > 0 &&
                   <TouchableOpacity disabled={!allStateData?.length > 0} onPress={() => setStateVisible(true)} style={styles.filterTab}>
                     {allStateData?.length > 0 ?
@@ -617,11 +675,23 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
               </View>
             ) : (
               <>
-                {searchedUser !== undefined &&
+            
+            <View>
+            {searchedUser !== undefined &&
                   searchedUser !== null &&
                   searchedUser !== '' &&
-                  searchedUser?.length > 0 ? (
-                  searchedUser.map(data => (
+                  searchedUser?.length > 0
+                  ||
+                  searchedPost !== undefined &&
+                  searchedPost !== null &&
+                  searchedPost !== '' &&
+                  searchedPost?.length > 0
+                  ? (
+                    <>
+                <TextC text={"Users"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{paddingBottom:ResponsiveSize(20)}} />
+
+                  {searchUserfilter && searchedUser.map(data => (
+                    <>
                     <Pressable onPress={() => navigation.navigate('UserProfileScreen', { user_id: data?.user_id })} style={styles.ListOfSearch}>
                       <View
                         style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -694,7 +764,69 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
                         size={ResponsiveSize(11)}
                       />
                     </Pressable>
-                  ))
+                    </>
+                    ))
+                  
+                    }
+
+<>
+
+<Pressable onPress={() => setUserFilter(true)}  style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%'}} >
+<TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)}/>
+</Pressable>
+</>
+                <TextC text={"Posts"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{paddingBottom:ResponsiveSize(20)}} />
+
+{searchPostfilter && searchedPost?.map(data => (
+                    <>
+                    <Pressable onPress={() => navigation.navigate('UserProfileScreen', { user_id: data?.user_id })} style={styles.ListOfSearch}>
+                      <View
+                        style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <FastImage
+                          style={styles.ProfileImage}
+                          source={{
+                            uri: data?.userDetails?.profile_picture_url,
+                            priority: FastImage.priority.high,
+                          }}
+                        />
+                        <View style={styles.UpcomingContent}>
+                          <TextC
+                            text={data?.userDetails?.user_name}
+                            font={'Montserrat-Bold'}
+                            size={ResponsiveSize(12)}
+                            style={{ width: ResponsiveSize(80) }}
+                            ellipsizeMode={'tail'}
+                            numberOfLines={1}
+                          />
+                        </View>
+                      </View>
+
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    
+                      </View>
+
+
+                      <TextC
+                        text={`${data?.caption}`}
+                        style={{
+                          color: global.placeholderColor,
+                          paddingVertical: ResponsiveSize(2),
+                        }}
+                        font={'Montserrat-Medium'}
+                        size={ResponsiveSize(11)}
+                      />
+                    </Pressable>
+                    </>
+                    ))
+                    }
+                    <>
+
+<Pressable onPress={() => setUserFilter(true)}  style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%'}} >
+<TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)}/>
+</Pressable>
+</>
+                    </>
+                  
                 ) : (
                   <>
                     <View
@@ -712,6 +844,7 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
                     </View>
                   </>
                 )}
+            </View>
               </>
             )}
           </View>

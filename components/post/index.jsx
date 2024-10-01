@@ -55,6 +55,7 @@ const Post = ({
   likes_show_flag,
   LoadReplies,
   DeletComments,
+  type
 }) => {
 
   const navigation = useNavigation();
@@ -89,13 +90,19 @@ const Post = ({
   const [likeLoader, setLikeLoader] = useState(false);
   const [isShareModal, setIsShareModal] = useState(false);
 
-
+  useEffect(() => {
+    if(type === 'POST_COMMENT' || type === 'POST_COMMENT_REPLY'){
+        toggleModal()
+    }
+    
+  }, [type]);
 
 
   useEffect(() => {
     if (commentPage !== 1) {
       openCommentSectionPagination();
     }
+
   }, [commentPage]);
 
   const openCommentSection = async Reload => {
@@ -108,7 +115,7 @@ const Post = ({
       page: 1,
       limit: 10,
     });
-    console.log(result, 'result2k');
+    
     if (result?.comments) {
       setCommentList(result?.comments);
       setCommentLoading(false);
@@ -1222,21 +1229,8 @@ const Post = ({
           ''
         )}
         {allow_comments_flag == 'Y' ? (
-          <TouchableOpacity style={{ paddingVertical: ResponsiveSize(3) }}>
-            {comments_show_flag == 'Y' ? (
-              <TextC
-                size={ResponsiveSize(11)}
-                text={`View all ${commnetCount} comments`}
-                font={'Montserrat-Medium'}
-              />
-            ) : (
-              <TextC
-                size={ResponsiveSize(11)}
-                text={`View all comments`}
-                font={'Montserrat-Medium'}
-              />
-            )}
-          </TouchableOpacity>
+         <>
+         </>
         ) : (
           <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
             <TextC

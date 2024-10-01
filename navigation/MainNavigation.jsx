@@ -54,19 +54,35 @@ const MainNavigation = ({ GetUserProfileReducer }) => {
   const scheme = useColorScheme();
   useEffect(() => {
     VerifyToken();
-    requestUserPermission();
+  
+  }, []);
+  useEffect(() => {
+    const unsubscribeBackground = messaging().onMessage(async remoteMessage => {
+      const notifeeData = remoteMessage;
+
+      const permission = await notifee.requestPermission();
+      const channelId = await notifee.createChannel({
+        id: 'default',
+        name: 'Default Channel',
+      });
+  await notifee.displayNotification({
+        title: notifeeData.notification.title,
+        body: notifeeData.notification.body,
+        android: {
+          channelId,
+          // pressAction is needed if you want the notification to open the app when pressed
+          pressAction: {
+            id: 'default',
+          },
+          
+        },
+      });
+      
+    });
+
+    return unsubscribeBackground;
   }, []);
 
-  async function requestUserPermission() {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-    if (enabled) {
-      console.log('Authorization status:', authStatus);
-    }
-  }
 
 
   const VerifyToken = async () => {

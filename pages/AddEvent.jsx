@@ -243,7 +243,7 @@ const AddEvent = ({
       endTime: '',
     },
   });
-  console.log(document[0]?.uri)
+
   const onSubmit = async data => {
     if (!documentImage == '') {
       try {

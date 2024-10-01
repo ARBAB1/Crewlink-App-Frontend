@@ -27,7 +27,7 @@ import baseUrl from '../store/config.json';
 
 
 const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) => {
-  console.log(route?.params?.user_id)
+
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const navigation = useNavigation();

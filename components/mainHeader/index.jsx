@@ -47,10 +47,16 @@ const MainHeader = ({ GetUserProfileReducer, loading }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity style={{ padding: 4, position: 'relative' }} onPress={() => navigation.navigate('MessageList')}>
+                  
                     <View style={styles.NotifyPin}></View>
                     <Image source={require('../../assets/icons/HeaderIcon2.png')} style={{ objectFit: 'contain', width: ResponsiveSize(21), height: ResponsiveSize(21) }} />
                 </TouchableOpacity>
-                {/* 
+                <TouchableOpacity style={{ padding: 4, position: 'relative' }} onPress={() => navigation.navigate('MessageList')}>
+                  
+                  <View style={styles.NotifyPin}></View>
+                  <Image source={require('../../assets/icons/HeaderIcon2.png')} style={{ objectFit: 'contain', width: ResponsiveSize(21), height: ResponsiveSize(21) }} />
+              </TouchableOpacity>
+{/*                 
                 <TouchableOpacity onPress={() => navigation.navigate('Notification')} style={{ padding: 4 }}>
                     <MaterialIcons name='notifications-none' size={ResponsiveSize(26)} color={global.primaryColor} />
                 </TouchableOpacity> */}

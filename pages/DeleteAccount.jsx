@@ -101,7 +101,7 @@ const DeleteAccount = ({ DeleteAccountAction, onLogin }) => {
     const onSubmit = async (data) => {
         setLoading(true)
         const LoadUpdate = await DeleteAccountAction(data.password)
-        console.log(LoadUpdate)
+    
         if (LoadUpdate == "Account Deleted") {
             await AsyncStorage.removeItem('Token');
             onLogin();

@@ -170,7 +170,7 @@ const NewGroupSecondScreen = ({ route }) => {
                     "groupName": groupName,
                     "fileUrl": response?.fileUrl
                 }).on('groupCreated', (data) => {
-                    console.log(data)
+             
                     if (data?.group_id) {
                         setLoading(false);
                         navigation.navigate('MessageList')

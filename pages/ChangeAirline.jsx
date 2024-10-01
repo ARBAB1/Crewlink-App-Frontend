@@ -122,7 +122,7 @@ const ChangeAirline = ({ getAllAirline, ChangeAirline }) => {
             });
             const Responce = await ChangeAirline(formData)
             if (Responce == 'successfully applied for airline change') {
-                console.log(Responce)
+             
                 showToast({
                     message: "Successfully applied for airline change",
                     title: "Successfully applied",

@@ -333,7 +333,7 @@ const AnnouncementDetail = ({ route }) => {
       }
     })
     const Result = await CommentResult.json()
-    console.log(Result.comments.length)
+  
     if (Result.comments.length >= 10) {
       SetAnnouncement(prev => [...prev, ...Result?.comments])
       setModeLoader(false);

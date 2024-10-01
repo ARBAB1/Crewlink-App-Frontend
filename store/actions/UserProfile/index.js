@@ -55,7 +55,7 @@ export const UpdateProfileData = (data) => async (dispatch) => {
             body: JSON.stringify(data)
         });
         const res = await response.json()
-        console.log(res, 'ok')
+ 
         return res
     }
     catch (error) {
@@ -76,7 +76,7 @@ export const UpdateProfile = (data) => async (dispatch) => {
             body: data
         });
         const res = await response.json()
-        console.log(res, 'ok')
+    
         return res
     }
     catch (error) {

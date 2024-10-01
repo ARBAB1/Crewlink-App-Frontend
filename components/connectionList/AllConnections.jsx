@@ -31,12 +31,12 @@ const AllConnections = ({ getAllConnections, AllConnectionsReducer }) => {
         if (refreshing) {
             const loadAllevent = await getAllConnections({ page: pageRe })
             cacheloader(loadAllevent)
-            console.log(loadAllevent, '567890')
+   
         }
         else if (!refreshing) {
             const loadAllevent = await getAllConnections({ page: page })
             cacheloader(loadAllevent)
-            console.log(loadAllevent, '567890')
+
         }
 
     }

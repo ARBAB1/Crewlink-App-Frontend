@@ -177,7 +177,7 @@ const MessageList = () => {
                         :
                         <View>
                             {recentChats !== undefined && recentChats !== "" && recentChats !== null && recentChats.length > 0 ? recentChats.map(recentChats => {
-                                console.log(recentChats?.group, 'hollla')
+                         
                                 return (
                                     recentChats.type == 'direct' ?
                                         <TouchableOpacity onPress={() => navigation.navigate('Message', {

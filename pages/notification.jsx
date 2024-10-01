@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, StyleSheet, FlatList, Pressable, SafeAreaView, StatusBar,ScrollView,Animated, Image } from "react-native";
+import { View, StyleSheet, FlatList, Pressable, SafeAreaView, StatusBar, ScrollView, Animated, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { connect } from "react-redux";
 import * as NotificationAction from "../store/actions/Notification/index";
@@ -10,6 +10,8 @@ import { global, ResponsiveSize } from "../components/constant";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Easing } from 'react-native-reanimated';
 import moment from 'moment'; // Import moment
+import { color } from "@rneui/base";
+
 const SkeletonPlaceholder = ({ style, refreshing }) => {
     const translateX = new Animated.Value(-350);
     const styles = StyleSheet.create({
@@ -107,8 +109,6 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
     );
 };
 
-
-
 const Notification = ({ getAllNotifications, NotificationReducer }) => {
     const navigation = useNavigation();
     
@@ -123,10 +123,11 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
 
     // Cache loader to manage the cached notifications
     const cacheloader = (notifications) => {
-        const preLoad = dataList || [];  // Keep previous data
-        const combinedData = [...preLoad, ...(notifications || [])];  // Combine old and new data
-        const uniqueData = Array.from(new Map(combinedData.map(item => [item.notification_id, item])).values());  // Remove duplicates
-        setDataList(uniqueData);  // Update the state with unique notifications
+        setDataList((prevDataList) => {
+            const combinedData = [...prevDataList, ...(notifications || [])];  // Combine old and new data
+            const uniqueData = Array.from(new Map(combinedData.map(item => [item.notification_id, item])).values());  // Remove duplicates
+            return uniqueData;  // Return unique notifications
+        });
     };
 
     // Asynchronous function to load notifications
@@ -137,16 +138,21 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
         }
     };
 
+    // Effect to load notifications on component mount
     useEffect(() => {
-        allNotificationDataLoader({ refreshing: false });
+        const loadNotifications = async () => {
+            await allNotificationDataLoader({ refreshing: false });
+        };
+        loadNotifications();
     }, [page]);
 
+    // Effect to trigger pagination and increase render length
     useEffect(() => {
-        if (renderLength >= dataList.length) {
+        if (!loading && renderLength >= dataList.length && dataList.length > 0) {
             setPage((prevPage) => prevPage + 1);  // Increment page for pagination
             setTotalFetchLength(totalFetchLength + 100);  // Increase the total fetch length
         }
-    }, [renderLength]);
+    }, [renderLength, dataList, loading]);
 
     // Refresh the data on pull to refresh
     const onRefresh = async () => {
@@ -158,21 +164,48 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
 
     // Render each notification item
     const renderItem = useCallback(({ item }) => {
+        const navigate = () => {
+
+
+            if (item?.notification_type === 'POST_TAG' || item?.notification_type === 'NEW_POST' || item?.notification_type === 'POST_RESHARE' || item?.notification_type === 'LIKE_POST' || item.notification_type === 'POST_COMMENT' || item.notification_type === 'POST_COMMENT_REPLY') {
+                navigation.navigate('PostDetail',  item );
+            }else if (item?.notification_type === 'CONNECTION' || item?.notification_type === 'ACCEPT_CONNECTION' ) {
+               navigation.navigate('Profile', { screen: 'UserProfileScreen', params: { user_id: item?.content_id } }) //navigation.navigate('UserProfileScreen', { user_id: item?.content_id })
+            }else if (item?.notification_type === 'EVENT_JOIN') {
+                navigation.navigate('Event', { screen: 'EventDetail', params: { event_id: item?.content_id } })
+            }else if(item?.notification_type === 'ANNOUNCEMENT_COMMENT'|| item?.notification_type === 'LIKE_ANNOUNCEMENT' || item?.notification_type === 'LIKE_ANNOUNCEMENT_COMMENT'){
+                navigation.navigate('Reel', item)
+            }
+        }
+        //navigation.navigate('StackB', { screen: 'ScreenB1' })
         return (
-            <Pressable style={styles.NotificationBox}>
+            <Pressable style={styles.NotificationBox} onPress={() => navigate()}>
                 <Image 
-                    source={require('../assets/icons/avatar.png')}  // Assuming avatar image exists in assets
+                    source={{ uri: item?.userDetails?.profile_picture_url }}  // Assuming avatar image exists in assets
                     style={styles.NotificationDp}
                 />
+            
                 <View style={{ paddingLeft: ResponsiveSize(8), flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', maxWidth: '90%'}}>
+                    
                     <TextC
                         size={ResponsiveSize(12)}
                         font={'Montserrat-Bold'}
-                        text={item?.content}
+                        text={item?.userDetails?.user_name}
                         numberOfLines={3}  // Limit content to three lines
                         ellipsizeMode="tail"
                         style={{ maxWidth: '90%' }}  // Limit text width for layout
                     />
+                    <TextC
+                        size={ResponsiveSize(12)}
+                        font={'Montserrat-Medium'}
+                        text={item?.content}
+                        numberOfLines={3}  // Limit content to three lines
+                        ellipsizeMode="tail"
+                        style={{ maxWidth: '90%', color:'black' }}  // Limit text width for layout
+                    />
+                    </View>
+
                     <TextC
                         size={ResponsiveSize(10)}
                         font={'Montserrat-Regular'}
@@ -216,12 +249,10 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
             ) : (
                 <View style={{ flex: 1, backgroundColor: global.white }}>
                     <FlatList
-                        data={dataList.slice(0, renderLength)}  // Limit rendered items to renderLength
+                        data={dataList}  // Use the full dataList
                         renderItem={renderItem}
                         keyExtractor={(item, index) => index.toString()}
-                        onEndReached={() => {
-                            setRenderLength(renderLength + 10);  // Load more items when reaching the end
-                        }}
+                        onEndReached={() => setRenderLength(renderLength + 10)}  // Load more items when reaching the end
                         onEndReachedThreshold={threshold}  // Trigger when reaching 50% of the content
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
@@ -265,8 +296,8 @@ const styles = StyleSheet.create({
         padding: ResponsiveSize(12),
         borderRadius: ResponsiveSize(10),
         flexDirection: 'row',
-        borderColor: "black",
-        borderWidth: 1,
+      
+      
         alignItems: 'center',
         marginTop: ResponsiveSize(10),
         marginHorizontal: ResponsiveSize(15),
@@ -274,7 +305,7 @@ const styles = StyleSheet.create({
     NotificationDp: {
         height: ResponsiveSize(50),
         width: ResponsiveSize(50),
-        backgroundColor: global.black,
+   
         borderRadius: ResponsiveSize(30),
         justifyContent: 'center',
         alignItems: 'center',
@@ -293,6 +324,4 @@ function mapStateToProps({ NotificationReducer }) {
 
 // Connect component to Redux actions and state
 export default connect(mapStateToProps, NotificationAction)(React.memo(Notification));
-
-
 

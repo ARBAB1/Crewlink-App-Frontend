@@ -27,6 +27,7 @@ export const getAllNotifications = ({ page }) => async (dispatch, getState) => {
         if (response.ok) {
             const res = await response.json();
             if (res.notifications) {
+          
                 dispatch({
                     type: TASK_GET_ALLNOTIFICATIONS_END,
                     payload: res, // Pass the entire response to include unread count

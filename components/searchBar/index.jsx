@@ -12,7 +12,6 @@ const SearchCenter = ({ placeholder, height, style, error, onChange, result, loa
     const windowHeight = Dimensions.get('window').height;
     const store = useStore();
     const state = store.getState()
-    console.log(state?.PostCreationReducer?.searchConnectionData,'oojjjj')
     const styles = StyleSheet.create({
         Input: {
             fontSize: ResponsiveSize(11),

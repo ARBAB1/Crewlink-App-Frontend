@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import Post from "../components/post";
 
 const MyPost = ({ route, UserPostsAll }) => {
-    console.log(route?.params?.user_id)
+   
     const navigation = useNavigation();
     const windowWidth = Dimensions.get('window').width;
     const [post, setPost] = useState([]);
