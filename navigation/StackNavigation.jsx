@@ -72,7 +72,7 @@ const ProfileStackNavigation = ({ onLogin }) => {
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="ChangeAirline" component={ChangeAirline} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="MyPost" component={MyPost} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Connection" component={Connections} />
-      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="SearchUser" component={SearchUser} />
+   
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="UserProfileScreen" component={UserProfileScreen} />
       <Stack.Screen
         options={{ headerShown: false, navigationBarHidden: true }}
@@ -93,6 +93,7 @@ const HomeStackNavigation = () => {
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Home" component={HomeScreen} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="PostDetail" component={PostDetail} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="InAppCheckIn" component={InAppCheckIn} />
+      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="SearchUser" component={SearchUser} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="MessageList" component={MessageList} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Status" component={CreateStatus} />
       <Stack.Screen options={{

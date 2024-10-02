@@ -37,7 +37,8 @@ const reducers = combineReducers({
   PostDetailReducer,
   CustomConnectionsReducer,
   AllPrivacyReducer,
-  AllClosedConnectionsReducer
+  AllClosedConnectionsReducer,
+  CityReducer
 });
 
 const composeEnhancers = window.REDUX_DEVTOOLS_EXTENSION_COMPOSE || compose;

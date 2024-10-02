@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Dimensions, Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { ScrollView } from "react-native-gesture-handler";
 import { DefaultTheme, DarkTheme, useNavigation } from '@react-navigation/native';
 import { useColorScheme } from 'react-native';
 import TextC from "../text/text";
-
-
-const CityScroll = () => {
+import * as CityAction from "../../store/actions/Cities/index";
+import CityReducer from "../../store/reducers/Cities";
+import { connect } from "react-redux";
+const CityScroll = ({ getAllCities,onCitySelect }) => {
     const navigation = useNavigation();
     const scheme = useColorScheme();
+    const [cityList, setCityList] = useState([]);
     const width = Dimensions.get('window').width;
     const styles = StyleSheet.create({
         container: {
@@ -37,18 +39,36 @@ const CityScroll = () => {
             height: 100
         }
     })
+
+    const getAllCity = async()=>{
+console.log('getAllCity')
+  const response = await getAllCities();
+
+setCityList(response)
+    }
+    useEffect(() => {
+        getAllCity();
+    }, [])
     return (
         <>
             <View style={styles.container}>
                 <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-              
-                    <TouchableOpacity style={styles.ScrollCardWrapper} onPress={() =>  navigation.navigate('Status')}>
-                        <View style={styles.ScrollCard}>
-                            <Image source={require('../../assets/icons/cityImage1.png')} style={styles.cityContentImage} />
-                        </View>
-                        <TextC text={"NewYork"} font={'Montserrat-Medium'} size={12}  style={{width:60}} ellipsizeMode={"tail"} numberOfLines={1}/>
-                    </TouchableOpacity>
-                    <View style={styles.ScrollCardWrapper}>
+              {
+                cityList?.map((item, index) => {
+                    return (
+                        <TouchableOpacity key={index} style={styles.ScrollCardWrapper}
+                        onPress={() => onCitySelect(item.city)} // Call onCitySelect when city is clicked
+                        >
+                            <View style={styles.ScrollCard}>
+                                <Image source={{ uri: item.city_image_url }} style={styles.cityContentImage} />
+                            </View>
+                            <TextC text={item.city} font={'Montserrat-Medium'} size={12} style={{width:60}} ellipsizeMode={"tail"} numberOfLines={1}/>
+                        </TouchableOpacity>
+                    )
+                })
+              }
+                  
+                    {/* <View style={styles.ScrollCardWrapper}>
                         <View style={styles.ScrollCard}>
                             <Image source={require('../../assets/icons/cityImage2.png')} style={styles.cityContentImage} />
                         </View>
@@ -89,12 +109,18 @@ const CityScroll = () => {
                             <Image source={require('../../assets/icons/cityImage4.png')} style={styles.cityContentImage} />
                         </View>
                         <TextC text={"Los Angeles"} font={'Montserrat-Medium'} size={12} style={{width:60}} ellipsizeMode={"tail"} numberOfLines={1}/>
-                    </View>
+                    </View> */}
                 </ScrollView>
             </View>
         </>
     )
 }
 
-export default CityScroll;
+function mapStateToProps({ CityReducer }) {
+    return { CityReducer };
+}
+
+// Connect component to Redux actions and state
+export default connect(mapStateToProps, CityAction)(React.memo(CityScroll));
+
 

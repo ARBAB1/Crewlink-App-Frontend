@@ -162,9 +162,16 @@ const HomeScreen = ({
   const navigation = useNavigation();
   const [post, setPost] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedCity, setSelectedCity] = useState('');
+  const handleCitySelect = (city) => {
+     setSelectedCity(city);
+    console.log("Selected City:", city); // Debugging: Check the selected city value
+  };
   const getFeeds = async () => {
     setLoading(true);
-    const result = await GetUserPosts();
+    console.log(selectedCity, 'selectedCity')
+    const result = await GetUserPosts({city: selectedCity});
+    console.log(result, 'result')
     if (result) {
       setPost(result.reverse())
       setLoading(false)
@@ -195,7 +202,7 @@ const HomeScreen = ({
     if (PostCreationReducer?.uploadLoading == false) {
       getFeeds();
     }
-  }, [PostCreationReducer?.uploadLoading, route.params?.CheckInCity]);
+  }, [PostCreationReducer?.uploadLoading, route.params?.CheckInCity, selectedCity]);
 
   const styles = StyleSheet.create({
     UploadingLoader: {
@@ -245,7 +252,7 @@ const HomeScreen = ({
               : { backgroundColor: 'white' }),
           }}>
           <View>
-            <CityScroll />
+            <CityScroll  onCitySelect={handleCitySelect}/>
           </View>
 
           {PostCreationReducer?.uploadLoading && (
@@ -294,6 +301,7 @@ const HomeScreen = ({
                   <Post
                     key={data?.post_id}
                     selfLiked={data?.selfLiked}
+                    
                     postId={data?.post_id}
                     timeAgo={data?.created_at}
                     userLocation={`${data?.lastCheckin?.city} | ${data?.lastCheckin?.state}`}

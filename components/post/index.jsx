@@ -35,6 +35,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const Post = ({
   userName,
+ 
   profileImage,
   selfLiked,
   LikeCommentFunc,

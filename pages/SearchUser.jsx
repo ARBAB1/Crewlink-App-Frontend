@@ -29,6 +29,7 @@ import Modal from 'react-native-modal';
 import * as UserRegisterAction from "../store/actions/UserRegister/index";
 import { connect } from "react-redux";
 import { set } from 'react-hook-form';
+import CommnetLight from '../assets/icons/Comment.png';
 import post from '../components/post';
 
 
@@ -39,8 +40,8 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
   const scheme = useColorScheme();
   const [isVisible, setIsVisible] = useState(false);
   const [postfilter, setPostFilter] = useState(false);
-  const [searchPostfilter, setSearchPostFilter] = useState(false);
-  const [searchUserfilter, setSearchUserFilter] = useState(false);
+  const [searchPostfilter, setSearchPostFilter] = useState(true);
+  const [searchUserfilter, setSearchUserFilter] = useState(true);
   const [userfilter, setUserFilter] = useState(false);
   const [position, setPosition] = useState([])
   const [airLine, setAirline] = useState([])
@@ -160,6 +161,12 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
       alignItems: 'center',
       justifyContent: 'space-between',
     },
+    ListOfSearchPost: {
+      // paddingVertical: ResponsiveSize(5),
+      flexDirection: 'column',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+    },
     ProfileImage: {
       height: ResponsiveSize(40),
       width: ResponsiveSize(40),
@@ -192,6 +199,12 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
       paddingHorizontal: ResponsiveSize(15),
       paddingTop: ResponsiveSize(!isVisible ? 0 : ResponsiveSize(15)),
       overflow: 'hidden'
+    },
+    ActuallPost: {
+      height: windowHeight * 0.2,
+      width: windowWidth * 0.6,
+     marginVertical: ResponsiveSize(15),
+      borderRadius: 0,
     },
     filterTab: {
       backgroundColor: global.primaryColor,
@@ -343,23 +356,11 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
         }),
       },
     );
-    console.log({
-      airline_ids: airLine,
-      check_in_cities: city ? city : [],
-      user_types: position,
-      time_left: stayTime ? stayTime : [],
-      user_search: searchText,
-      countries: country,
-      states: state,
-      post_search: searchText,
-      is_user_search: true,
-      is_post_search: true
-
-    })
+    
     const result = await response.json();
-    console.log(result, 'result');
+    console.log(result, 'resulta');
     setSearchedUser(result?.users);
-    setSearchedPost(result?.post);
+    setSearchedPost(result?.posts);
     setLoading(false);
   };
   const SearchUsersDirect = async (e) => {
@@ -688,9 +689,17 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
                   searchedPost?.length > 0
                   ? (
                     <>
-                <TextC text={"Users"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{paddingBottom:ResponsiveSize(20)}} />
+                    {!isVisible?(
 
-                  {searchUserfilter && searchedUser.map(data => (
+                      <TextC text={"Users"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{paddingBottom:ResponsiveSize(20)}} />
+                    ):isVisible && userfilter ? (
+                      <TextC text={"Users"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{paddingBottom:ResponsiveSize(20)}} />
+                    ):null
+
+                    }
+
+                  {!isVisible?  
+                  searchedUser.map(data => (
                     <>
                     <Pressable onPress={() => navigation.navigate('UserProfileScreen', { user_id: data?.user_id })} style={styles.ListOfSearch}>
                       <View
@@ -765,21 +774,112 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
                       />
                     </Pressable>
                     </>
-                    ))
-                  
+                    )):isVisible && userfilter?
+                    searchedUser.map(data => (
+                      <>
+                      <Pressable onPress={() => navigation.navigate('UserProfileScreen', { user_id: data?.user_id })} style={styles.ListOfSearch}>
+                        <View
+                          style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <FastImage
+                            style={styles.ProfileImage}
+                            source={{
+                              uri: data?.profile_picture_url,
+                              priority: FastImage.priority.high,
+                            }}
+                          />
+                          <View style={styles.UpcomingContent}>
+                            <TextC
+                              text={data.user_name}
+                              font={'Montserrat-Bold'}
+                              size={ResponsiveSize(12)}
+                              style={{ width: ResponsiveSize(80) }}
+                              ellipsizeMode={'tail'}
+                              numberOfLines={1}
+                            />
+                          </View>
+                        </View>
+  
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <TextC
+                            text={data.airline_abbreviation}
+                            style={{
+                              color: global.placeholderColor,
+                              paddingVertical: ResponsiveSize(2),
+                            }}
+                            font={'Montserrat-Medium'}
+                            size={ResponsiveSize(11)}
+                          />
+                          <TextC
+                            text={"|"}
+                            style={{
+                              color: global.placeholderColor,
+                              paddingHorizontal: ResponsiveSize(2),
+                              paddingBottom: ResponsiveSize(2),
+                            }}
+                            font={'Montserrat-Medium'}
+                            size={ResponsiveSize(11)}
+                          />
+                          <TextC
+                            text={
+                              data.user_type == 'PILOT'
+                                ? 'P'
+                                : data.user_type == 'FLIGHT ATTENDANT'
+                                  ? 'FA'
+                                  : data?.user_type == 'TECHNICIAN'
+                                    ? 'TE'
+                                    : ''
+                            }
+                            style={{
+                              color: global.placeholderColor,
+                              paddingVertical: ResponsiveSize(2),
+                            }}
+                            font={'Montserrat-Medium'}
+                            size={ResponsiveSize(11)}
+                          />
+                        </View>
+  
+  
+                        <TextC
+                          text={`${data.checkin_remaining_time}h`}
+                          style={{
+                            color: global.placeholderColor,
+                            paddingVertical: ResponsiveSize(2),
+                          }}
+                          font={'Montserrat-Medium'}
+                          size={ResponsiveSize(11)}
+                        />
+                      </Pressable>
+                      </>
+                      )):null
                     }
 
 <>
+{!isVisible?(
+   <Pressable onPress={() => setUserFilter(true)}  style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%'}} >
+   <TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)}/>
+   </Pressable>
+):
+ isVisible && userfilter ? (
+  <Pressable onPress={() => setUserFilter(true)}  style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%'}} >
+  <TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)}/>
+  </Pressable>
+ ):null
+}
 
-<Pressable onPress={() => setUserFilter(true)}  style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%'}} >
-<TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)}/>
-</Pressable>
 </>
-                <TextC text={"Posts"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{paddingBottom:ResponsiveSize(20)}} />
 
-{searchPostfilter && searchedPost?.map(data => (
+
+
+              {
+!isVisible ?
+              <TextC text={"Posts"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{paddingBottom:ResponsiveSize(20)}} />: isVisible && postfilter?
+              <TextC text={"Posts"} font={'Montserrat-SemiBold'} size={ResponsiveSize(16)} style={{paddingBottom:ResponsiveSize(20)}} />:null
+              } 
+{ !isVisible?
+searchedPost?.map(data => (
+
                     <>
-                    <Pressable onPress={() => navigation.navigate('UserProfileScreen', { user_id: data?.user_id })} style={styles.ListOfSearch}>
+                    <Pressable onPress={() =>  navigation.navigate('PostDetail',  data?.post_id )} style={styles.ListOfSearchPost}>
                       <View
                         style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <FastImage
@@ -790,6 +890,9 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
                           }}
                         />
                         <View style={styles.UpcomingContent}>
+                         
+                     
+             
                           <TextC
                             text={data?.userDetails?.user_name}
                             font={'Montserrat-Bold'}
@@ -801,29 +904,184 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
                         </View>
                       </View>
 
-                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    
-                      </View>
-
-
+                      <View style={{ flexDirection: 'column', alignItems: 'center',justifyContent:'center' }}>
                       <TextC
                         text={`${data?.caption}`}
                         style={{
                           color: global.placeholderColor,
-                          paddingVertical: ResponsiveSize(2),
+                          paddingVertical: ResponsiveSize(12),
                         }}
                         font={'Montserrat-Medium'}
                         size={ResponsiveSize(11)}
                       />
+                      {data?.attachments?.length > 0 &&
+                          <>
+                            <FastImage
+              source={{
+                uri: data?.attachments[0]?.attachment_url,
+                priority: FastImage.priority.high,
+              }}
+              style={styles.ActuallPost}
+              />
+             
+         
+                          </>
+
+                          }
+
+
+                     
+                        </View>
+              <View style={{flexDirection:'row',justifyContent:'space-evenly',alignItems:'center',width:'100%'}}>
+                <View style={{flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
+
+               
+              <AntDesign
+            name={ 'hearto'}
+            color={ global.primaryColor }
+            size={ResponsiveSize(22)}
+          />
+
+          <TextC
+            text={`${data?.likes_count} Likes`}
+            style={{
+              color: global.placeholderColor,
+              paddingVertical: ResponsiveSize(2),
+            }}
+            font={'Montserrat-Medium'}
+            size={ResponsiveSize(11)}
+          />
+           </View>
+              <View style={{flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
+              <Image
+              source={CommnetLight}
+              style={{ height: ResponsiveSize(20), width: ResponsiveSize(20) }}
+            />
+
+          <TextC
+            text={`${data?.comments_count} Comments`}
+            style={{
+              color: global.placeholderColor,
+              paddingVertical: ResponsiveSize(2),
+            }}
+            font={'Montserrat-Medium'}
+            size={ResponsiveSize(11)}
+          />
+          </View>
+              </View>
                     </Pressable>
                     </>
                     ))
-                    }
-                    <>
+                    : isVisible && postfilter ? searchedPost?.map(data => (
 
-<Pressable onPress={() => setUserFilter(true)}  style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%'}} >
-<TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)}/>
-</Pressable>
+                    <>
+                    <Pressable onPress={() =>  navigation.navigate('PostDetail',  data?.post_id )} style={styles.ListOfSearchPost}>
+                      <View
+                        style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <FastImage
+                          style={styles.ProfileImage}
+                          source={{
+                            uri: data?.userDetails?.profile_picture_url,
+                            priority: FastImage.priority.high,
+                          }}
+                        />
+                        <View style={styles.UpcomingContent}>
+                         
+                     
+             
+                          <TextC
+                            text={data?.userDetails?.user_name}
+                            font={'Montserrat-Bold'}
+                            size={ResponsiveSize(12)}
+                            style={{ width: ResponsiveSize(80) }}
+                            ellipsizeMode={'tail'}
+                            numberOfLines={1}
+                          />
+                        </View>
+                      </View>
+
+                      <View style={{ flexDirection: 'column', alignItems: 'center',justifyContent:'center' }}>
+                      <TextC
+                        text={`${data?.caption}`}
+                        style={{
+                          color: global.placeholderColor,
+                          paddingVertical: ResponsiveSize(12),
+                        }}
+                        font={'Montserrat-Medium'}
+                        size={ResponsiveSize(11)}
+                      />
+                      {data?.attachments?.length > 0 &&
+                          <>
+                            <FastImage
+              source={{
+                uri: data?.attachments[0]?.attachment_url,
+                priority: FastImage.priority.high,
+              }}
+              style={styles.ActuallPost}
+              />
+             
+         
+                          </>
+
+                          }
+
+
+                     
+                        </View>
+              <View style={{flexDirection:'row',justifyContent:'space-evenly',alignItems:'center',width:'100%'}}>
+                <View style={{flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
+
+               
+              <AntDesign
+            name={ 'hearto'}
+            color={ global.primaryColor }
+            size={ResponsiveSize(22)}
+          />
+
+          <TextC
+            text={`${data?.likes_count} Likes`}
+            style={{
+              color: global.placeholderColor,
+              paddingVertical: ResponsiveSize(2),
+            }}
+            font={'Montserrat-Medium'}
+            size={ResponsiveSize(11)}
+          />
+           </View>
+              <View style={{flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
+              <Image
+              source={CommnetLight}
+              style={{ height: ResponsiveSize(20), width: ResponsiveSize(20) }}
+            />
+
+          <TextC
+            text={`${data?.comments_count} Comments`}
+            style={{
+              color: global.placeholderColor,
+              paddingVertical: ResponsiveSize(2),
+            }}
+            font={'Montserrat-Medium'}
+            size={ResponsiveSize(11)}
+          />
+          </View>
+              </View>
+                    </Pressable>
+                    </>
+                    )):null
+                  }
+                    <>
+{!isVisible ?(
+  <Pressable onPress={() => setUserFilter(true)}  style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%'}} >
+  <TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)}/>
+  </Pressable>
+):isVisible && postfilter ? (
+  <Pressable onPress={() => setUserFilter(true)}  style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%'}} >
+  <TextC text={"Load More"} font={'Montserrat-SemiBold'} size={ResponsiveSize(12)}/>
+  </Pressable>
+):null
+
+}
+
 </>
                     </>
                   

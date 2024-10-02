@@ -9,9 +9,17 @@ import { connect } from 'react-redux';
 import Post from "../components/post";
 
 const PostDetail = ({ route,getPostDetail }) => {
+let params
+let type
+    if (!route?.params?.content_id) {
+      params = route?.params 
+       type = 'NEW_POST'
+    }
+    else{
+      params = route?.params?.content_id
+       type = route?.params?.notification_type
+    }
 
-  const params = route?.params?.content_id 
-  const type = route?.params?.notification_type
  
     const navigation = useNavigation();
     const windowWidth = Dimensions.get('window').width;

@@ -51,10 +51,10 @@ const MainHeader = ({ GetUserProfileReducer, loading }) => {
                     <View style={styles.NotifyPin}></View>
                     <Image source={require('../../assets/icons/HeaderIcon2.png')} style={{ objectFit: 'contain', width: ResponsiveSize(21), height: ResponsiveSize(21) }} />
                 </TouchableOpacity>
-                <TouchableOpacity style={{ padding: 4, position: 'relative' }} onPress={() => navigation.navigate('MessageList')}>
-                  
-                  <View style={styles.NotifyPin}></View>
-                  <Image source={require('../../assets/icons/HeaderIcon2.png')} style={{ objectFit: 'contain', width: ResponsiveSize(21), height: ResponsiveSize(21) }} />
+                <TouchableOpacity style={{ padding: 4, position: 'relative' }} onPress={() => navigation.navigate('SearchUser')}>
+                <Ionicons name='search' size={ResponsiveSize(24)} color={global.primaryColor} />
+               
+
               </TouchableOpacity>
 {/*                 
                 <TouchableOpacity onPress={() => navigation.navigate('Notification')} style={{ padding: 4 }}>

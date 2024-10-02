@@ -98,10 +98,10 @@ export const Login = () => async (dispatch) => {
     });
 }
 
-export const GetUserPosts = () => async (dispatch) => {
+export const GetUserPosts = ({city}) => async (dispatch) => {
     const Token = await AsyncStorage.getItem('Token');
     try {
-        const response = await fetch(`${baseUrl.baseUrl}/posts/get-posts-feed/1/50000`, {
+        const response = await fetch(`${baseUrl.baseUrl}/posts/get-posts-feed/1/50000?city=${city}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -110,6 +110,7 @@ export const GetUserPosts = () => async (dispatch) => {
             },
         });
         const res = await response.json()
+        console.log(res, 'res')
         return res?.data
     }
     catch (error) {
