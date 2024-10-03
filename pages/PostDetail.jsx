@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import Post from "../components/post";
 
 const PostDetail = ({ route,getPostDetail }) => {
+    console.log(route?.params, 'route')
 let params
 let type
     if (!route?.params?.content_id) {
@@ -18,6 +19,7 @@ let type
     else{
       params = route?.params?.content_id
        type = route?.params?.notification_type
+       
     }
 
  

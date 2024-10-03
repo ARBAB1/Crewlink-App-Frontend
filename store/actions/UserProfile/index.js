@@ -25,7 +25,6 @@ export const GetProfileData = () => async (dispatch) => {
             },
         });
         const res = await response.json()
-        console.log(res)
         dispatch({
             type: TASK_GET_PROFILE_DETAIL_END,
             payload: res?.data,
@@ -110,7 +109,6 @@ export const GetUserPosts = ({city}) => async (dispatch) => {
             },
         });
         const res = await response.json()
-        console.log(res, 'res')
         return res?.data
     }
     catch (error) {
@@ -130,7 +128,6 @@ export const UserPostsAll = ({ user_id, page }) => async (dispatch) => {
             },
         });
         const res = await response.json()
-        console.log(res)
         return res
     }
     catch (error) {
@@ -151,7 +148,6 @@ export const LoadUserProfile = (body) => async (dispatch) => {
             },
         });
         const res = await response.json()
-        console.log(res)
         return res
     }
     catch (error) {

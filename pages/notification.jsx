@@ -6,7 +6,7 @@ import * as NotificationAction from "../store/actions/Notification/index";
 import { RefreshControl } from "react-native-gesture-handler";
 import TextC from "../components/text/text";
 import LinearGradient from 'react-native-linear-gradient';
-import { global, ResponsiveSize } from "../components/constant";
+import { global, notificationTypes, ResponsiveSize } from "../components/constant";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Easing } from 'react-native-reanimated';
 import moment from 'moment'; // Import moment
@@ -167,13 +167,13 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
         const navigate = () => {
 
 
-            if (item?.notification_type === 'POST_TAG' || item?.notification_type === 'NEW_POST' || item?.notification_type === 'POST_RESHARE' || item?.notification_type === 'LIKE_POST' || item.notification_type === 'POST_COMMENT' || item.notification_type === 'POST_COMMENT_REPLY') {
+            if (item?.notification_type === notificationTypes.POST_TAG || item?.notification_type === notificationTypes.NEW_POST || item?.notification_type === notificationTypes.POST_RESHARE || item?.notification_type === notificationTypes.LIKE_POST || item.notification_type === notificationTypes.POST_COMMENT || item.notification_type === notificationTypes.POST_COMMENT_REPLY) {
                 navigation.navigate('PostDetail',  item );
-            }else if (item?.notification_type === 'CONNECTION' || item?.notification_type === 'ACCEPT_CONNECTION' ) {
+            }else if (item?.notification_type === notificationTypes.CONNECTION || item?.notification_type === notificationTypes.ACCEPT_CONNECTION ) {
                navigation.navigate('Profile', { screen: 'UserProfileScreen', params: { user_id: item?.content_id } }) //navigation.navigate('UserProfileScreen', { user_id: item?.content_id })
-            }else if (item?.notification_type === 'EVENT_JOIN') {
+            }else if (item?.notification_type === notificationTypes.EVENT_JOIN) {
                 navigation.navigate('Event', { screen: 'EventDetail', params: { event_id: item?.content_id } })
-            }else if(item?.notification_type === 'ANNOUNCEMENT_COMMENT'|| item?.notification_type === 'LIKE_ANNOUNCEMENT' || item?.notification_type === 'LIKE_ANNOUNCEMENT_COMMENT'){
+            }else if(item?.notification_type === notificationTypes.ANNOUNCEMENT_COMMENT|| item?.notification_type === notificationTypes.LIKE_ANNOUNCEMENT || item?.notification_type === notificationTypes.LIKE_ANNOUNCEMENT_COMMENT){
                 navigation.navigate('Reel', item)
             }
         }

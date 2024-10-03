@@ -29,7 +29,9 @@ import MainHeader from '../components/mainHeader';
 import CreatePostHeader from '../components/mainHeader/createPostHeader';
 import EventHeader from '../components/mainHeader/event';
 import { DefaultTheme, DarkTheme } from '@react-navigation/native';
-import { useColorScheme } from 'react-native';
+import { useColorScheme,Linking,AppState } from 'react-native';
+
+
 import {
   ProfileStackNavigation,
   EventStackNavigation,
@@ -45,8 +47,9 @@ import Approval from '../pages/Approval';
 import * as UserProfile from '../store/actions/UserProfile/index';
 import { connect } from 'react-redux';
 import FastImage from 'react-native-fast-image';
-import notifee, { AuthorizationStatus } from '@notifee/react-native';
+import notifee, { EventType } from '@notifee/react-native';
 import messaging from '@react-native-firebase/messaging';
+import AddEvent from '../pages/AddEvent';
 const MainNavigation = ({ GetUserProfileReducer }) => {
   const [isLoggedIn, setIsLoggedIn] = React.useState(true);
   const Stack = createNativeStackNavigator();
@@ -56,39 +59,101 @@ const MainNavigation = ({ GetUserProfileReducer }) => {
     VerifyToken();
   
   }, []);
-  useEffect(() => {
-    const unsubscribeBackground = messaging().onMessage(async remoteMessage => {
-      const notifeeData = remoteMessage;
+ 
+  // useEffect(() => {
+  //   messaging().setBackgroundMessageHandler(async remoteMessage => {
+  //     console.log('Message handled in the background!', remoteMessage);
+  //     const notifeeData = remoteMessage;
 
-      const permission = await notifee.requestPermission();
-      const channelId = await notifee.createChannel({
-        id: 'default',
-        name: 'Default Channel',
-      });
-  await notifee.displayNotification({
-        title: notifeeData.notification.title,
-        body: notifeeData.notification.body,
-        android: {
-          channelId,
-          // pressAction is needed if you want the notification to open the app when pressed
-          pressAction: {
-            id: 'default',
-          },
-          
-        },
-      });
-      
-    });
+  //     const permission = await notifee.requestPermission();
+  //     const channelId = await notifee.createChannel({
+  //       id: 'default',
+  //       name: 'Default Channel',
+  //     });
+  //     const notification = await notifee.displayNotification({
+  //       title: notifeeData.notification.title,
+  //       body: notifeeData.notification.body,
+  //       android: {
+  //         channelId,
+  //         // pressAction is needed if you want the notification to open the app when pressed
+  //         pressAction: {
+  //           id: 'default',
+  //         },
+  //         actions: [
+  //           {
+  //             title: 'Open Link',
+  //             pressAction: {
+  //               id: 'open_link', // This ID will be used to capture in the event listener
+  //             },
+  //           },
+  //         ],
+  //       },
+  //       apn:{
+  //         headers :{
+  //           'apns-priority':'10'
+  //         }
+  //       }
+  //     });
+  //   });
+  //    notifee.onBackgroundEvent(async ({ type, detail }) => {
+  //     const { notification, pressAction } = detail;
+  //     console.log(detail, 'onBackgroundEvent')
+    
+  //     if (type === EventType.ACTION_PRESS) {
+  //       // Trigger deep link when the notification is tapped
+  //       const url = notification.data.url;
+  //       Linking.openURL(url);  // Deep link to the chat screen
+  //     }
+  //     console.log(detail, 'onBackgroundEvent')
+  
+  //   });
+  // }, []);
+  // useEffect(() => {
+   
+  //   const unsubscribeBackground = messaging().onMessage(async remoteMessage => {
+  //     const notifeeData = remoteMessage;
 
-    return unsubscribeBackground;
-  }, []);
+  //     const permission = await notifee.requestPermission();
+  //     const channelId = await notifee.createChannel({
+  //       id: 'default',
+  //       name: 'Default Channel',
+  //     });
+  //     await notifee.displayNotification({
+  //       title: notifeeData.notification.title,
+  //       body: notifeeData.notification.body,
+  //       android: {
+  //         channelId,
+  //         // pressAction is needed if you want the notification to open the app when pressed
+  //         pressAction: {
+  //           id: 'default',
+  //         },
+  //         actions: [
+  //           {
+  //             title: 'Open Link',
+  //             pressAction: {
+  //               id: 'open_link', // This ID will be used to capture in the event listener
+  //             },
+  //           },
+  //         ],
+  //       },
+  //       apn:{
+  //         headers :{
+  //           'apns-priority':'10'
+  //         }
+  //       },
+  //     });
+   
+
+  //   });
+
+  //   return unsubscribeBackground;
+  // }, []);
 
 
 
   const VerifyToken = async () => {
     try {
       const value = await AsyncStorage.getItem('Token');
-
       if (value !== null) {
         setIsLoggedIn(true);
         await notifee.requestPermission();
@@ -98,6 +163,7 @@ const MainNavigation = ({ GetUserProfileReducer }) => {
     } catch (e) {
       setIsLoggedIn(false);
     }
+
   };
 
   const styles = StyleSheet.create({
@@ -113,9 +179,85 @@ const MainNavigation = ({ GetUserProfileReducer }) => {
     },
   });
 
+  const linking = {
+    prefixes: ['crewlink://'],  // Same as the URL scheme defined in Xcode
+    config: {
+      screens: {
+        Home: {
+          screens: {
+            PostDetail: 'PostDetail/:content_id',  
+            InAppCheckIn: 'InAppCheckIn',
+            SearchUser: 'SearchUser',
+            MessageList: 'MessageList',
+            Status: 'Status',
+            Message: 'Message/id',   //notification_type = "message" url=crewlink://message/id
+            MediaDetail: 'MediaDetail',
+            NewMessage: 'NewMessage',
+            newGroup: 'newGroup',
+            NewGroupSecondScreen: 'NewGroupSecondScreen',
+            GroupMessage: 'GroupMessage',
+            messageMedia: 'messageMedia',
+            GroupmessageMedia: 'GroupmessageMedia',
+            Notification: 'Notification',
+          }
+        },
+        Event: {
+          screens: {
+            EventScreen: 'EventScreen',
+            AddEvent: 'AddEvent',
+            EventDetail: 'EventDetail',
+            UpdateEvent: 'UpdateEvent',
+          }
+        },
+        Profile: {
+          screens: {
+            ProfileMain: 'ProfileMain',
+            EditProfile: 'EditProfile',
+            Setting: 'Setting',
+            ChangePassword: 'ChangePassword',
+            ChangeAirline: 'ChangeAirline',
+            MyPost: 'MyPost',
+            Connection: 'Connection',
+            UserProfileScreen: 'UserProfileScreen',
+            DeleteAccount: 'DeleteAccount',
+            PrivacySetting: 'PrivacySetting',
+          }
+        },
+        CreatePost: {
+          screens: {
+            CreatePost: 'CreatePost',
+            CreatePostTwo: 'CreatePostTwo',
+            TagPeople: 'TagPeople',
+            PostSetting: 'PostSetting',
+          }
+        },
+        Reel: {
+          screens: {
+            announcement: 'announcement',
+            createAnnouncement: 'createAnnouncement',
+            announcementDetail: 'announcementDetail',
+          }
+        },
+      }
+    }
+  };
+//   console.log('urlio');
+
+
+// Linking.canOpenURL('crewlink://PostDetail/23')
+//   .then(supported => {
+//     if (supported) {
+//       // Linking.openURL('crewlink://PostDetail/23')
+//       //   .catch(err => console.error('Failed to open URL:', err));
+//         console.log('urlio1');
+//     } else {
+//       console.log('URL scheme not supported');
+//     }
+//   })
+//   .catch(err => console.error('Error checking URL:', err));
   
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       {isLoggedIn ? (
         <Tab.Navigator
           screenOptions={({ route }) => ({

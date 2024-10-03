@@ -81,7 +81,6 @@ export const changePassword = (body) => async (dispatch) => {
             body: JSON.stringify(body)
         });
         const res = await response.json()
-        console.log(res)
         return res?.message
     }
     catch (error) {
@@ -103,7 +102,6 @@ export const ChangeAirline = (body) => async (dispatch) => {
             body: body
         });
         const res = await response.json()
-        console.log(res)
         return res?.message
     }
     catch (error) {

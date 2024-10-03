@@ -26,7 +26,6 @@ export const getAllCities = () => async (dispatch, getState) => {
 
         if (response.ok) {
             const res = await response.json();
-            console.log(res, 'res');
 
             if (res.data) {
           

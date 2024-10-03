@@ -391,7 +391,6 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
       },
     );
     const result = await response.json();
-    console.log(result, 'result');
     setSearchedUser(result?.users);
     setSearchedPost(result?.posts);
     setLoading(false);

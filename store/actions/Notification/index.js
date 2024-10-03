@@ -26,6 +26,7 @@ export const getAllNotifications = ({ page }) => async (dispatch, getState) => {
 
         if (response.ok) {
             const res = await response.json();
+            
             if (res.notifications) {
           
                 dispatch({

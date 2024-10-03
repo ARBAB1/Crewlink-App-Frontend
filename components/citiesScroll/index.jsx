@@ -41,7 +41,6 @@ const CityScroll = ({ getAllCities,onCitySelect }) => {
     })
 
     const getAllCity = async()=>{
-console.log('getAllCity')
   const response = await getAllCities();
 
 setCityList(response)

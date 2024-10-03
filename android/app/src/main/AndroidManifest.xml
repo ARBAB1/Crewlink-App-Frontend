@@ -32,6 +32,13 @@
             <category android:name="android.intent.category.LAUNCHER" />
             <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
         </intent-filter>
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:scheme="myapp"/>
+        </intent-filter>
+
       </activity>
       <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCk3D9V8gfZ_c7xmNhHs7RpqTODFndxHzU"/>
     </application>

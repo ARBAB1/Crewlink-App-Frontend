@@ -171,7 +171,6 @@ const HomeScreen = ({
     setLoading(true);
     console.log(selectedCity, 'selectedCity')
     const result = await GetUserPosts({city: selectedCity});
-    console.log(result, 'result')
     if (result) {
       setPost(result.reverse())
       setLoading(false)

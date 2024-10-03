@@ -26,7 +26,7 @@ import { connect } from 'react-redux';
 import CommnetLight from '../../assets/icons/Comment.png';
 import ShareLight from '../../assets/icons/Share.png';
 import * as PostCreationAction from '../../store/actions/PostCreation/index';
-import { ResponsiveSize, global } from '../constant';
+import { ResponsiveSize, global, notificationTypes } from '../constant';
 import TextC from '../text/text';
 import Comments from './comment';
 import Reply from './Reply';
@@ -58,7 +58,7 @@ const Post = ({
   DeletComments,
   type
 }) => {
-
+// console.log(type, 'type', postId, 'postId')
   const navigation = useNavigation();
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -92,7 +92,7 @@ const Post = ({
   const [isShareModal, setIsShareModal] = useState(false);
 
   useEffect(() => {
-    if(type === 'POST_COMMENT' || type === 'POST_COMMENT_REPLY'){
+    if(type === notificationTypes.POST_COMMENT || type === notificationTypes.POST_COMMENT_REPLY){
         toggleModal()
     }
     
@@ -1144,6 +1144,7 @@ const Post = ({
         <>
           {content[0]?.attachment_url.endsWith('.mp4') ? (
             <View
+            
               style={{
                 height: Winheight,
                 width: windowWidth,

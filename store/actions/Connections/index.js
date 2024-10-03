@@ -43,7 +43,6 @@ export const getAllConnections = ({ page }) => async (dispatch, getState) => {
         });
         if (response.ok === true) {
             const res = await response.json()
-            console.log(res,'"Response');
             if (res?.data) {
                 dispatch({
                     type: TASK_GET_ALLCONNECTIONS_END,
