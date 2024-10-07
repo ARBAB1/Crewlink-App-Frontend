@@ -110,7 +110,7 @@ const App = () => {
         if (remoteMessage) {
           const deepLinkUrl = remoteMessage.data.deepLinkUrl;
           console.log('App opened by notification (terminated):', deepLinkUrl);
-          Linking.canOpenURL(deepLinkUrl)
+          Linking.canOpenURL('crewlink://PostDetail/6')
             .then(supported => {
               if (!supported) {
                 console.log('URL scheme not supported');
@@ -119,6 +119,7 @@ const App = () => {
               }
             })
             .catch(err => console.error('Error checking URL:', err));
+          // Linking.openURL('crewlink://NotPostDetail/6/LIKE_POST').catch(err =>
           Linking.openURL(deepLinkUrl).catch(err =>
             console.error('Failed to open URL:', err),
           );

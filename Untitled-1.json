@@ -1,0 +1,17 @@
+{
+    "data": {
+        "content_id": "38",
+        "content_type": "LIKE_POST",
+        "deepLinkUrl": "crewlink://PostDetail/22?notification_type=LIKE_POST",
+        "fcm_options": {
+            "image": "https://uploadimagenest.s3.eu-north-1.amazonaws.com/b4e541d8-6d6e-4c8b-9e18-001ef4e381ac_CALIFORNIA.png"
+        }
+    },
+    "from": "422759084129",
+    "messageId": "1727963534215367",
+    "mutableContent": true,
+    "notification": {
+        "body": "Martin test liked your post",
+        "title": "LIKE_POST"
+    }
+}

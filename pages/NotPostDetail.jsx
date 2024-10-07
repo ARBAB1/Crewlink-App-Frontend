@@ -7,22 +7,17 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import * as PostDetailAction from '../store/actions/PostById/index';
 import { connect } from 'react-redux';
 import Post from "../components/post";
-
-const PostDetail = ({ route,getPostDetail }) => {
-    console.log(route?.params, 'route')
-let params
-let type
-    if (!route?.params?.content_id) {
-      params = route?.params 
-       type = 'NEW_POST'
-    }
-    else{
-      params = parseInt(route?.params?.content_id)
-       type = (route?.params?.content_type).toString()
+import messaging from '@react-native-firebase/messaging';
+import notifee, {EventType} from '@notifee/react-native';
+const NotPostDetail = ({route, getPostDetail}) => {
+    console.log(route?.params, 'route1')
+    let params
+    let type
        
-    }
+    params = parseInt(route?.params?.content_id)
+    type = (route?.params?.content_type).toString()
+    
 
- 
     const navigation = useNavigation();
     const windowWidth = Dimensions.get('window').width;
     const [post, setPost] = useState([]);
@@ -67,10 +62,10 @@ let type
  
         setLoading(false)
     }
-
-    useEffect(() => {
-        LoadUserPosts()
-    }, [])
+useEffect(() => {
+   LoadUserPosts()
+}, [])
+ 
     return (
         <>
             <SafeAreaView style={{ flex: 1 }}>
@@ -131,4 +126,4 @@ let type
 function mapStateToProps({ PostDetailReducer }) {
     return { PostDetailReducer };
 }
-export default connect(mapStateToProps, PostDetailAction)(PostDetail);
+export default connect(mapStateToProps, PostDetailAction)(NotPostDetail);

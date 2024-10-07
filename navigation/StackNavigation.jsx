@@ -38,6 +38,7 @@ import ChatMediaDetail from '../pages/mediaDetail.jsx';
 import GroupmessageMedia from '../pages/GroupmessageMedia.jsx';
 import PrivacySetting from '../pages/PrivacySetting.jsx';
 import CreateStatus from '../pages/CreateStatus.jsx';
+import NotPostDetail from '../pages/NotPostDetail.jsx';
 
 
 
@@ -52,6 +53,7 @@ const EventStackNavigation = () => {
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="AddEvent" component={AddEvent} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="EventDetail" component={EventDetailScreen} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="UpdateEvent" component={UpdateEvent} />
+         <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="NotPostDetail" component={NotPostDetail}  />
     </Stack.Navigator>
   )
 }
@@ -90,12 +92,13 @@ const HomeStackNavigation = () => {
   const Stack = createNativeStackNavigator();
   return (
     <Stack.Navigator initialRouteName='Home'>
-      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Home" component={HomeScreen} />
-      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="PostDetail" component={PostDetail} />
+      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Home" component={HomeScreen}  />
+      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="PostDetail" component={PostDetail}  />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="InAppCheckIn" component={InAppCheckIn} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="SearchUser" component={SearchUser} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="MessageList" component={MessageList} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Status" component={CreateStatus} />
+   
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="Message" component={Message} />
