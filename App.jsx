@@ -13,7 +13,6 @@ import useSWR, {SWRConfig} from 'swr';
 import {baseUrl} from './store/config.json';
 import messaging from '@react-native-firebase/messaging';
 import notifee, {EventType} from '@notifee/react-native';
-
 const App = () => {
   // useEffect(() => {
   //   const handleDeepLink = (event) => {
@@ -32,6 +31,7 @@ const App = () => {
   // }, []);
 
   useEffect(() => {
+    LogBox.ignoreAllLogs();
     // Request notification permissions for iOS
     messaging().requestPermission();
 

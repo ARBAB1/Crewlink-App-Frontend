@@ -312,14 +312,22 @@ const AnnouncementDetail = ({ route }) => {
         }
       })
       const Result = await CommentResult.json()
-      SetAnnouncement(Result?.comments)
-      setRefreshing(false);
+      if (Result.comments.length >= 10) {
+        SetAnnouncement(prev => [...prev, ...Result?.comments])
+        setRefreshing(false);
+      }
+      else {
+        SetAnnouncement(prev => [...prev, ...Result?.comments])
+        setRefreshing(false);
+        setIsMore(false)
+      }
     }
   }
 
 
   const [moreLoader, setModeLoader] = useState(false)
   const [isMore, setIsMore] = useState(true)
+
   const loadMoreComments = async (page_Number) => {
     setPage(page_Number)
     setModeLoader(true);
@@ -333,7 +341,7 @@ const AnnouncementDetail = ({ route }) => {
       }
     })
     const Result = await CommentResult.json()
-  
+
     if (Result.comments.length >= 10) {
       SetAnnouncement(prev => [...prev, ...Result?.comments])
       setModeLoader(false);
@@ -341,7 +349,6 @@ const AnnouncementDetail = ({ route }) => {
     else {
       SetAnnouncement(prev => [...prev, ...Result?.comments])
       setIsMore(false)
-
     }
   }
 
@@ -409,7 +416,6 @@ const AnnouncementDetail = ({ route }) => {
   }
 
   const renderItem = useCallback(({ item }) => {
-    console.log(item)
     return (
       <View style={styles.SinglePost2}>
         <View style={styles.ProfileSide2}>
@@ -434,7 +440,7 @@ const AnnouncementDetail = ({ route }) => {
             <TextC style={{ color: global.placeholderColor }} text={item?.comment} font={'Montserrat-Regular'} size={ResponsiveSize(12)} />
           </TouchableOpacity>
           <View style={styles.PostSetting}>
-          <TouchableOpacity style={styles.Comment} onPress={() => !item?.self_liked ? GetLike(item?.comment_id) : GetUnLike(item?.comment_id)} >
+            <TouchableOpacity style={styles.Comment} onPress={() => !item?.self_liked ? GetLike(item?.comment_id) : GetUnLike(item?.comment_id)} >
               {item?.self_liked ?
                 <AntDesign color={global.red} name='heart' size={ResponsiveSize(14)} />
                 :
@@ -452,7 +458,7 @@ const AnnouncementDetail = ({ route }) => {
 
 
 
-  
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -534,11 +540,17 @@ const AnnouncementDetail = ({ route }) => {
                 </>
                 :
                 <>
-                  <FlashList
-                    data={announcement}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.comment_id}
-                  />
+                  {announcement.length > 0 ?
+                    <FlashList
+                      data={announcement}
+                      renderItem={renderItem}
+                      keyExtractor={item => item.comment_id}
+                    />
+                    : 
+                    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',paddingTop:ResponsiveSize(50)}}>
+                        <TextC text={"No comment found"} font={'Montserrat-Medium'}/>
+                    </View>
+                  }
                   {isMore &&
                     <View style={{ width: windowWidth, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(20) }}>
                       <TouchableOpacity disabled={moreLoader} onPress={() => loadMoreComments(page + 1)} style={styles.LoadMore}>

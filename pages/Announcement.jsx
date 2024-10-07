@@ -360,6 +360,9 @@ const Announcement = () => {
     [profilePicture, announcement],
   );
 
+
+
+  console.log(announcement[0])
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
