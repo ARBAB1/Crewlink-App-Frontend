@@ -6,6 +6,7 @@ import {
     Easing,
     Image,
     ImageBackground,
+    Keyboard,
     KeyboardAvoidingView,
     Pressable,
     SafeAreaView,
@@ -48,6 +49,21 @@ const Message = ({ route }) => {
     const navigation = useNavigation();
     const headerHeight = useHeaderHeight();
     const [imageRatio, setImageRatio] = useState("")
+ 
+    const [newMessage, setNewMessage] = useState("")
+    const [recentChats, setRecentChats] = useState([])
+    const [user_id, setUserId] = useState()
+    const [page, setPage] = useState(2)
+    const [loadMoreLoader, setLoadMoreLoader] = useState(false)
+    const [isMediaDetail, setIsMediaDetail] = useState(false)
+    const [hasMoreContent, setHasMoreContent] = useState(true);
+    const [loader, setLoader] = useState(false)
+    const [queue, setQueue] = useState([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const scrollViewRef = useRef();
+
+    const { openBottomSheet, closeBottomSheet } = useBottomSheet();
     const styles = StyleSheet.create({
         wrapper: {
             flexDirection: 'row',
@@ -346,13 +362,6 @@ const Message = ({ route }) => {
             alignItems: 'center',
         }
     });
-    const [newMessage, setNewMessage] = useState("")
-    const [recentChats, setRecentChats] = useState([])
-    const [user_id, setUserId] = useState()
-    const [loader, setLoader] = useState(false)
-    const scrollViewRef = useRef();
-
-    const { openBottomSheet, closeBottomSheet } = useBottomSheet();
     const openPhotoLibrary = async () => {
         const result = await launchImageLibrary({
             mediaType: 'mixed'
@@ -368,7 +377,7 @@ const Message = ({ route }) => {
         }
     };
 
-    const [isMediaDetail, setIsMediaDetail] = useState(false)
+   
     const MediaDetail = (address, isImage) => {
         setIsMediaDetail(true)
         if (isImage) {
@@ -382,6 +391,7 @@ const Message = ({ route }) => {
                         profile_picture_url: route?.params?.profile_picture_url,
                         user_name: route?.params?.user_name,
                         isImage: isImage
+
                     })
                 },
                 (error) => {
@@ -399,6 +409,7 @@ const Message = ({ route }) => {
         }
     }
     const handleOpenSheet = () => {
+Keyboard.dismiss()
         openBottomSheet(
             <>
                 <View
@@ -408,6 +419,7 @@ const Message = ({ route }) => {
                         justifyContent: 'space-between',
                         height: '100%',
                         paddingHorizontal: ResponsiveSize(15),
+                        paddingVertical:ResponsiveSize(15)
                     }}>
                     <ButtonC
                         onPress={openMobileCamera}
@@ -490,8 +502,6 @@ const Message = ({ route }) => {
         }
     }, []);
 
-    const [queue, setQueue] = useState([]);
-    const [isProcessing, setIsProcessing] = useState(false);
 
     const addToQueue = (message) => {
         setQueue(prevQueue => [...prevQueue, message]);
@@ -957,9 +967,7 @@ const Message = ({ route }) => {
         );
     }, [recentChats]);
 
-    const [page, setPage] = useState(2)
-    const [loadMoreLoader, setLoadMoreLoader] = useState(false)
-    const [hasMoreContent, setHasMoreContent] = useState(true);
+
 
 
 

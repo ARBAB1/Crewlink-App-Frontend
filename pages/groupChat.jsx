@@ -6,6 +6,7 @@ import {
     Easing,
     Image,
     ImageBackground,
+    Keyboard,
     KeyboardAvoidingView,
     Pressable,
     SafeAreaView,
@@ -399,6 +400,7 @@ const GroupMessage = ({ route }) => {
         }
     }
     const handleOpenSheet = () => {
+        Keyboard.dismiss()
         openBottomSheet(
             <>
                 <View

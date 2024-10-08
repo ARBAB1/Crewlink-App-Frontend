@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Dimensions, SafeAreaView, StatusBar, StyleSheet, TouchableOpacity } from "react-native";
 import { global, ResponsiveSize } from "../components/constant";
-import { View } from "react-native";
+import { View,Text } from "react-native";
 import FastImage from "react-native-fast-image";
 import { ImageZoom } from '@likashefqet/react-native-image-zoom';
 import TextC from "../components/text/text";
@@ -16,8 +16,8 @@ const ChatMediaDetail = ({ route }) => {
     const windowHeight = Dimensions.get('window').height;
     const [isLoading, setIsLoading] = useState(true)
     const videoRef = useRef(null);
-
-
+    
+ 
     useEffect(() => {
         setTimeout(() => {
             setIsLoading(false)
@@ -25,9 +25,26 @@ const ChatMediaDetail = ({ route }) => {
     }, [])
 
     const styles = StyleSheet.create({
+         messageUser: {
+            fontSize: ResponsiveSize(15),
+            color: global.white,
+            fontFamily: 'Montserrat-Regular',
+        },
+        ImageMessage: {
+            // backgroundColor: global.secondaryColor,
+            borderTopLeftRadius: ResponsiveSize(10),
+            borderBottomLeftRadius: ResponsiveSize(10),
+            borderBottomRightRadius: ResponsiveSize(10),
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: ResponsiveSize(10),
+            paddingVertical: ResponsiveSize(5),
+            width: windowWidth * 0.7
+        },
         FullContainer: {
             flex: 1,
-            backgroundColor: global.white,
+            backgroundColor: global.black,
             paddingHorizontal: ResponsiveSize(0),
             justifyContent: 'center',
             alignItems: 'center'
@@ -73,12 +90,11 @@ const ChatMediaDetail = ({ route }) => {
       }
     }, []);
 
-    // console.log(, 'sdas123123scs')
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <StatusBar
                 translucent={true}
-                backgroundColor={'transparent'}
+                backgroundColor={'black'}
             />
             <View style={styles.FullContainer}>
                 <View style={styles.TopBar}>
@@ -133,8 +149,13 @@ const ChatMediaDetail = ({ route }) => {
                                 controls={true}
                                 style={{ height: Winheight, width: windowWidth }}
                             />
+                      
                         </>
                     }
+                          <View style={styles.ImageMessage}>
+                                                            <Text style={styles.messageUser}>{route?.params?.uri?.message}</Text>
+                                                         
+                                                        </View>
                 </>
 
             </View>

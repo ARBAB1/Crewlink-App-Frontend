@@ -165,11 +165,9 @@ const HomeScreen = ({
   const [selectedCity, setSelectedCity] = useState('');
   const handleCitySelect = (city) => {
      setSelectedCity(city);
-    console.log("Selected City:", city); // Debugging: Check the selected city value
   };
   const getFeeds = async () => {
     setLoading(true);
-    console.log(selectedCity, 'selectedCity')
     const result = await GetUserPosts({city: selectedCity});
     if (result) {
       setPost(result.reverse())
