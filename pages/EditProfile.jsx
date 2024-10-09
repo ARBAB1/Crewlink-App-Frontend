@@ -37,7 +37,6 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import Modal from 'react-native-modal';
 import FastImage from 'react-native-fast-image';
-import { ResizeMode } from 'react-native-video';
 
 
 const EditProfile = ({
@@ -80,7 +79,6 @@ const EditProfile = ({
   }, []);
 
 
-  // console.log(GetUserProfileReducer?.data)
   const schema = yup.object().shape({
     name: yup.string().required('Name is required'),
     phone: yup.string(),
@@ -154,8 +152,6 @@ const EditProfile = ({
       width: ResponsiveSize(70),
       borderRadius: ResponsiveSize(70),
       backgroundColor: global.description,
-      resizeMode: 'contain',
-      objectFit: 'contain',
     },
     bodyInitial: {
       paddingHorizontal: ResponsiveSize(15),
@@ -416,7 +412,7 @@ const EditProfile = ({
     setCountry("")
   }
 
-
+  console.log(GetUserProfileReducer?.data?.country_code)
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -476,8 +472,6 @@ const EditProfile = ({
           <View style={styles.bodyWrapper}>
             <View style={styles.updateImage}>
               {documentImage !== '' ? (
-             
-             
                 <FastImage
                   style={styles.ProfileImage}
                   source={
@@ -489,7 +483,6 @@ const EditProfile = ({
                       }
                   }
                 />
-          
               ) : (
                 <FastImage
                   style={styles.ProfileImage}

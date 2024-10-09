@@ -42,6 +42,7 @@ import Modal from "react-native-modal";
 
 
 const Message = ({ route }) => {
+    console.log(route?.params,"route");
     const focus = useIsFocused();
     const scheme = useColorScheme();
     const windowWidth = Dimensions.get('window').width;
@@ -60,10 +61,31 @@ const Message = ({ route }) => {
     const [loader, setLoader] = useState(false)
     const [queue, setQueue] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
-
+    const [userDetails, setUserDetails] = useState(null);
     const scrollViewRef = useRef();
 
     const { openBottomSheet, closeBottomSheet } = useBottomSheet();
+    const fetchUserDetails = async () => {
+        try {
+            const Token = await AsyncStorage.getItem('Token');
+            const response = await fetch(`${baseUrl}/users/user-details-by-user-id/${route?.params?.receiverUserId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+          'accesstoken': `Bearer ${Token}`,
+                },
+            });
+            const result = await response.json();
+            if (result.statusCode === 200) {
+                console.log(result.data,"userDetails");
+                setUserDetails(result.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch user details:", error);
+        }
+    };
+
     const styles = StyleSheet.create({
         wrapper: {
             flexDirection: 'row',
@@ -371,8 +393,8 @@ const Message = ({ route }) => {
             navigation.navigate('messageMedia', {
                 media_url: result?.assets,
                 receiverUserId: route?.params?.receiverUserId,
-                profile_picture_url: route?.params?.profile_picture_url,
-                user_name: route?.params?.user_name
+                profile_picture_url: userDetails?.profile_picture_url, // Replaced here
+                user_name: userDetails?.user_name
             })
         }
     };
@@ -388,8 +410,8 @@ const Message = ({ route }) => {
                     navigation.navigate('MediaDetail', {
                         uri: address,
                         ratio: ratio,
-                        profile_picture_url: route?.params?.profile_picture_url,
-                        user_name: route?.params?.user_name,
+                        profile_picture_url: userDetails?.profile_picture_url, // Replaced here
+                        user_name: userDetails?.user_name,
                         isImage: isImage
 
                     })
@@ -402,8 +424,8 @@ const Message = ({ route }) => {
         else {
             navigation.navigate('MediaDetail', {
                 uri: address,
-                profile_picture_url: route?.params?.profile_picture_url,
-                user_name: route?.params?.user_name,
+                profile_picture_url: userDetails?.profile_picture_url, // Replaced here
+                user_name: userDetails?.user_name,
                 isImage: isImage
             })
         }
@@ -449,8 +471,8 @@ Keyboard.dismiss()
             navigation.navigate('messageMedia', {
                 media_url: result?.assets,
                 receiverUserId: route?.params?.receiverUserId,
-                profile_picture_url: route?.params?.profile_picture_url,
-                user_name: route?.params?.user_name
+                profile_picture_url: userDetails?.profile_picture_url, // Replaced here
+                user_name: userDetails?.user_name
             })
         }
     };
@@ -485,6 +507,7 @@ Keyboard.dismiss()
     }
 
     useEffect(() => {
+        fetchUserDetails();
         loadRecentChats()
         navigation.getParent()?.setOptions({
             tabBarStyle: { display: 'none' },
@@ -698,7 +721,7 @@ Keyboard.dismiss()
                                             <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingTop: ResponsiveSize(5) }}>
                                                 <TextC text={"seen by"} font={'Montserrat-Medium'} size={ResponsiveSize(9)} style={{ color: global.black }} />
                                                 <FastImage
-                                                    source={{ uri: route?.params?.profile_picture_url, priority: FastImage.priority.high }}
+                                                    source={{ uri: userDetails?.profile_picture_url, priority: FastImage.priority.high }}
                                                     style={{
                                                         height: ResponsiveSize(15),
                                                         width: ResponsiveSize(15),
@@ -743,7 +766,7 @@ Keyboard.dismiss()
                                                                     </View>
                                                                     :
                                                                     <View>
-                                                                        <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                                        <Text style={styles.ReplyMsgUserName}>{userDetails?.user_name}</Text>
                                                                         <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>Photo</Text>
                                                                     </View>
                                                                 }
@@ -763,7 +786,7 @@ Keyboard.dismiss()
                                                                 {items?.item?.repliedMessage?.senderUserId == user_id ?
                                                                     <Text style={styles.ReplyMsgUserName}>You</Text>
                                                                     :
-                                                                    <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                                    <Text style={styles.ReplyMsgUserName}>{userDetails?.user_name}</Text>
                                                                 }
                                                                 <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>{items?.item?.repliedMessage?.message}</Text>
                                                             </View>
@@ -794,7 +817,7 @@ Keyboard.dismiss()
                                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingTop: ResponsiveSize(5) }}>
                                             <TextC text={"seen by"} font={'Montserrat-Medium'} size={ResponsiveSize(9)} style={{ color: global.black }} />
                                             <FastImage
-                                                source={{ uri: route?.params?.profile_picture_url, priority: FastImage.priority.high }}
+                                                source={{ uri: userDetails?.profile_picture_url, priority: FastImage.priority.high }}
                                                 style={{
                                                     height: ResponsiveSize(15),
                                                     width: ResponsiveSize(15),
@@ -815,9 +838,9 @@ Keyboard.dismiss()
                                 <>
                                     <ImageBackground
                                         source={
-                                            route?.params?.profile_picture_url == ''
+                                            userDetails?.profile_picture_url == ''
                                                 ? require('../assets/icons/avatar.png')
-                                                : { uri: route?.params?.profile_picture_url }
+                                                : { uri: userDetails?.profile_picture_url }
                                         }
                                         style={styles.PostProfileImage2}
                                         resizeMode="cover" />
@@ -905,9 +928,9 @@ Keyboard.dismiss()
                                 <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                     <ImageBackground
                                         source={
-                                            route?.params?.profile_picture_url == ''
+                                            userDetails?.profile_picture_url == ''
                                                 ? require('../assets/icons/avatar.png')
-                                                : { uri: route?.params?.profile_picture_url }
+                                                : { uri: userDetails?.profile_picture_url }
                                         }
                                         style={styles.PostProfileImage2}
                                         resizeMode="cover" />
@@ -923,7 +946,7 @@ Keyboard.dismiss()
                                                             </View>
                                                             :
                                                             <View>
-                                                                <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                                <Text style={styles.ReplyMsgUserName}>{userDetails?.user_name}</Text>
                                                                 <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%', color: global.black }}>Photo</Text>
                                                             </View>
                                                         }
@@ -943,7 +966,7 @@ Keyboard.dismiss()
                                                         {items?.item?.repliedMessage?.senderUserId == user_id ?
                                                             <Text style={styles.ReplyMsgUserName}>You</Text>
                                                             :
-                                                            <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                            <Text style={styles.ReplyMsgUserName}>{userDetails?.user_name}</Text>
                                                         }
                                                         <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%', color: global.black }}>{items?.item?.repliedMessage?.message}</Text>
                                                     </View>
@@ -1018,19 +1041,19 @@ Keyboard.dismiss()
                     barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
                 />
                 <View style={styles.wrapper}>
-                    <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
+                    <Pressable onPress={() =>    navigation.navigate('Home', { screen: 'MessageList' }) } style={styles.logoSide1}>
                         <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
                     </Pressable>
                     <View style={styles.logoSide2}>
                         <ImageBackground
                             source={
-                                route?.params?.profile_picture_url == ''
+                                userDetails?.profile_picture_url == ''
                                     ? require('../assets/icons/avatar.png')
-                                    : { uri: route?.params?.profile_picture_url }
+                                    : { uri: userDetails?.profile_picture_url }
                             }
                             style={styles.PostProfileImage}
                             resizeMode="cover"></ImageBackground>
-                        <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={route?.params?.user_name} />
+                        <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={userDetails?.user_name} />
                     </View>
                 </View>
                 <ScrollView
@@ -1088,7 +1111,7 @@ Keyboard.dismiss()
                                 {ReplyMessage?.senderUserId == user_id ?
                                     <TextC text={`Replying to yourself`} font={"Montserrat-Medium"} size={ResponsiveSize(10)} style={{ color: global.description, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
                                     :
-                                    <TextC text={`Replying to ${route?.params?.user_name}`} font={"Montserrat-Medium"} size={ResponsiveSize(10)} style={{ color: global.description, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
+                                    <TextC text={`Replying to ${userDetails?.user_name}`} font={"Montserrat-Medium"} size={ResponsiveSize(10)} style={{ color: global.description, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
                                 }
                                 {ReplyMessage?.media_url ?
                                     <TextC text={"Photo"} font={"Montserrat-Medium"} size={ResponsiveSize(11)} style={{ color: global.black, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />

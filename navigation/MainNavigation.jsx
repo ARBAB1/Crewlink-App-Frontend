@@ -72,12 +72,13 @@ const MainNavigation = ({ GetUserProfileReducer  }) => {
       screens: {
         Home: {
           screens: {
+            HomeScreen: 'HomeScreen',
             PostDetail: 'PostDetail/:content_id/:content_type',         
             InAppCheckIn: 'InAppCheckIn',
             SearchUser: 'SearchUser',
             MessageList: 'MessageList',
             Status: 'Status',
-            Message: 'Message',   //notification_type = "message" url=crewlink://message/id
+            Message: 'Message/:receiverUserId',   //notification_type = "message" url=crewlink://message/id
             MediaDetail: 'MediaDetail',
             NewMessage: 'NewMessage',
             newGroup: 'newGroup',
@@ -157,76 +158,6 @@ const MainNavigation = ({ GetUserProfileReducer  }) => {
     },
   });
 
-  // const linking = {
-  //   prefixes: ['crewlink://'],  // Same as the URL scheme defined in Xcode
-  //   config: {
-  //     screens: {
-  //       Home: {
-  //         screens: {
-  //           PostDetail:{
-  //             path: 'PostDetail/:content_id',
-  //             parse: {
-  //               content_id: (id) => `${id}`,
-  //               notification_type: (type) => `${type}`,
-  //             },
-            
-  //           },  
-  //           InAppCheckIn: 'InAppCheckIn',
-  //           SearchUser: 'SearchUser',
-  //           MessageList: 'MessageList',
-  //           Status: 'Status',
-  //           Message: 'Message/id',   //notification_type = "message" url=crewlink://message/id
-  //           MediaDetail: 'MediaDetail',
-  //           NewMessage: 'NewMessage',
-  //           newGroup: 'newGroup',
-  //           NewGroupSecondScreen: 'NewGroupSecondScreen',
-  //           GroupMessage: 'GroupMessage',
-  //           messageMedia: 'messageMedia',
-  //           GroupmessageMedia: 'GroupmessageMedia',
-  //           Notification: 'Notification',
-  //         }
-  //       },
-  //       Event: {
-  //         screens: {
-  //           EventScreen: 'EventScreen',
-  //           AddEvent: 'AddEvent',
-  //           EventDetail: 'EventDetail',
-  //           UpdateEvent: 'UpdateEvent',
-  //         }
-  //       },
-  //       Profile: {
-  //         screens: {
-  //           ProfileMain: 'ProfileMain',
-  //           EditProfile: 'EditProfile',
-  //           Setting: 'Setting',
-  //           ChangePassword: 'ChangePassword',
-  //           ChangeAirline: 'ChangeAirline',
-  //           MyPost: 'MyPost',
-  //           Connection: 'Connection',
-  //           UserProfileScreen: 'UserProfileScreen',
-  //           DeleteAccount: 'DeleteAccount',
-  //           PrivacySetting: 'PrivacySetting',
-  //         }
-  //       },
-  //       CreatePost: {
-  //         screens: {
-  //           CreatePost: 'CreatePost',
-  //           CreatePostTwo: 'CreatePostTwo',
-  //           TagPeople: 'TagPeople',
-  //           PostSetting: 'PostSetting',
-  //         }
-  //       },
-  //       Reel: {
-  //         screens: {
-  //           announcement: 'announcement',
-  //           createAnnouncement: 'createAnnouncement',
-  //           announcementDetail: 'announcementDetail',
-  //         }
-  //       },
-  //     }
-  //   }
-  // };
-//   console.log('urlio');
 
 
   return (

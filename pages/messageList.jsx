@@ -136,6 +136,14 @@ const MessageList = () => {
 
     useEffect(() => {
         loadRecentChats()
+        navigation.getParent()?.setOptions({
+            tabBarStyle: {
+                display: 'flex',
+                backgroundColor: '#69BE25',
+                borderTopLeftRadius: ResponsiveSize(20),
+                borderTopRightRadius: ResponsiveSize(20),
+            },
+        });
     }, [focus])
 
     useEffect(() => {
@@ -154,7 +162,7 @@ const MessageList = () => {
             <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
                 <StatusBar backgroundColor={global.white} />
                 <View style={styles.wrapper}>
-                    <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
+                    <Pressable onPress={() => navigation.navigate("HomeScreen")} style={styles.logoSide1}>
                         <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
                     </Pressable>
                     <View style={styles.logoSide2}>
@@ -182,8 +190,7 @@ const MessageList = () => {
                                     recentChats.type == 'direct' ?
                                         <TouchableOpacity onPress={() => navigation.navigate('Message', {
                                             receiverUserId: recentChats?.userDetails?.user_id,
-                                            profile_picture_url: recentChats?.userDetails?.profile_picture_url,
-                                            user_name: recentChats?.userDetails?.user_name
+                                        
                                         })} style={styles.PostHeader}>
                                             <View style={{ flexDirection: 'row' }}>
                                                 <ImageBackground

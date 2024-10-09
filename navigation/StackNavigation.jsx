@@ -91,8 +91,8 @@ const ProfileStackNavigation = ({ onLogin }) => {
 const HomeStackNavigation = () => {
   const Stack = createNativeStackNavigator();
   return (
-    <Stack.Navigator initialRouteName='Home'>
-      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Home" component={HomeScreen}  />
+    <Stack.Navigator initialRouteName='HomeScreen'>
+      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="HomeScreen" component={HomeScreen}  />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="PostDetail" component={PostDetail}  />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="InAppCheckIn" component={InAppCheckIn} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="SearchUser" component={SearchUser} />
