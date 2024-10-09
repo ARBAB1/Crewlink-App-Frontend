@@ -161,8 +161,6 @@ const GroupmessageMedia = ({ route }) => {
         if (uploadImage.ok == true) {
             const response = await uploadImage.json()
 
-            console.log(response)
-
             const socket = io(`${baseUrl}/chat`, {
                 transports: ['websocket'],
                 extraHeaders: {
@@ -185,7 +183,6 @@ const GroupmessageMedia = ({ route }) => {
             })
         }
         else {
-            console.log(uploadImage, 'error Response')
             alert("Failed to send message")
             setLoading(false)
             navigation.goBack()

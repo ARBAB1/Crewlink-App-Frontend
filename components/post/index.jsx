@@ -32,10 +32,12 @@ import Comments from './comment';
 import Reply from './Reply';
 import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/native';
+import baseUrl from '../../store/config.json'
+import io from "socket.io-client";
+
 
 const Post = ({
   userName,
- 
   profileImage,
   selfLiked,
   LikeCommentFunc,
@@ -56,9 +58,11 @@ const Post = ({
   likes_show_flag,
   LoadReplies,
   DeletComments,
-  type
+  type,
+  getAllConnections,
+  reshareUserDetails,
+  content_type
 }) => {
-// console.log(type, 'type', postId, 'postId')
   const navigation = useNavigation();
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -92,11 +96,40 @@ const Post = ({
   const [isShareModal, setIsShareModal] = useState(false);
 
   useEffect(() => {
-    if(type === notificationTypes.POST_COMMENT || type === notificationTypes.POST_COMMENT_REPLY){
-        toggleModal()
+    if (type === notificationTypes.POST_COMMENT || type === notificationTypes.POST_COMMENT_REPLY) {
+      toggleModal()
     }
-    
+
   }, [type]);
+
+
+  const [getLatestConnection, setGetLatestConnection] = useState([]);
+
+  const getAllConnectionsFunc = async () => {
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+      const response = await fetch(`${baseUrl.baseUrl}/connect/get-my-connections-list/1/10`, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': baseUrl.apiKey,
+          'accesstoken': `Bearer ${Token}`
+        },
+      });
+      if (response.ok === true) {
+        const res = await response.json()
+        setGetLatestConnection(res?.data?.connections);
+      }
+    }
+    catch (error) {
+      console.log(error)
+    }
+  }
+
+
+  useEffect(() => {
+    getAllConnectionsFunc()
+  }, [])
 
 
   useEffect(() => {
@@ -116,7 +149,7 @@ const Post = ({
       page: 1,
       limit: 10,
     });
-    
+
     if (result?.comments) {
       setCommentList(result?.comments);
       setCommentLoading(false);
@@ -809,7 +842,6 @@ const Post = ({
 
 
   const toggleShare = () => {
-    openCommentSection(true);
     setIsShareModal(!isShareModal);
   };
   const [Winheight, setHeight] = useState(windowHeight * 0.4);
@@ -856,7 +888,7 @@ const Post = ({
       alignItems: 'center',
     },
     ActuallPost: {
-      height: windowHeight * 0.4,
+      height: windowHeight * 0.5,
       width: windowWidth,
       borderRadius: 0,
     },
@@ -1059,8 +1091,108 @@ const Post = ({
     SharePostBackground: {
       paddingHorizontal: ResponsiveSize(10),
       fontFamily: 'Montserrat-Medium',
+    },
+    ConnectionList: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingTop: ResponsiveSize(15)
+    },
+    ConnectionListIcon: {
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: ResponsiveSize(60),
+      textAlign: 'center'
+    },
+    ConnectionIconDp: {
+      height: ResponsiveSize(45),
+      width: ResponsiveSize(45),
+      backgroundColor: 'gray',
+      borderRadius: ResponsiveSize(50),
+      overflow: 'hidden',
+      marginLeft: ResponsiveSize(5),
+      marginBottom: ResponsiveSize(3)
+    },
+    ConnectionSentBtn: {
+      backgroundColor: global.secondaryColor,
+      paddingHorizontal: ResponsiveSize(10),
+      paddingVertical: ResponsiveSize(10),
+      borderRadius: ResponsiveSize(10),
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    ResharePostHeader: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: windowWidth,
+      paddingHorizontal: ResponsiveSize(15),
+      paddingVertical: ResponsiveSize(10),
+      zIndex: 10000,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    ResharePostFooter: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      width: windowWidth,
+      paddingHorizontal: ResponsiveSize(10),
+      paddingVertical: ResponsiveSize(15),
+      zIndex: 10000,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    ResharePostHeaderDp: {
+      height: ResponsiveSize(35),
+      width: ResponsiveSize(35),
+      backgroundColor: 'gray',
+      borderRadius: ResponsiveSize(50),
+      overflow: 'hidden',
     }
   });
+
+
+  const [reShareLoader, setReshareLoader] = useState(false)
+  const [reShareCaption, setReShareCaption] = useState("")
+  const ResharePost = async () => {
+    setReshareLoader(true)
+    const Token = await AsyncStorage.getItem('Token');
+    const formData = new FormData();
+    formData.append('caption', reShareCaption);
+    formData.append('privacy_setting', 'PUBLIC');
+    formData.append('reshared_post_id', postId);
+    const response = await fetch(`${baseUrl.baseUrl}/posts/createPost`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'x-api-key': baseUrl.apiKey,
+        'accesstoken': `Bearer ${Token}`
+      },
+      body: formData
+    });
+    const jsonResponse = await response.json();
+    console.log(jsonResponse, 'jsonResponcehaiYa')
+    setReshareLoader(false)
+  }
+
+
+  const sendMessage = async (message_Props, user_Id) => {
+    const Token = await AsyncStorage.getItem('Token');
+    const socket = io(`${baseUrl.baseUrl}/chat`, {
+      transports: ['websocket'],
+      extraHeaders: {
+        'x-api-key': "TwillioAPI",
+        'accesstoken': `Bearer ${Token}`
+      }
+    });
+    socket.on('connect').emit('createDirectMessage', {
+      "message": "Post",
+      "receiverUserId": user_Id,
+      "post_id": message_Props
+    })
+  }
 
   return (
     <>
@@ -1144,7 +1276,6 @@ const Post = ({
         <>
           {content[0]?.attachment_url.endsWith('.mp4') ? (
             <View
-            
               style={{
                 height: Winheight,
                 width: windowWidth,
@@ -1162,15 +1293,41 @@ const Post = ({
               />
             </View>
           ) : (
-            // <Pressable onPress={() => navigation.navigate('PostDetail')}>
-            <FastImage
-              source={{
-                uri: content[0]?.attachment_thumbnail_url,
-                priority: FastImage.priority.high,
-              }}
-              style={style.ActuallPost}
-            />
-            // </Pressable>
+            <View style={{ position: 'relative' }}>
+              {content_type == "POST_RESHARE" ?
+                <>
+                  <View style={style.ResharePostHeader}>
+                    <FastImage
+                      source={{
+                        uri: reshareUserDetails?.profile_picture_url,
+                        priority: FastImage.priority.high,
+                      }}
+                      style={style.ResharePostHeaderDp}
+                    />
+                    <TextC text={reshareUserDetails?.user_name} font={'Montserrat-Bold'} style={{ marginLeft: ResponsiveSize(8), color: global.white }} />
+                  </View>
+                  <FastImage
+                    source={{
+                      uri: content[0]?.attachment_thumbnail_url,
+                      priority: FastImage.priority.high,
+                    }}
+                    style={style.ActuallPost}
+                  />
+                  <View style={style.ResharePostFooter}>
+                    <TextC text={reshareUserDetails?.old_caption} font={'Montserrat-SemiBold'} style={{ marginLeft: ResponsiveSize(8), color: global.white }} />
+                  </View>
+                </>
+                :
+                <FastImage
+                  source={{
+                    uri: content[0]?.attachment_thumbnail_url,
+                    priority: FastImage.priority.high,
+                  }}
+                  style={style.ActuallPost}
+                />
+              }
+            </View>
+
           )}
         </>
       )}
@@ -1192,7 +1349,7 @@ const Post = ({
             />
           </Pressable>
         )}
-        <Pressable onPress={() => setIsShareModal(!isShareModal)} style={style.PostIcons}>
+        <Pressable onPress={() => toggleShare()} style={style.PostIcons}>
           <Image
             source={ShareLight}
             style={{
@@ -1231,8 +1388,8 @@ const Post = ({
           ''
         )}
         {allow_comments_flag == 'Y' ? (
-         <>
-         </>
+          <>
+          </>
         ) : (
           <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
             <TextC
@@ -1254,6 +1411,7 @@ const Post = ({
           hideago={true}
         />
       </View>
+
       <Modal
         isVisible={isModalVisible}
         style={{ margin: 0 }}
@@ -1526,7 +1684,7 @@ const Post = ({
             />
 
             <View style={style.TextInputBackground}>
-              <View style={{flexDirection:'row',alignItems:'center',paddingHorizontal:ResponsiveSize(10),paddingTop:ResponsiveSize(10)}}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: ResponsiveSize(10), paddingTop: ResponsiveSize(10) }}>
                 <FastImage
                   source={
                     profileImage == ''
@@ -1537,17 +1695,22 @@ const Post = ({
                   resizeMode="cover"
                 />
                 <TextC text={userName} font={'Montserrat-Bold'}
-                    size={ResponsiveSize(14)} style={{color:global.black}}/>
+                  size={ResponsiveSize(14)} style={{ color: global.black }} />
               </View>
-              <TextInput style={style.SharePostBackground} placeholder='Write something about this..' />
+              <TextInput style={style.SharePostBackground} placeholder='Write something about this..' onChangeText={(e) => setReShareCaption(e)} />
               <View style={{ paddingHorizontal: ResponsiveSize(15), flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', height: ResponsiveSize(120) }}>
-                <TouchableOpacity onPress={() => setIsShareModal(false)}>
-                  <TextC
-                    text={'Share now'}
-                    style={{ color: global.white, backgroundColor: global.secondaryColor, paddingHorizontal: ResponsiveSize(15), paddingVertical: ResponsiveSize(5), borderRadius: ResponsiveSize(20) }}
-                    font={'Montserrat-Medium'}
-                    size={ResponsiveSize(12)}
-                  />
+                <TouchableOpacity style={{ backgroundColor: global.secondaryColor, paddingHorizontal: ResponsiveSize(15), paddingVertical: ResponsiveSize(5), borderRadius: ResponsiveSize(20) }} disabled={reShareLoader} onPress={() => ResharePost()}>
+                  {reShareLoader ?
+                    <ActivityIndicator color={global.white} size={ResponsiveSize(12)} />
+                    :
+                    <TextC
+                      text={'Share now'}
+                      style={{ color: global.white }}
+                      font={'Montserrat-Medium'}
+                      size={ResponsiveSize(12)}
+                    />
+                  }
+
                 </TouchableOpacity>
               </View>
             </View>
@@ -1560,6 +1723,29 @@ const Post = ({
                 size={ResponsiveSize(12)}
               />
             </View>
+            <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} contentContainerStyle={style.ConnectionList}>
+              {getLatestConnection !== undefined && getLatestConnection !== null && getLatestConnection !== "" && getLatestConnection?.length > 0 ? getLatestConnection?.map(data =>
+                <TouchableOpacity style={style.ConnectionListIcon} onPress={() => sendMessage(postId, data?.user_id)}>
+                  <FastImage
+                    source={
+                      data?.profile_picture_url == ''
+                        ? require('../../assets/icons/avatar.png')
+                        : { uri: data?.profile_picture_url, priority: FastImage.priority.high }
+                    }
+                    style={style.ConnectionIconDp}
+                    resizeMode="cover"
+                  />
+                  <TextC text={data?.user_name} font={'Montserrat-Bold'} size={ResponsiveSize(11)} style={{ width: ResponsiveSize(50), textAlign: 'center' }} ellipsizeMode={"tail"} numberOfLines={1} />
+                </TouchableOpacity>
+              ) : ""}
+            </ScrollView>
+
+            {/* <View style={{paddingTop:ResponsiveSize(20)}}>
+              <TouchableOpacity style={style.ConnectionSentBtn}>
+                <TextC text={"send"} font={'Montserrat-SemiBold'}
+                  size={ResponsiveSize(14)} style={{ color: global.white }} />
+              </TouchableOpacity>
+            </View> */}
           </View>
         </View>
       </Modal>

@@ -165,11 +165,9 @@ const HomeScreen = ({
   const [selectedCity, setSelectedCity] = useState('');
   const handleCitySelect = (city) => {
      setSelectedCity(city);
-    console.log("Selected City:", city); // Debugging: Check the selected city value
   };
   const getFeeds = async () => {
     setLoading(true);
-    console.log(selectedCity, 'selectedCity')
     const result = await GetUserPosts({city: selectedCity});
     if (result) {
       setPost(result.reverse())
@@ -227,6 +225,7 @@ const HomeScreen = ({
       paddingLeft: ResponsiveSize(8),
     },
   });
+
 
   return (
     <KeyboardAvoidingView
@@ -300,7 +299,6 @@ const HomeScreen = ({
                   <Post
                     key={data?.post_id}
                     selfLiked={data?.selfLiked}
-                    
                     postId={data?.post_id}
                     timeAgo={data?.created_at}
                     userLocation={`${data?.lastCheckin?.city} | ${data?.lastCheckin?.state}`}
@@ -313,6 +311,8 @@ const HomeScreen = ({
                     comments_show_flag={data?.comments_show_flag}
                     allow_comments_flag={data?.allow_comments_flag}
                     likes_show_flag={data?.likes_show_flag}
+                    content_type={data?.content_type}
+                    reshareUserDetails={data?.reshareUserDetails}
                   />
                 )) :
                 <View style={{ paddingTop: ResponsiveSize(30), flex: 1, alignItems: 'center', justifyContent: 'center' }}>

@@ -30,12 +30,10 @@ const PendingConnections = ({ getPendingConnections, PendingConnectionsReducer, 
         if (refreshing) {
             const loadAllevent = await getPendingConnections({ page: pageRe })
             cacheloader(loadAllevent?.connectionRequests)
-            console.log(loadAllevent, 'sadasdasdchips')
         }
         else if (!refreshing) {
             const loadAllevent = await getPendingConnections({ page: page })
             cacheloader(loadAllevent?.connectionRequests)
-            console.log(loadAllevent, 'sadasdasdchips')
         }
 
     }

@@ -121,7 +121,6 @@ const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
       fcm_token:`${token}`
     });
     if (LoginStart?.message == 'Login successful') {
-      console.log(LoginStart?.user_id)
       await AsyncStorage.removeItem('Token');
       await AsyncStorage.removeItem('Picture');
       await AsyncStorage.removeItem('Name');
@@ -181,7 +180,7 @@ const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
   
     if (enabled) {
-      console.log('Authorization status:', authStatus);
+      ('Authorization status:', authStatus);
     }
   }
   return (

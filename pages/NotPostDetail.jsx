@@ -10,7 +10,6 @@ import Post from "../components/post";
 import messaging from '@react-native-firebase/messaging';
 import notifee, {EventType} from '@notifee/react-native';
 const NotPostDetail = ({route, getPostDetail}) => {
-    console.log(route?.params, 'route1')
     let params
     let type
        

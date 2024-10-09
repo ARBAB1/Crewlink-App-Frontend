@@ -324,7 +324,6 @@ const CreatePost = () => {
   }, []);
 
   const ImageEditorContain = async path => {
-    console.log('Loading', path);
     const result = await PhotoEditor.open({
       path: `file://${currentPreview?.content}`,
     });

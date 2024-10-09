@@ -79,7 +79,6 @@ const EditProfile = ({
   }, []);
 
 
-  console.log(GetUserProfileReducer?.data)
   const schema = yup.object().shape({
     name: yup.string().required('Name is required'),
     phone: yup.string(),
@@ -413,7 +412,7 @@ const EditProfile = ({
     setCountry("")
   }
 
-console.log(GetUserProfileReducer?.data)
+  console.log(GetUserProfileReducer?.data?.country_code)
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -473,7 +472,17 @@ console.log(GetUserProfileReducer?.data)
           <View style={styles.bodyWrapper}>
             <View style={styles.updateImage}>
               {documentImage !== '' ? (
-                <FastImage style={styles.ProfileImage} src={documentImage} />
+                <FastImage
+                  style={styles.ProfileImage}
+                  source={
+                    documentImage == ''
+                      ? require('../assets/icons/avatar.png')
+                      : {
+                        uri: documentImage,
+                        priority: FastImage.priority.high,
+                      }
+                  }
+                />
               ) : (
                 <FastImage
                   style={styles.ProfileImage}

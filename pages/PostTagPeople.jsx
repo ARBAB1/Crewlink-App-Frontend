@@ -81,6 +81,7 @@ const TagPeople = ({ PostCreationReducer, SearchConnection,ExludeConnection }) =
         ConnectSearch()
     }, [search])
 
+
     const ConnectSearch = async () => {
         const result = await SearchConnection(search)
         setSearchResult(result)
@@ -88,6 +89,8 @@ const TagPeople = ({ PostCreationReducer, SearchConnection,ExludeConnection }) =
     const excludeConections = async (r) => {
         ExludeConnection(r)
     }
+
+    // console.log(PostCreationReducer?.searchConnectionData,'Search results 21211')
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
             <StatusBar backgroundColor={'white'} barStyle={'dark-content'} />

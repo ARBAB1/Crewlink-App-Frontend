@@ -61,10 +61,11 @@ export const SearchConnection = (body) => async (dispatch) => {
         console.log(error)
     }
 }
-export const InclideConnection = (body) => async (dispatch) => {
+export const InclideConnection = (body) => async (dispatch, getState) => {
+    const { searchConnectionData } = getState().PostCreationReducer;
     dispatch({
         type: TASK_INCLUDE_CONNECTION,
-        searchConnectionData: body,
+        searchConnectionData: [...searchConnectionData, body],
     });
 }
 export const ExludeConnection = (body) => async (dispatch, getState) => {
@@ -101,6 +102,7 @@ export const LikeCountSwitch = (body) => async (dispatch, getState) => {
 }
 export const CreatePostFunction = (FormData, path, goHome) => async (dispatch) => {
     const Token = await AsyncStorage.getItem('Token');
+    console.log(FormData?._parts,'format Data recent')
     dispatch({
         type: TASK_POST_CREATE_START,
         uploadLoading: true,
@@ -118,9 +120,9 @@ export const CreatePostFunction = (FormData, path, goHome) => async (dispatch) =
             },
             body: FormData
         });
-        console.log(response,'postResponce21')
         if (response.ok) {
             const res = await response?.json();
+            console.log(res)
             dispatch({
                 type: TASK_POST_CREATE_END,
                 uploadLoading: false,
@@ -322,5 +324,30 @@ export const DeletComments = (body) => async () => {
     catch (error) {
         console.log(error.message)
         return "Internal Server Error"
+    }
+}
+
+
+
+export const getAllConnections = async () => {
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+        const response = await fetch(`${baseUrl.baseUrl}/connect/get-my-connections-list/1/10`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': baseUrl.apiKey,
+                'accesstoken': `Bearer ${Token}`
+            },
+        });
+        if (response.ok === true) {
+            const res = await response.json()
+            if (res?.data) {
+                return res?.data?.connections
+            }
+        }
+    }
+    catch (error) {
+        console.log(error)
     }
 }

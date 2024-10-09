@@ -57,7 +57,6 @@ const CreateAnnouncement = ({ route }) => {
     const sendReply = async () => {
         if (ShareText !== "") {
             setLoading(true)
-            console.log('pkkkkkk')
             const Token = await AsyncStorage.getItem('Token');
             const socket = io(`${baseUrl}/chat`, {
                 transports: ['websocket'],

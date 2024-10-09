@@ -179,7 +179,6 @@ const NewGroupSecondScreen = ({ route }) => {
             }
         }
         else {
-            console.log(uploadImage, 'error Response')
             alert("Failed to send message")
             setLoading(false)
             navigation.goBack()

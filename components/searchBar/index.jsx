@@ -66,9 +66,7 @@ const SearchCenter = ({ placeholder, height, style, error, onChange, result, loa
     }
     const [isSuggest, setIsSuggest] = useState(true)
 
-    const excludeConections = async (r) => {
-        ExludeConnection(r)
-    }
+
     return (
         <View style={{ position: 'relative' }}>
             <TextInput onChangeText={(e) => {
@@ -97,7 +95,7 @@ const SearchCenter = ({ placeholder, height, style, error, onChange, result, loa
                                                         <Image style={styles.ProfileImage} src={data?.profile_picture_url} />
                                                         <TextC size={ResponsiveSize(11)} font={'Montserrat-Medium'} text={data?.user_name} style={{ color: 'black' }} />
                                                     </View>
-                                                    <TouchableOpacity onPress={() => includeList(result)}>
+                                                    <TouchableOpacity onPress={() => includeList(data)}>
                                                         <TextC size={ResponsiveSize(10)} font={'Montserrat-Medium'} text={"Add"} style={{ color: global.white, backgroundColor: global.secondaryColor, paddingHorizontal: ResponsiveSize(15), paddingVertical: ResponsiveSize(3), borderRadius: ResponsiveSize(10),overflow:'hidden'}} />
                                                     </TouchableOpacity>
                                                 </View>

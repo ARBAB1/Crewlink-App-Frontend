@@ -36,7 +36,6 @@ const AllConnections = ({ getAllConnections, AllConnectionsReducer }) => {
         else if (!refreshing) {
             const loadAllevent = await getAllConnections({ page: page })
             cacheloader(loadAllevent)
-
         }
 
     }

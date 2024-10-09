@@ -96,7 +96,6 @@ const InappCheckin = ({
                 layover_time: layoverTime,
             });
             if (checkInLoad.message == 'Check-in updated successfully') {
-                console.log("ok")
                navigation.navigate('Home',{CheckInCity: currentCity})
             }
         } else {

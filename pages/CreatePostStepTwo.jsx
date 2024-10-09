@@ -235,6 +235,8 @@ const CreatePostTwo = ({
       item => item.user_id,
     );
     const stringNumbers = Tags.map(String);
+    const timestamp = new Date().getTime(); 
+    const dynamicName = `photo_${timestamp}.jpg`;
     try {
       const formData = new FormData();
       formData.append('caption', caption);
@@ -263,7 +265,7 @@ const CreatePostTwo = ({
         if (route?.params?.post?.type == 'image') {
           formData.append('post_attachments', {
             uri: `file://${route?.params?.post?.content}`,
-            name: 'photo.jpg',
+            name: dynamicName,
             type: 'image/jpeg',
           });
         } else {
