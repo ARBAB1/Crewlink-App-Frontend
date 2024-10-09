@@ -184,7 +184,6 @@ const MessageMedia = ({ route }) => {
             })
         }
         else {
-            console.log(uploadImage, 'error Response')
             alert("Failed to send message")
             setLoading(false)
             navigation.goBack()
@@ -203,7 +202,7 @@ const MessageMedia = ({ route }) => {
                     <Pressable onPress={() => setIsPaused(!isPause)} style={{ width: windowWidth, height: windowHeight, position: 'relative' }}>
                         <Video
                             source={{
-                                uri: 'file://' + route?.params?.media_url[0]?.originalPath,
+                                uri: route?.params?.media_url[0].uri,
                             }}
                             style={{ width: windowWidth, height: windowHeight }}
                             controls={false}

@@ -1,17 +1,22 @@
 {
-    "data": {
-        "content_id": "38",
-        "content_type": "LIKE_POST",
-        "deepLinkUrl": "crewlink://PostDetail/22?notification_type=LIKE_POST",
-        "fcm_options": {
-            "image": "https://uploadimagenest.s3.eu-north-1.amazonaws.com/b4e541d8-6d6e-4c8b-9e18-001ef4e381ac_CALIFORNIA.png"
-        }
+    "isImage": false,
+    "profile_picture_url": "https://uploadimagenest.s3.eu-north-1.amazonaws.com/b4e541d8-6d6e-4c8b-9e18-001ef4e381ac_CALIFORNIA.png",
+    "uri": {
+        "created_at": "2024-10-08T13:56:09.914Z",
+        "group_id": null,
+        "isShared": "N",
+        "is_media": "Y",
+        "media_url": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/f0e8cc4e-f53d-4513-a35e-0c4c1c656eeb_photo.mp4",
+        "message": "Bhahsh",
+        "message_id": 171,
+        "post_id": null,
+        "read_status": "N",
+        "receiverDeleted": "N",
+        "receiverUserId": 1,
+        "repliedMessage": null,
+        "repliedMessageId": null,
+        "senderDeleted": "N",
+        "senderUserId": 7
     },
-    "from": "422759084129",
-    "messageId": "1727963534215367",
-    "mutableContent": true,
-    "notification": {
-        "body": "Martin test liked your post",
-        "title": "LIKE_POST"
-    }
+    "user_name": "Martin test"
 }

@@ -1,26 +1,37 @@
-import { Platform, StatusBar, StyleSheet, Dimensions, SafeAreaView, KeyboardAvoidingView, View, useColorScheme, ScrollView, TouchableOpacity, TextInput, RefreshControl, Easing } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
+import { 
+  Platform, 
+  StatusBar, 
+  StyleSheet, 
+  Dimensions, 
+  SafeAreaView, 
+  KeyboardAvoidingView, 
+  View, 
+  useColorScheme, 
+  ScrollView, 
+  TouchableOpacity, 
+  TextInput, 
+  RefreshControl, 
+  Easing, 
+  Animated 
+} from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useHeaderHeight } from "@react-navigation/elements";
-import { DarkTheme, useNavigation, CommonActions, useIsFocused } from '@react-navigation/native';
+import { DarkTheme, useNavigation, useIsFocused } from '@react-navigation/native';
 import { global, ResponsiveSize } from '../components/constant';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
-import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import FastImage from 'react-native-fast-image';
 import TextC from '../components/text/text';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { baseUrl } from '../store/config.json'
+import { baseUrl } from '../store/config.json';
 import io from "socket.io-client";
 import { FlashList } from '@shopify/flash-list';
-import { Animated } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
-
-
-const SkeletonPlaceholder = ({ style, refreshing }) => {
+const SkeletonPlaceholder = ({ style }) => {
   const translateX = new Animated.Value(-350);
   const windowWidth = Dimensions.get('window').width;
-  const windowHeight = Dimensions.get('window').height;
+
   const styles = StyleSheet.create({
     container: {
       overflow: 'hidden',
@@ -32,35 +43,10 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
       justifyContent: 'center',
       position: 'relative',
     },
-    ProfileWrapper: {
-      width: windowWidth * 0.25 - ResponsiveSize(15),
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      justifyContent: 'center',
-    },
-    textWrapper: {
-      width: windowWidth * 0.75 - ResponsiveSize(15),
-      paddingLeft: ResponsiveSize(0),
-      flexDirection: 'column',
-      alignItems: 'flex-start',
-    },
-    imageWrapper: {
-      width: windowWidth * 0.75 - ResponsiveSize(15),
-      height: ResponsiveSize(100),
-      borderRadius: ResponsiveSize(25),
-      overflow: 'hidden',
-      marginTop: ResponsiveSize(20),
-    },
     profileImageSkelton: {
       width: ResponsiveSize(50),
       height: ResponsiveSize(50),
       borderRadius: ResponsiveSize(50),
-      overflow: 'hidden',
-    },
-    titleStripe: {
-      width: ResponsiveSize(80),
-      height: ResponsiveSize(10),
-      borderRadius: ResponsiveSize(5),
       overflow: 'hidden',
     },
     descriptionStripe: {
@@ -70,81 +56,62 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
       marginTop: ResponsiveSize(12),
       overflow: 'hidden',
     },
-
-    gradient: {
-      ...StyleSheet.absoluteFillObject,
-    },
-    linearGradient: {
-      flex: 1,
-      width: ResponsiveSize(350),
-    },
     linearGradientLine: {
       flex: 1,
       width: ResponsiveSize(350),
     },
   });
-  Animated.loop(
-    Animated.timing(translateX, {
-      toValue: 350,
-      duration: 2000,
-      easing: Easing.ease,
-      useNativeDriver: true,
-    }),
-  ).start();
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.timing(translateX, {
+        toValue: 350,
+        duration: 2000,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      })
+    );
+    animation.start();
+
+    return () => animation.stop(); // Clean up animation on unmount
+  }, []);
 
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.ProfileWrapper}>
-        <View style={styles.profileImageSkelton}>
-          <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
-            <LinearGradient
-              colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.linearGradientLine}
-            />
-          </Animated.View>
-        </View>
+      <View style={styles.profileImageSkelton}>
+        <Animated.View style={{ transform: [{ translateX }] }}>
+          <LinearGradient
+            colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.linearGradientLine}
+          />
+        </Animated.View>
       </View>
-      <View style={styles.textWrapper}>
-        <View style={styles.descriptionStripe}>
-          <Animated.View
-            style={[styles.gradient, { transform: [{ translateX }] }]}>
-            <LinearGradient
-              colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.linearGradientLine}
-            />
-          </Animated.View>
-        </View>
-        <View style={styles.imageWrapper}>
-          <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
-            <LinearGradient
-              colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.linearGradient}
-            />
-          </Animated.View>
-        </View>
+      <View style={styles.descriptionStripe}>
+        <Animated.View style={{ transform: [{ translateX }] }}>
+          <LinearGradient
+            colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.linearGradientLine}
+          />
+        </Animated.View>
       </View>
     </View>
   );
 };
 
-
 const Announcement = () => {
   const windowWidth = Dimensions.get('window').width;
-  const windowHeight = Dimensions.get('window').height;
   const scheme = useColorScheme();
   const navigation = useNavigation();
-  const [announcement, SetAnnouncement] = useState([])
-  const [userName, setUserName] = useState([])
-  const [profilePicture, setProfilePicture] = useState()
-  const headerHeight = useHeaderHeight();
-  const [refreshing, setRefreshing] = React.useState(false);
+  const [announcement, setAnnouncement] = useState([]);
+  const [userName, setUserName] = useState('');
+  const [profilePicture, setProfilePicture] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const focus = useIsFocused();
+  const headerHeight = useHeaderHeight();
 
   const styles = StyleSheet.create({
     ContainerHeader: {
@@ -182,7 +149,6 @@ const Announcement = () => {
       paddingBottom: ResponsiveSize(10),
       flexDirection: 'row',
       alignItems: 'flex-start',
-      paddingHorizontal: ResponsiveSize(15),
       borderBottomColor: "#EEEEEE",
       borderBottomWidth: ResponsiveSize(1),
     },
@@ -228,106 +194,80 @@ const Announcement = () => {
       alignItems: 'center',
       justifyContent: 'center',
     }
-  })
+  });
 
   useEffect(() => {
-    loadRecentChats()
-  }, [focus])
-
-  const loadRecentChats = async () => {
-    if (focus == true) {
-      setRefreshing(true);
+    const initializeData = async () => {
       const Token = await AsyncStorage.getItem('Token');
       const Picture = await AsyncStorage.getItem('Picture');
       const Name = await AsyncStorage.getItem('Name');
+
+      setProfilePicture(Picture);
+      setUserName(Name);
+
       const socket = io(`${baseUrl}/chat`, {
         transports: ['websocket'],
         extraHeaders: {
           'x-api-key': "TwillioAPI",
-          'accesstoken': `Bearer ${Token}`
+          'accesstoken': `Bearer ${Token}`,
         }
       });
-      socket.on('connect').on('announcement', (data) => {
-        SetAnnouncement(data)
-        setRefreshing(false);
-        setProfilePicture(Picture)
-        setUserName(Name)
-      })
-    }
-  }
 
-  const onRefresh = React.useCallback(() => {
+      socket.on('announcement', (data) => {
+        setAnnouncement(data);
+        setRefreshing(false);
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    };
+
+    if (focus) {
+      setRefreshing(true);
+      initializeData();
+    }
+  }, [focus]);
+
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
-    loadRecentChats();
+    // Re-trigger socket connection refresh
   }, []);
 
-  const GetLike = async (Like_id) => {
+  const handleLike = async (Like_id, isLiked) => {
     const Token = await AsyncStorage.getItem('Token');
-    const filterCommentDat = announcement.map(comment => {
-      if (comment.announcement_id == Like_id) {
+    const updatedAnnouncements = announcement.map(comment => {
+      if (comment.announcement_id === Like_id) {
         return {
           ...comment,
-          self_liked: true,
-          likes_count: comment?.likes_count + 1
+          self_liked: !isLiked,
+          likes_count: isLiked ? comment.likes_count - 1 : comment.likes_count + 1,
         };
       }
       return comment;
     });
-    SetAnnouncement(filterCommentDat);
-    const socket = io(`${baseUrl}/chat`, {
-      transports: ['websocket'],
-      extraHeaders: {
-        'x-api-key': "TwillioAPI",
-        'accesstoken': `Bearer ${Token}`
-      }
-    });
-    socket.on('connect').emit('likeAnnouncement', {
-      "announcement_id": Like_id,
-    }).on('announcement', (data) => {
-      SetAnnouncement(data)
-    })
-  }
+    setAnnouncement(updatedAnnouncements);
 
-  const GetUnLike = async (Like_id) => {
-    const Token = await AsyncStorage.getItem('Token');
-    const filterCommentDat = announcement.map(comment => {
-      if (comment.announcement_id == Like_id) {
-        return {
-          ...comment,
-          self_liked: false,
-          likes_count: comment?.likes_count - 1
-        };
-      }
-      return comment;
-    });
-    SetAnnouncement(filterCommentDat);
     const socket = io(`${baseUrl}/chat`, {
       transports: ['websocket'],
       extraHeaders: {
         'x-api-key': "TwillioAPI",
-        'accesstoken': `Bearer ${Token}`
+        'accesstoken': `Bearer ${Token}`,
       }
     });
-    socket.on('connect').emit('dislikeAnnouncement', {
+    socket.emit(isLiked ? 'dislikeAnnouncement' : 'likeAnnouncement', {
       "announcement_id": Like_id,
-    }).on('announcement', (data) => {
-      SetAnnouncement(data)
-    })
-  }
+    });
+  };
 
   const renderItem = useCallback(({ item }) => {
     return (
       <View style={styles.SinglePost}>
         <View style={styles.ProfileSide}>
           <FastImage
-            source={
-              item?.user_details?.profile_picture_url === ''
-                ? require('../assets/icons/avatar.png')
-                : {
-                  uri: item?.user_details?.profile_picture_url,
-                  priority: FastImage.priority.high,
-                }
-            }
+            source={item?.user_details?.profile_picture_url
+              ? { uri: item?.user_details?.profile_picture_url, priority: FastImage.priority.high }
+              : require('../assets/icons/avatar.png')}
             style={styles.PostProfileImage2}
             resizeMode="cover"
           />
@@ -344,39 +284,29 @@ const Announcement = () => {
               <Fontisto name='comment' size={ResponsiveSize(13)} />
               <TextC text={item?.comments_count} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ paddingLeft: ResponsiveSize(3) }} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.Comment} onPress={() => !item?.self_liked ? GetLike(item?.announcement_id) : GetUnLike(item?.announcement_id)} >
-              {item?.self_liked ?
-                <AntDesign color={global.red} name='heart' size={ResponsiveSize(14)} />
-                :
-                <AntDesign name='hearto' size={ResponsiveSize(14)} />
-              }
+            <TouchableOpacity style={styles.Comment} onPress={() => handleLike(item?.announcement_id, item?.self_liked)}>
+              {item?.self_liked ? 
+                <AntDesign color={global.red} name='heart' size={ResponsiveSize(14)} /> :
+                <AntDesign name='hearto' size={ResponsiveSize(14)} />}
               <TextC text={item?.likes_count} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ paddingLeft: ResponsiveSize(3) }} />
             </TouchableOpacity>
           </View>
         </View>
       </View>
     );
-  },
-    [profilePicture, announcement],
-  );
-
-
+  }, [profilePicture, announcement]);
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={{ flexGrow: 1 }}
-      keyboardVerticalOffset={
-        Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0
-      }>
+      keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0}
+    >
       <SafeAreaView style={{ flex: 1 }}>
         <StatusBar
-          backgroundColor={
-            scheme === 'dark' ? DarkTheme.colors.background : 'white'
-          }
+          backgroundColor={scheme === 'dark' ? DarkTheme.colors.background : 'white'}
           barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
         />
-
         <View style={styles.ContainerHeader}>
           <View style={styles.HeaderLeft}>
             <TextInput style={styles.SearchHeader} placeholder='Search Announcement' />
@@ -387,17 +317,14 @@ const Announcement = () => {
             </TouchableOpacity>
           </View>
         </View>
-        <ScrollView refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        } contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
+        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
           <View style={styles.container}>
             {refreshing ?
               <>
                 <SkeletonPlaceholder />
                 <SkeletonPlaceholder />
                 <SkeletonPlaceholder />
-              </>
-              :
+              </> :
               <FlashList
                 data={announcement}
                 renderItem={renderItem}
@@ -408,7 +335,7 @@ const Announcement = () => {
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
-  )
-}
+  );
+};
 
-export default Announcement
+export default Announcement;

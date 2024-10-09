@@ -33,6 +33,7 @@ import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 
 
 const NewGroupSecondScreen = ({ route }) => {
+    console.log(route.params,"iop")
     const scheme = useColorScheme();
     const windowWidth = Dimensions.get('window').width;
     const styles = StyleSheet.create({
@@ -135,7 +136,7 @@ const NewGroupSecondScreen = ({ route }) => {
     const [loading, setLoading] = useState(false);
 
     const createGroup = async () => {
-        setLoading(true);
+      
         const Token = await AsyncStorage.getItem('Token');
         const userIds = route.params?.map(user => user.user_id)
         const formData = new FormData()
@@ -144,8 +145,12 @@ const NewGroupSecondScreen = ({ route }) => {
                 uri: document[0]?.uri,
                 name: 'photo.jpg',
                 type: 'image/jpeg',
-            });
+            }); 
+        }else{
+            alert("Please Upload Image ")
         }
+        if (document[0]?.uri) {
+            setLoading(true);
         const uploadImage = await fetch(`${baseUrl}/messages/upload-group-image`, {
             method: "POST",
             headers: {
@@ -183,6 +188,9 @@ const NewGroupSecondScreen = ({ route }) => {
             setLoading(false)
             navigation.goBack()
         }
+    }else{
+        alert("Please Upload Image ")
+    }
     }
     useEffect(() => {
         return () => {
@@ -301,6 +309,7 @@ const NewGroupSecondScreen = ({ route }) => {
                         {route?.params !== undefined && route?.params !== "" && route?.params !== null && route?.params.length > 0 ? route?.params?.map(recentChats => {
                             return (
                                 <View style={styles.box}>
+                             
                                     <Image
                                         source={
                                             recentChats?.profile_picture_url == ''
