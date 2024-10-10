@@ -49,6 +49,8 @@ const GroupMessage = ({ route }) => {
     const navigation = useNavigation();
     const headerHeight = useHeaderHeight();
     const [imageRatio, setImageRatio] = useState("")
+    const [groupDetails, setGroupDetails] = useState(null);
+
     const styles = StyleSheet.create({
         wrapper: {
             flexDirection: 'row',
@@ -354,6 +356,26 @@ const GroupMessage = ({ route }) => {
     const scrollViewRef = useRef();
 
     const { openBottomSheet, closeBottomSheet } = useBottomSheet();
+    const fetchGroupDetails = async () => {
+        try {
+            const Token = await AsyncStorage.getItem('Token');
+            const response = await fetch(`${baseUrl}/users/user-details-by-user-id/${route?.params?.group_id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'accesstoken': `Bearer ${Token}`,
+                },
+            });
+            const result = await response.json();
+            if (result.statusCode === 200) {
+                console.log(result.data, "userDetails");
+                setGroupDetails(result.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch user details:", error);
+        }
+    };
     const openPhotoLibrary = async () => {
         const result = await launchImageLibrary({
             mediaType: 'mixed'
@@ -368,7 +390,7 @@ const GroupMessage = ({ route }) => {
             })
         }
     };
-
+  
     const [isMediaDetail, setIsMediaDetail] = useState(false)
     const MediaDetail = (address, isImage) => {
         setIsMediaDetail(true)
@@ -475,6 +497,7 @@ const GroupMessage = ({ route }) => {
     }
 
     useEffect(() => {
+        fetchGroupDetails()
         loadRecentChats()
         navigation.getParent()?.setOptions({
             tabBarStyle: { display: 'none' },

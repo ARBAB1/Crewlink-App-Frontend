@@ -273,7 +273,7 @@ const Announcement = () => {
           />
         </View>
         <View style={styles.TextSide}>
-          <TouchableOpacity onPress={() => navigation.navigate("announcementDetail", { details: item })}>
+          <TouchableOpacity onPress={() => navigation.navigate("announcementDetail", { announcement_id: item?.announcement_id })}>
             <View style={styles.ProfileDetail}>
               <TextC text={`${item?.user_details?.user_name}`} font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
             </View>

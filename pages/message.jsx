@@ -6,6 +6,7 @@ import {
     Easing,
     Image,
     ImageBackground,
+    Keyboard,
     KeyboardAvoidingView,
     Pressable,
     SafeAreaView,
@@ -35,9 +36,13 @@ import FastImage from "react-native-fast-image";
 import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
 import ButtonC from "../components/button";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
+import Modal from "react-native-modal";
 
 
 const Message = ({ route }) => {
+    console.log(route?.params, "route");
     const focus = useIsFocused();
     const scheme = useColorScheme();
     const windowWidth = Dimensions.get('window').width;
@@ -45,6 +50,42 @@ const Message = ({ route }) => {
     const navigation = useNavigation();
     const headerHeight = useHeaderHeight();
     const [imageRatio, setImageRatio] = useState("")
+
+    const [newMessage, setNewMessage] = useState("")
+    const [recentChats, setRecentChats] = useState([])
+    const [user_id, setUserId] = useState()
+    const [page, setPage] = useState(2)
+    const [loadMoreLoader, setLoadMoreLoader] = useState(false)
+    const [isMediaDetail, setIsMediaDetail] = useState(false)
+    const [hasMoreContent, setHasMoreContent] = useState(true);
+    const [loader, setLoader] = useState(false)
+    const [queue, setQueue] = useState([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [userDetails, setUserDetails] = useState(null);
+    const scrollViewRef = useRef();
+
+    const { openBottomSheet, closeBottomSheet } = useBottomSheet();
+    const fetchUserDetails = async () => {
+        try {
+            const Token = await AsyncStorage.getItem('Token');
+            const response = await fetch(`${baseUrl}/users/user-details-by-user-id/${route?.params?.receiverUserId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'accesstoken': `Bearer ${Token}`,
+                },
+            });
+            const result = await response.json();
+            if (result.statusCode === 200) {
+                console.log(result.data, "userDetails");
+                setUserDetails(result.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch user details:", error);
+        }
+    };
+
     const styles = StyleSheet.create({
         wrapper: {
             flexDirection: 'row',
@@ -402,13 +443,6 @@ const Message = ({ route }) => {
             backgroundColor: global.primaryColor
         }
     });
-    const [newMessage, setNewMessage] = useState("")
-    const [recentChats, setRecentChats] = useState([])
-    const [user_id, setUserId] = useState()
-    const [loader, setLoader] = useState(false)
-    const scrollViewRef = useRef();
-
-    const { openBottomSheet, closeBottomSheet } = useBottomSheet();
     const openPhotoLibrary = async () => {
         const result = await launchImageLibrary({
             mediaType: 'mixed'
@@ -418,13 +452,13 @@ const Message = ({ route }) => {
             navigation.navigate('messageMedia', {
                 media_url: result?.assets,
                 receiverUserId: route?.params?.receiverUserId,
-                profile_picture_url: route?.params?.profile_picture_url,
-                user_name: route?.params?.user_name
+                profile_picture_url: userDetails?.profile_picture_url, // Replaced here
+                user_name: userDetails?.user_name
             })
         }
     };
 
-    const [isMediaDetail, setIsMediaDetail] = useState(false)
+
     const MediaDetail = (address, isImage) => {
         setIsMediaDetail(true)
         if (isImage) {
@@ -435,9 +469,10 @@ const Message = ({ route }) => {
                     navigation.navigate('MediaDetail', {
                         uri: address,
                         ratio: ratio,
-                        profile_picture_url: route?.params?.profile_picture_url,
-                        user_name: route?.params?.user_name,
+                        profile_picture_url: userDetails?.profile_picture_url, // Replaced here
+                        user_name: userDetails?.user_name,
                         isImage: isImage
+
                     })
                 },
                 (error) => {
@@ -448,13 +483,14 @@ const Message = ({ route }) => {
         else {
             navigation.navigate('MediaDetail', {
                 uri: address,
-                profile_picture_url: route?.params?.profile_picture_url,
-                user_name: route?.params?.user_name,
+                profile_picture_url: userDetails?.profile_picture_url, // Replaced here
+                user_name: userDetails?.user_name,
                 isImage: isImage
             })
         }
     }
     const handleOpenSheet = () => {
+        Keyboard.dismiss()
         openBottomSheet(
             <>
                 <View
@@ -464,6 +500,7 @@ const Message = ({ route }) => {
                         justifyContent: 'space-between',
                         height: '100%',
                         paddingHorizontal: ResponsiveSize(15),
+                        paddingVertical: ResponsiveSize(15)
                     }}>
                     <ButtonC
                         onPress={openMobileCamera}
@@ -493,8 +530,8 @@ const Message = ({ route }) => {
             navigation.navigate('messageMedia', {
                 media_url: result?.assets,
                 receiverUserId: route?.params?.receiverUserId,
-                profile_picture_url: route?.params?.profile_picture_url,
-                user_name: route?.params?.user_name
+                profile_picture_url: userDetails?.profile_picture_url, // Replaced here
+                user_name: userDetails?.user_name
             })
         }
     };
@@ -529,10 +566,12 @@ const Message = ({ route }) => {
     }
 
     useEffect(() => {
-        loadRecentChats()
         navigation.getParent()?.setOptions({
             tabBarStyle: { display: 'none' },
         });
+        fetchUserDetails();
+        loadRecentChats()
+        
         return () => {
             closeBottomSheet();
             navigation.getParent()?.setOptions({
@@ -546,8 +585,6 @@ const Message = ({ route }) => {
         }
     }, []);
 
-    const [queue, setQueue] = useState([]);
-    const [isProcessing, setIsProcessing] = useState(false);
 
     const addToQueue = (message) => {
         setQueue(prevQueue => [...prevQueue, message]);
@@ -1090,9 +1127,7 @@ const Message = ({ route }) => {
         );
     }, [recentChats]);
 
-    const [page, setPage] = useState(2)
-    const [loadMoreLoader, setLoadMoreLoader] = useState(false)
-    const [hasMoreContent, setHasMoreContent] = useState(true);
+
 
 
 
@@ -1143,19 +1178,19 @@ const Message = ({ route }) => {
                     barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
                 />
                 <View style={styles.wrapper}>
-                    <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
+                    <Pressable onPress={() => navigation.navigate('Home', { screen: 'MessageList' })} style={styles.logoSide1}>
                         <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
                     </Pressable>
                     <View style={styles.logoSide2}>
                         <ImageBackground
                             source={
-                                route?.params?.profile_picture_url == ''
+                                userDetails?.profile_picture_url == ''
                                     ? require('../assets/icons/avatar.png')
-                                    : { uri: route?.params?.profile_picture_url }
+                                    : { uri: userDetails?.profile_picture_url }
                             }
                             style={styles.PostProfileImage}
                             resizeMode="cover"></ImageBackground>
-                        <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={route?.params?.user_name} />
+                        <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={userDetails?.user_name} />
                     </View>
                 </View>
                 <ScrollView
@@ -1213,7 +1248,7 @@ const Message = ({ route }) => {
                                 {ReplyMessage?.senderUserId == user_id ?
                                     <TextC text={`Replying to yourself`} font={"Montserrat-Medium"} size={ResponsiveSize(10)} style={{ color: global.description, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
                                     :
-                                    <TextC text={`Replying to ${route?.params?.user_name}`} font={"Montserrat-Medium"} size={ResponsiveSize(10)} style={{ color: global.description, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
+                                    <TextC text={`Replying to ${userDetails?.user_name}`} font={"Montserrat-Medium"} size={ResponsiveSize(10)} style={{ color: global.description, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
                                 }
                                 {ReplyMessage?.media_url ?
                                     <TextC text={"Photo"} font={"Montserrat-Medium"} size={ResponsiveSize(11)} style={{ color: global.black, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />

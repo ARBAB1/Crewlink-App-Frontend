@@ -124,7 +124,7 @@ const MainNavigation = ({ GetUserProfileReducer  }) => {
           screens: {
             announcement: 'announcement',
             createAnnouncement: 'createAnnouncement',
-            announcementDetail: 'announcementDetail',
+            announcementDetail: 'announcementDetail/:announcement_id',
           }
         },
       }

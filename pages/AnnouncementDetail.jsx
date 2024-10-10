@@ -63,6 +63,7 @@ const SkeletonPlaceholder = ({ style }) => {
   });
 
   useEffect(() => {
+   
     const animation = Animated.loop(
       Animated.timing(translateX, {
         toValue: 350,
@@ -103,11 +104,14 @@ const SkeletonPlaceholder = ({ style }) => {
 };
 
 const AnnouncementDetail = ({ route }) => {
+  console.log(route?.params, "details");
   const windowWidth = Dimensions.get('window').width;
   const scheme = useColorScheme();
   const navigation = useNavigation();
   const [announcement, setAnnouncement] = useState([]);
   const [page, setPage] = useState(1);
+  const [AnnouncementDetails, setAnnouncementDetails] = useState(null);
+
   const [refreshing, setRefreshing] = useState(false);
   const [isMore, setIsMore] = useState(true);
   const [moreLoader, setMoreLoader] = useState(false);
@@ -216,8 +220,32 @@ const AnnouncementDetail = ({ route }) => {
       paddingTop: ResponsiveSize(50),
     },
   });
-
+  const fetchAnnouncementDetails = async () => {
+    try {
+        const Token = await AsyncStorage.getItem('Token');
+        const response = await fetch(`${baseUrl}/announcements/get-announcement-by-Id/${route?.params?.announcement_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'accesstoken': `Bearer ${Token}`,
+            },
+        });
+        const result = await response.json();
+        if (result.statusCode === 200) {
+            console.log(result.announcement, "userDetails");
+            setAnnouncementDetails(result.announcement);
+        }
+    } catch (error) {
+        console.error("Failed to fetch user details:", error);
+    }
+};
+useEffect(() => {
+    
+    fetchAnnouncementDetails();
+}, []);
   useEffect(() => {
+    
     if (focus) {
       loadComments();
     }
@@ -228,7 +256,7 @@ const AnnouncementDetail = ({ route }) => {
     try {
       const Token = await AsyncStorage.getItem('Token');
       const response = await fetch(
-        `${baseUrl}/announcements/get-announcement-comments/${route?.params?.details?.announcement_id}/${page}/10`, {
+        `${baseUrl}/announcements/get-announcement-comments/${route?.params?.announcement_id}/${page}/10`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -257,7 +285,7 @@ const AnnouncementDetail = ({ route }) => {
     try {
       const Token = await AsyncStorage.getItem('Token');
       const response = await fetch(
-        `${baseUrl}/announcements/get-announcement-comments/${route?.params?.details?.announcement_id}/${nextPage}/10`, {
+        `${baseUrl}/announcements/get-announcement-comments/${route?.params?.announcement_id}/${nextPage}/10`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -368,7 +396,7 @@ const AnnouncementDetail = ({ route }) => {
           barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
         />
         <View >
-          <Pressable onPress={() => navigation.goBack()} style={styles.ContainerHeader}>
+          <Pressable onPress={() => navigation.navigate('announcement')} style={styles.ContainerHeader}>
             <AntDesign name="left" color={'#05348E'} size={ResponsiveSize(16)} />
             <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={'Announcements'} />
           </Pressable>
@@ -378,10 +406,10 @@ const AnnouncementDetail = ({ route }) => {
           <View style={styles.SinglePost}>
             <View style={styles.ProfileSide}>
               <FastImage
-                source={route.params.details?.user_details?.profile_picture_url === ''
+                source={AnnouncementDetails?.userDetail?.profile_picture_url === ''
                   ? require('../assets/icons/avatar.png')
                   : {
-                    uri: route.params.details?.user_details?.profile_picture_url,
+                    uri: AnnouncementDetails?.userDetail?.profile_picture_url,
                     priority: FastImage.priority.high,
                   }}
                 style={styles.PostProfileImage2}
@@ -389,8 +417,8 @@ const AnnouncementDetail = ({ route }) => {
               />
             </View>
             <View style={styles.TextSide}>
-              <TextC text={route.params.details?.user_details?.user_name} font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
-              <TextC style={{ color: global.placeholderColor }} text={route.params.details?.message} font={'Montserrat-Regular'} size={ResponsiveSize(12)} />
+              <TextC text={AnnouncementDetails?.userDetail?.user_name} font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
+              <TextC style={{ color: global.placeholderColor }} text={AnnouncementDetails?.message} font={'Montserrat-Regular'} size={ResponsiveSize(12)} />
             </View>
           </View>
 
