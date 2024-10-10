@@ -39,6 +39,8 @@ import GroupmessageMedia from '../pages/GroupmessageMedia.jsx';
 import PrivacySetting from '../pages/PrivacySetting.jsx';
 import CreateStatus from '../pages/CreateStatus.jsx';
 import NotPostDetail from '../pages/NotPostDetail.jsx';
+import UserChatSetting from '../pages/UserChatSetting.jsx';
+import GroupChatSetting from '../pages/GroupChatSetting.jsx';
 
 
 
@@ -102,6 +104,12 @@ const HomeStackNavigation = () => {
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="Message" component={Message} />
+   <Stack.Screen options={{
+        headerShown: false, navigationBarHidden: true,
+      }} name="UserChatSetting" component={UserChatSetting} />
+      <Stack.Screen options={{
+        headerShown: false, navigationBarHidden: true,
+      }} name="GroupChatSetting" component={GroupChatSetting} />
 
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,

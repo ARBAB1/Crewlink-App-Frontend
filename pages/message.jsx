@@ -21,6 +21,8 @@ import {
 } from "react-native";
 import { global, ResponsiveSize } from "../components/constant";
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Entypo from 'react-native-vector-icons/Entypo';
+
 import TextC from "../components/text/text";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
@@ -65,6 +67,13 @@ const Message = ({ route }) => {
     const scrollViewRef = useRef();
 
     const { openBottomSheet, closeBottomSheet } = useBottomSheet();
+  
+
+    useEffect(() => {
+        navigation.getParent()?.setOptions({
+            tabBarStyle: { display: 'none' },
+        });
+    }, []);
     const fetchUserDetails = async () => {
         try {
             const Token = await AsyncStorage.getItem('Token');
@@ -91,6 +100,7 @@ const Message = ({ route }) => {
             flexDirection: 'row',
             alignItems: 'center',
             width: windowWidth,
+            justifyContent: 'space-between',
             paddingHorizontal: ResponsiveSize(15),
             paddingVertical: ResponsiveSize(15),
             backgroundColor: global.white,
@@ -377,11 +387,19 @@ const Message = ({ route }) => {
             alignItems: 'center',
             justifyContent: 'center'
         },
+        logoSide:{
+            flexDirection: 'row',
+        },
         EmptyMessage: {
             flex: 1,
             flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'center',
+        },
+        containerWrapper:{
+           
+            flexDirection: 'row',
+
         },
         ResharePostBody: {
             borderTopLeftRadius: ResponsiveSize(10),
@@ -574,14 +592,7 @@ const Message = ({ route }) => {
         
         return () => {
             closeBottomSheet();
-            navigation.getParent()?.setOptions({
-                tabBarStyle: {
-                    display: 'flex',
-                    backgroundColor: '#69BE25',
-                    borderTopLeftRadius: ResponsiveSize(20),
-                    borderTopRightRadius: ResponsiveSize(20),
-                },
-            });
+       
         }
     }, []);
 
@@ -1178,7 +1189,23 @@ const Message = ({ route }) => {
                     barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
                 />
                 <View style={styles.wrapper}>
-                    <Pressable onPress={() => navigation.navigate('Home', { screen: 'MessageList' })} style={styles.logoSide1}>
+                    <View style={styles.logoSide}>
+                    <Pressable onPress={() => {
+                        navigation.navigate('Home', { screen: 'MessageList' })
+                       return navigation.getParent()?.setOptions({
+                            tabBarStyle: {
+                              display: 'flex',
+                              backgroundColor: '#69BE25',
+                              borderTopLeftRadius: ResponsiveSize(20),
+                              borderTopRightRadius: ResponsiveSize(20),
+                            },
+                          });
+
+
+
+
+
+                        }} style={styles.logoSide1}>
                         <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
                     </Pressable>
                     <View style={styles.logoSide2}>
@@ -1192,6 +1219,22 @@ const Message = ({ route }) => {
                             resizeMode="cover"></ImageBackground>
                         <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={userDetails?.user_name} />
                     </View>
+                   
+                    </View>
+                    <Pressable onPress={() => {
+                        navigation.navigate('UserChatSetting')
+                       return navigation.getParent()?.setOptions({
+                            tabBarStyle: {
+                              display: 'flex',
+                              backgroundColor: '#69BE25',
+                              borderTopLeftRadius: ResponsiveSize(20),
+                              borderTopRightRadius: ResponsiveSize(20),
+                            },
+                          });
+
+                        }} style={styles.logoSide1}>
+                        <Entypo name='dots-three-vertical' color={global.primaryColor} size={ResponsiveSize(22)} />
+                    </Pressable>
                 </View>
                 <ScrollView
                     ref={scrollViewRef}

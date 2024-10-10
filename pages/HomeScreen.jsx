@@ -195,6 +195,7 @@ const HomeScreen = ({
     }
   };
   useEffect(() => {
+  
     GetProfileData();
     if (PostCreationReducer?.uploadLoading == false) {
       getFeeds();
