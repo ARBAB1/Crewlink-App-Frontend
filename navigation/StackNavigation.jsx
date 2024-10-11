@@ -39,6 +39,7 @@ import GroupmessageMedia from '../pages/GroupmessageMedia.jsx';
 import PrivacySetting from '../pages/PrivacySetting.jsx';
 import CreateStatus from '../pages/CreateStatus.jsx';
 import NotPostDetail from '../pages/NotPostDetail.jsx';
+import groupDetail from '../pages/groupDetail.jsx';
 
 
 
@@ -118,6 +119,9 @@ const HomeStackNavigation = () => {
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="GroupMessage" component={GroupMessage} />
+      <Stack.Screen options={{
+        headerShown: false, navigationBarHidden: true,
+      }} name="groupDetail" component={groupDetail} />
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="messageMedia" component={MessageMedia} />

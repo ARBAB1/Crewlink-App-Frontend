@@ -136,14 +136,14 @@ const MessageList = () => {
 
     useEffect(() => {
         loadRecentChats()
-        navigation.getParent()?.setOptions({
-            tabBarStyle: {
-                display: 'flex',
-                backgroundColor: '#69BE25',
-                borderTopLeftRadius: ResponsiveSize(20),
-                borderTopRightRadius: ResponsiveSize(20),
-            },
-        });
+        // navigation.getParent()?.setOptions({
+        //     tabBarStyle: {
+        //         display: 'flex',
+        //         backgroundColor: '#69BE25',
+        //         borderTopLeftRadius: ResponsiveSize(20),
+        //         borderTopRightRadius: ResponsiveSize(20),
+        //     },
+        // });
     }, [focus])
 
     useEffect(() => {

@@ -69,7 +69,7 @@ const GroupMessage = ({ route }) => {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            paddingLeft: ResponsiveSize(5)
+            paddingLeft: ResponsiveSize(5),
         },
         bodyWrapper: {
             paddingHorizontal: ResponsiveSize(15),
@@ -937,7 +937,7 @@ const GroupMessage = ({ route }) => {
                     <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
                         <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
                     </Pressable>
-                    <View style={styles.logoSide2}>
+                    <TouchableOpacity style={styles.logoSide2} onPress={()=>navigation.navigate('groupDetail')}>
                         <ImageBackground
                             source={
                                 route?.params?.profile_picture_url == ''
@@ -947,7 +947,7 @@ const GroupMessage = ({ route }) => {
                             style={styles.PostProfileImage}
                             resizeMode="cover"></ImageBackground>
                         <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={route?.params?.user_name} />
-                    </View>
+                    </TouchableOpacity>
                 </View>
                 <ScrollView
                     ref={scrollViewRef}

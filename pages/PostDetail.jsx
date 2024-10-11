@@ -8,21 +8,20 @@ import * as PostDetailAction from '../store/actions/PostById/index';
 import { connect } from 'react-redux';
 import Post from "../components/post";
 
-const PostDetail = ({ route,getPostDetail }) => {
+const PostDetail = ({ route, getPostDetail }) => {
     console.log(route?.params, 'route')
-let params
-let type
+    let params
+    let type
     if (!route?.params?.content_id) {
-      params = route?.params 
-       type = 'NEW_POST'
+        params = route?.params
+        type = 'NEW_POST'
     }
-    else{
-      params = parseInt(route?.params?.content_id)
-       type = (route?.params?.content_type).toString()
-       
+    else {
+        params = parseInt(route?.params?.content_id)
+        type = (route?.params?.content_type)?.toString()
     }
 
- 
+
     const navigation = useNavigation();
     const windowWidth = Dimensions.get('window').width;
     const [post, setPost] = useState([]);
@@ -64,7 +63,7 @@ let type
             post_id: params
         })
         setPost([result?.data])
- 
+
         setLoading(false)
     }
 

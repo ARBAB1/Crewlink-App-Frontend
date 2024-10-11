@@ -1,18 +1,19 @@
-import { 
-  Platform, 
-  StatusBar, 
-  StyleSheet, 
-  Dimensions, 
-  SafeAreaView, 
-  KeyboardAvoidingView, 
-  View, 
-  useColorScheme, 
-  ScrollView, 
-  TouchableOpacity, 
-  TextInput, 
-  RefreshControl, 
-  Easing, 
-  Animated 
+import {
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Dimensions,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  View,
+  useColorScheme,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  RefreshControl,
+  Easing,
+  Animated,
+  Image
 } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHeaderHeight } from "@react-navigation/elements";
@@ -27,11 +28,14 @@ import { baseUrl } from '../store/config.json';
 import io from "socket.io-client";
 import { FlashList } from '@shopify/flash-list';
 import LinearGradient from 'react-native-linear-gradient';
+import * as UserProfile from '../store/actions/UserProfile/index';
+import { connect } from 'react-redux';
 
-const SkeletonPlaceholder = ({ style }) => {
+
+const SkeletonPlaceholder = ({ style, refreshing }) => {
   const translateX = new Animated.Value(-350);
   const windowWidth = Dimensions.get('window').width;
-
+  const windowHeight = Dimensions.get('window').height;
   const styles = StyleSheet.create({
     container: {
       overflow: 'hidden',
@@ -43,10 +47,35 @@ const SkeletonPlaceholder = ({ style }) => {
       justifyContent: 'center',
       position: 'relative',
     },
+    ProfileWrapper: {
+      width: windowWidth * 0.25 - ResponsiveSize(15),
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+    },
+    textWrapper: {
+      width: windowWidth * 0.75 - ResponsiveSize(15),
+      paddingLeft: ResponsiveSize(0),
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+    },
+    imageWrapper: {
+      width: windowWidth * 0.75 - ResponsiveSize(15),
+      height: ResponsiveSize(100),
+      borderRadius: ResponsiveSize(25),
+      overflow: 'hidden',
+      marginTop: ResponsiveSize(20),
+    },
     profileImageSkelton: {
       width: ResponsiveSize(50),
       height: ResponsiveSize(50),
       borderRadius: ResponsiveSize(50),
+      overflow: 'hidden',
+    },
+    titleStripe: {
+      width: ResponsiveSize(80),
+      height: ResponsiveSize(10),
+      borderRadius: ResponsiveSize(5),
       overflow: 'hidden',
     },
     descriptionStripe: {
@@ -56,53 +85,71 @@ const SkeletonPlaceholder = ({ style }) => {
       marginTop: ResponsiveSize(12),
       overflow: 'hidden',
     },
+
+    gradient: {
+      ...StyleSheet.absoluteFillObject,
+    },
+    linearGradient: {
+      flex: 1,
+      width: ResponsiveSize(350),
+    },
     linearGradientLine: {
       flex: 1,
       width: ResponsiveSize(350),
     },
   });
-
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.timing(translateX, {
-        toValue: 350,
-        duration: 2000,
-        easing: Easing.ease,
-        useNativeDriver: true,
-      })
-    );
-    animation.start();
-
-    return () => animation.stop(); // Clean up animation on unmount
-  }, []);
+  Animated.loop(
+    Animated.timing(translateX, {
+      toValue: 350,
+      duration: 2000,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    }),
+  ).start();
 
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.profileImageSkelton}>
-        <Animated.View style={{ transform: [{ translateX }] }}>
-          <LinearGradient
-            colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.linearGradientLine}
-          />
-        </Animated.View>
+      <View style={styles.ProfileWrapper}>
+        <View style={styles.profileImageSkelton}>
+          <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
+            <LinearGradient
+              colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.linearGradientLine}
+            />
+          </Animated.View>
+        </View>
       </View>
-      <View style={styles.descriptionStripe}>
-        <Animated.View style={{ transform: [{ translateX }] }}>
-          <LinearGradient
-            colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.linearGradientLine}
-          />
-        </Animated.View>
+      <View style={styles.textWrapper}>
+        <View style={styles.descriptionStripe}>
+          <Animated.View
+            style={[styles.gradient, { transform: [{ translateX }] }]}>
+            <LinearGradient
+              colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.linearGradientLine}
+            />
+          </Animated.View>
+        </View>
+        <View style={styles.imageWrapper}>
+          <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
+            <LinearGradient
+              colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.linearGradient}
+            />
+          </Animated.View>
+        </View>
       </View>
     </View>
   );
 };
 
-const Announcement = () => {
+
+const Announcement = ({GetUserProfileReducer}) => {
   const windowWidth = Dimensions.get('window').width;
   const scheme = useColorScheme();
   const navigation = useNavigation();
@@ -196,6 +243,7 @@ const Announcement = () => {
     }
   });
 
+
   useEffect(() => {
     const initializeData = async () => {
       const Token = await AsyncStorage.getItem('Token');
@@ -217,12 +265,10 @@ const Announcement = () => {
         setAnnouncement(data);
         setRefreshing(false);
       });
-
       return () => {
         socket.disconnect();
       };
     };
-
     if (focus) {
       setRefreshing(true);
       initializeData();
@@ -231,7 +277,6 @@ const Announcement = () => {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    // Re-trigger socket connection refresh
   }, []);
 
   const handleLike = async (Like_id, isLiked) => {
@@ -285,7 +330,7 @@ const Announcement = () => {
               <TextC text={item?.comments_count} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ paddingLeft: ResponsiveSize(3) }} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.Comment} onPress={() => handleLike(item?.announcement_id, item?.self_liked)}>
-              {item?.self_liked ? 
+              {item?.self_liked ?
                 <AntDesign color={global.red} name='heart' size={ResponsiveSize(14)} /> :
                 <AntDesign name='hearto' size={ResponsiveSize(14)} />}
               <TextC text={item?.likes_count} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ paddingLeft: ResponsiveSize(3) }} />
@@ -307,7 +352,7 @@ const Announcement = () => {
           backgroundColor={scheme === 'dark' ? DarkTheme.colors.background : 'white'}
           barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
         />
-        <View style={styles.ContainerHeader}>
+        {/* <View style={styles.ContainerHeader}>
           <View style={styles.HeaderLeft}>
             <TextInput style={styles.SearchHeader} placeholder='Search Announcement' />
           </View>
@@ -316,26 +361,45 @@ const Announcement = () => {
               <AntDesign name='plus' size={ResponsiveSize(22)} color={global.white} />
             </TouchableOpacity>
           </View>
-        </View>
-        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
-          <View style={styles.container}>
-            {refreshing ?
-              <>
-                <SkeletonPlaceholder />
-                <SkeletonPlaceholder />
-                <SkeletonPlaceholder />
-              </> :
-              <FlashList
-                data={announcement}
-                renderItem={renderItem}
-                keyExtractor={item => item.announcement_id}
-              />
-            }
+        </View> */}
+
+
+
+        <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", height: ResponsiveSize(60), width: windowWidth, backgroundColor: "white", paddingHorizontal: ResponsiveSize(15), borderBottomWidth: ResponsiveSize(1), borderBottomColor: "#EEEEEE" }}>
+          <View>
+            <Image source={require('../assets/icons/Logo.png')} style={{ objectFit: 'contain', width: ResponsiveSize(115), height: ResponsiveSize(22) }} />
+            <TextC text={GetUserProfileReducer?.data?.airline} font={"Montserrat-Bold"}/>
           </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <TouchableOpacity style={styles.ShareBtn} onPress={() => navigation.navigate('createAnnouncement', { user_name: userName, user_Profile: profilePicture })}>
+              <AntDesign name='plus' size={ResponsiveSize(22)} color={global.white} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+
+        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
+          {refreshing ?
+            <>
+              <SkeletonPlaceholder />
+              <SkeletonPlaceholder />
+              <SkeletonPlaceholder />
+            </> :
+            <FlashList
+              data={announcement}
+              renderItem={renderItem}
+              keyExtractor={item => item.announcement_id}
+            />
+          }
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
 };
 
-export default Announcement;
+
+
+function mapStateToProps({ GetUserProfileReducer }) {
+  return { GetUserProfileReducer };
+}
+export default connect(mapStateToProps, UserProfile)(Announcement);

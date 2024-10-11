@@ -1,5 +1,5 @@
 import { DarkTheme, useNavigation, CommonActions } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -12,8 +12,11 @@ import {
   Animated,
   KeyboardAvoidingView,
   TouchableOpacity,
+  RefreshControl,
+  FlatList,
+  ScrollView
 } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import {  } from 'react-native-gesture-handler';
 import CityScroll from '../components/citiesScroll';
 import Post from '../components/post';
 import * as UserProfile from '../store/actions/UserProfile/index';
@@ -163,12 +166,17 @@ const HomeScreen = ({
   const [post, setPost] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedCity, setSelectedCity] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+
+
+
   const handleCitySelect = (city) => {
-     setSelectedCity(city);
+    setSelectedCity(city);
   };
   const getFeeds = async () => {
     setLoading(true);
-    const result = await GetUserPosts({city: selectedCity});
+    const result = await GetUserPosts({ city: selectedCity });
     if (result) {
       setPost(result.reverse())
       setLoading(false)
@@ -227,6 +235,42 @@ const HomeScreen = ({
   });
 
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    getFeeds()
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }
+
+  const renderItem = useCallback((items) => {
+    return (
+      <>
+        <Post
+          key={items?.item?.post_id}
+          selfLiked={items?.item?.selfLiked}
+          postId={items?.item?.post_id}
+          timeAgo={items?.item?.created_at}
+          userLocation={`${items?.item?.lastCheckin?.city} | ${items?.item?.lastCheckin?.state}`}
+          userName={items?.item?.userDetails?.user_name}
+          profileImage={items?.item?.userDetails?.profile_picture_url}
+          likeCount={items?.item?.likes_count}
+          commnetCount={items?.item?.comments_count}
+          description={items?.item?.caption}
+          content={items?.item?.attachments}
+          comments_show_flag={items?.item?.comments_show_flag}
+          allow_comments_flag={items?.item?.allow_comments_flag}
+          likes_show_flag={items?.item?.likes_show_flag}
+          content_type={items?.item?.content_type}
+          reshareUserDetails={items?.item?.reshareUserDetails}
+        />
+      </>
+    );
+  }, []);
+
+  console.log(post[0],'first post')
+
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -241,8 +285,11 @@ const HomeScreen = ({
           }
           barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
         />
-        <MainHeader loading={loading}/>
+        <MainHeader loading={loading} />
         <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           contentContainerStyle={{
             flexGrow: 1,
             ...(scheme === 'dark'
@@ -250,19 +297,19 @@ const HomeScreen = ({
               : { backgroundColor: 'white' }),
           }}>
           <View>
-            <CityScroll  onCitySelect={handleCitySelect}/>
+            <CityScroll onCitySelect={handleCitySelect} />
           </View>
 
           {PostCreationReducer?.uploadLoading && (
             <View style={styles.UploadingLoader} >
               <TouchableOpacity onPress={() => navigation.navigate('Status')}>
 
-     
-              <ImageBackground
-                style={styles.profileImageUpload}
-                source={{ uri: `file://${PostCreationReducer?.uploadFiles}` }}>
-                <ActivityIndicator size={'small'} color={global.white} />
-              </ImageBackground>
+
+                <ImageBackground
+                  style={styles.profileImageUpload}
+                  source={{ uri: `file://${PostCreationReducer?.uploadFiles}` }}>
+                  <ActivityIndicator size={'small'} color={global.white} />
+                </ImageBackground>
               </TouchableOpacity>
               <View style={styles.PostDescription}>
                 <TextC
@@ -295,6 +342,30 @@ const HomeScreen = ({
                 post !== null &&
                 post !== '' &&
                 post.length > 0 ?
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  initialNumToRender={10}
+                  data={post}
+                  keyExtractor={(items, index) => index?.toString()}
+                  maxToRenderPerBatch={10}
+                  windowSize={10}
+                  onEndReachedThreshold={0.5}
+                  renderItem={renderItem}
+                />
+                :
+                <View style={{ paddingTop: ResponsiveSize(30), flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                  <TextC
+                    text={'No posts yet'}
+                    font={'Montserrat-SemiBold'}
+                    size={ResponsiveSize(18)}
+                    style={{ color: global.primaryColor }}
+                  />
+                </View>
+              }
+              {/* {post !== undefined &&
+                post !== null &&
+                post !== '' &&
+                post.length > 0 ?
                 post?.map(data => (
                   <Post
                     key={data?.post_id}
@@ -323,7 +394,7 @@ const HomeScreen = ({
                     style={{ color: global.primaryColor }}
                   />
                 </View>
-              }
+              } */}
             </View>
           )}
         </ScrollView>

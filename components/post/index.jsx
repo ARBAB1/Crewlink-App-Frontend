@@ -102,7 +102,6 @@ const Post = ({
 
   }, [type]);
 
-
   const [getLatestConnection, setGetLatestConnection] = useState([]);
 
   const getAllConnectionsFunc = async () => {
@@ -854,7 +853,6 @@ const Post = ({
   }, []);
 
 
-
   const style = StyleSheet.create({
     PostHeader: {
       flexDirection: 'row',
@@ -888,7 +886,7 @@ const Post = ({
       alignItems: 'center',
     },
     ActuallPost: {
-      height: windowHeight * 0.5,
+      height: windowHeight * 0.48,
       width: windowWidth,
       borderRadius: 0,
     },
@@ -1111,7 +1109,10 @@ const Post = ({
       borderRadius: ResponsiveSize(50),
       overflow: 'hidden',
       marginLeft: ResponsiveSize(5),
-      marginBottom: ResponsiveSize(3)
+      marginBottom: ResponsiveSize(3),
+    },
+    ConnectionIconDpAbdolute: {
+      position: 'relative'
     },
     ConnectionSentBtn: {
       backgroundColor: global.secondaryColor,
@@ -1155,9 +1156,11 @@ const Post = ({
 
 
   const [reShareLoader, setReshareLoader] = useState(false)
+  const [MsgReShareLoader, setMsgReshareLoader] = useState()
   const [reShareCaption, setReShareCaption] = useState("")
   const ResharePost = async () => {
     setReshareLoader(true)
+    console.log('step1')
     const Token = await AsyncStorage.getItem('Token');
     const formData = new FormData();
     formData.append('caption', reShareCaption);
@@ -1172,13 +1175,14 @@ const Post = ({
       },
       body: formData
     });
+    console.log('step2')
     const jsonResponse = await response.json();
     console.log(jsonResponse, 'jsonResponcehaiYa')
     setReshareLoader(false)
   }
 
-
   const sendMessage = async (message_Props, user_Id) => {
+    setMsgReshareLoader({ user_Id: user_Id, value: true })
     const Token = await AsyncStorage.getItem('Token');
     const socket = io(`${baseUrl.baseUrl}/chat`, {
       transports: ['websocket'],
@@ -1188,11 +1192,15 @@ const Post = ({
       }
     });
     socket.on('connect').emit('createDirectMessage', {
-      "message": "Post",
+      "message": "Post shared",
       "receiverUserId": user_Id,
       "post_id": message_Props
     })
+    setTimeout(() => {
+      setMsgReshareLoader({ user_Id: user_Id, value: false })
+    }, 2000);
   }
+
 
   return (
     <>
@@ -1206,7 +1214,6 @@ const Post = ({
           style={style.PostProfileImage}
           resizeMode="cover"
         />
-
         <View style={style.PostProfileImageBox}>
           <TextC
             size={ResponsiveSize(12)}
@@ -1245,7 +1252,7 @@ const Post = ({
                       <Video
                         repeat={true}
                         source={{
-                          uri: items.item?.attachment_url,
+                          uri: items.item?.attachment_thumbnail_url,
                         }}
                         ref={videoRef}
                         paused={paused}
@@ -1285,7 +1292,7 @@ const Post = ({
                 onLoad={handleSetHeight}
                 repeat={true}
                 source={{
-                  uri: content[0]?.attachment_url,
+                  uri: content[0]?.attachment_thumbnail_url,
                 }}
                 ref={videoRef}
                 paused={false}
@@ -1323,6 +1330,7 @@ const Post = ({
                     uri: content[0]?.attachment_thumbnail_url,
                     priority: FastImage.priority.high,
                   }}
+                  resizeMode='cover'
                   style={style.ActuallPost}
                 />
               }
@@ -1654,9 +1662,6 @@ const Post = ({
         </View>
       </Modal>
 
-
-
-
       <Modal
         isVisible={isShareModal}
         style={{ margin: 0 }}
@@ -1725,16 +1730,22 @@ const Post = ({
             </View>
             <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} contentContainerStyle={style.ConnectionList}>
               {getLatestConnection !== undefined && getLatestConnection !== null && getLatestConnection !== "" && getLatestConnection?.length > 0 ? getLatestConnection?.map(data =>
-                <TouchableOpacity style={style.ConnectionListIcon} onPress={() => sendMessage(postId, data?.user_id)}>
-                  <FastImage
-                    source={
-                      data?.profile_picture_url == ''
-                        ? require('../../assets/icons/avatar.png')
-                        : { uri: data?.profile_picture_url, priority: FastImage.priority.high }
+                <TouchableOpacity disabled={MsgReShareLoader?.value} style={style.ConnectionListIcon} onPress={() => sendMessage(postId, data?.user_id)}>
+                  <View style={style.ConnectionIconDpAbdolute}>
+                    <FastImage
+                      source={
+                        data?.profile_picture_url == ''
+                          ? require('../../assets/icons/avatar.png')
+                          : { uri: data?.profile_picture_url, priority: FastImage.priority.high }
+                      }
+                      style={style.ConnectionIconDp}
+                      resizeMode="cover"
+                    />
+                    {MsgReShareLoader?.user_Id == data?.user_id && MsgReShareLoader?.value == true ?
+                      <ActivityIndicator size={ResponsiveSize(40)} color={global.white} style={{ position: 'absolute', top: ResponsiveSize(3), left: ResponsiveSize(7) }} />
+                      : ""
                     }
-                    style={style.ConnectionIconDp}
-                    resizeMode="cover"
-                  />
+                  </View>
                   <TextC text={data?.user_name} font={'Montserrat-Bold'} size={ResponsiveSize(11)} style={{ width: ResponsiveSize(50), textAlign: 'center' }} ellipsizeMode={"tail"} numberOfLines={1} />
                 </TouchableOpacity>
               ) : ""}

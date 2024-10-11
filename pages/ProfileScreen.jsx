@@ -276,14 +276,16 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
                   text={GetUserProfileReducer?.data?.user_name}
                   size={ResponsiveSize(15)}
                 />
-                <View style={styles.AirlineTag}>
-                  <TextC
-                    font={'Montserrat-SemiBold'}
-                    text={GetUserProfileReducer?.data?.airline}
-                    size={ResponsiveSize(10)}
-                    style={{ color: global.primaryColor }}
-                  />
-                </View>
+                {GetUserProfileReducer?.data?.airline &&
+                  <View style={styles.AirlineTag}>
+                    <TextC
+                      font={'Montserrat-SemiBold'}
+                      text={GetUserProfileReducer?.data?.airline}
+                      size={ResponsiveSize(10)}
+                      style={{ color: global.primaryColor }}
+                    />
+                  </View>
+                }
               </View>
               {GetUserProfileReducer?.data?.bio && (
                 <ReadMore
