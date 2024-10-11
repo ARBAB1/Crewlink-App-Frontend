@@ -53,7 +53,7 @@ const GroupMessage = ({ route }) => {
     const [groupDetails, setGroupDetails] = useState(null);
 
     const styles = StyleSheet.create({
-        logoSide: {
+        logoSide:{
             flexDirection: 'row',
         },
         wrapper: {
@@ -76,7 +76,7 @@ const GroupMessage = ({ route }) => {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            paddingLeft: ResponsiveSize(5),
+            paddingLeft: ResponsiveSize(5)
         },
         bodyWrapper: {
             paddingHorizontal: ResponsiveSize(15),
@@ -396,7 +396,7 @@ const GroupMessage = ({ route }) => {
             })
         }
     };
-
+  
     const [isMediaDetail, setIsMediaDetail] = useState(false)
     const MediaDetail = (address, isImage) => {
         setIsMediaDetail(true)
@@ -474,6 +474,7 @@ const GroupMessage = ({ route }) => {
     };
 
     const loadRecentChats = async () => {
+        console.log("ghyasssssssssss")
         setLoader(true)
         const Token = await AsyncStorage.getItem('Token');
         const U_id = await AsyncStorage.getItem('U_id');
@@ -505,9 +506,9 @@ const GroupMessage = ({ route }) => {
     useEffect(() => {
         fetchGroupDetails()
         loadRecentChats()
-        navigation.getParent()?.setOptions({
-            tabBarStyle: { display: 'none' },
-        });
+        // navigation.getParent()?.setOptions({
+        //     tabBarStyle: { display: 'none' },
+        // });
         return () => {
             closeBottomSheet();
             navigation.getParent()?.setOptions({
@@ -963,38 +964,38 @@ const GroupMessage = ({ route }) => {
                     barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
                 />
                 <View style={styles.wrapper}>
-                    <View style={styles.logoSide}>
-                        <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
-                            <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
-                        </Pressable>
-                        <TouchableOpacity style={styles.logoSide2} onPress={() => navigation.navigate('groupDetail')}>
-                            <ImageBackground
-                                source={
-                                    groupDetails?.group_image == ''
-                                        ? require('../assets/icons/avatar.png')
-                                        : { uri: groupDetails?.group_image }
-                                }
-                                style={styles.PostProfileImage}
-                                resizeMode="cover"></ImageBackground>
-                            <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={route?.params?.user_name} />
-                        </TouchableOpacity>
+                <View style={styles.logoSide}>
+                <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
+                        <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
+                    </Pressable>
+                    <View style={styles.logoSide2}>
+                        <ImageBackground
+                            source={
+                                groupDetails?.group_image == ''
+                                    ? require('../assets/icons/avatar.png')
+                                    : { uri: groupDetails?.group_image }
+                            }
+                            style={styles.PostProfileImage}
+                            resizeMode="cover"></ImageBackground>
                         <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={groupDetails?.group_name} />
                     </View>
+                 
                 </View>
                 <Pressable onPress={() => {
-                    navigation.navigate('GroupChatSetting')
-                    return navigation.getParent()?.setOptions({
-                        tabBarStyle: {
-                            display: 'flex',
-                            backgroundColor: '#69BE25',
-                            borderTopLeftRadius: ResponsiveSize(20),
-                            borderTopRightRadius: ResponsiveSize(20),
-                        },
-                    });
+                        navigation.navigate('GroupChatSetting',{group_id:route?.params?.group_id})
+                       return navigation.getParent()?.setOptions({
+                            tabBarStyle: {
+                              display: 'flex',
+                              backgroundColor: '#69BE25',
+                              borderTopLeftRadius: ResponsiveSize(20),
+                              borderTopRightRadius: ResponsiveSize(20),
+                            },
+                          });
 
-                }} style={styles.logoSide1}>
-                    <Entypo name='dots-three-vertical' color={global.primaryColor} size={ResponsiveSize(22)} />
-                </Pressable>
+                        }} style={styles.logoSide1}>
+                        <Entypo name='dots-three-vertical' color={global.primaryColor} size={ResponsiveSize(22)} />
+                    </Pressable>
+                </View>
                 <ScrollView
                     ref={scrollViewRef}
                     contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white, position: 'relative', paddingTop: ResponsiveSize(10), paddingBottom: ResponsiveSize(ReplyMessage?.message_id ? 100 : 65) }}
@@ -1095,7 +1096,7 @@ const GroupMessage = ({ route }) => {
                     </View>
                 </View>
             </SafeAreaView>
-        </KeyboardAvoidingView >
+        </KeyboardAvoidingView>
     )
 }
 export default GroupMessage;

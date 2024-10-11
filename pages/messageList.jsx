@@ -201,10 +201,11 @@ const MessageList = ({  GetProfileData}) => {
           <View style={styles.logoSide3}>
             <TouchableOpacity
               onPress={() => {
-                  navigation.navigate('newGroup');
-                  return navigation.getParent()?.setOptions({
-                    tabBarStyle: {display: 'none'},
-                  });
+                 navigation.getParent()?.setOptions({
+                  tabBarStyle: {display: 'none'},
+                });
+                return navigation.navigate('newGroup');
+                  
               }}
               style={{marginRight: ResponsiveSize(6)}}>
               <Feather
@@ -215,11 +216,11 @@ const MessageList = ({  GetProfileData}) => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
+                 navigation.getParent()?.setOptions({
+                  tabBarStyle: {display: 'none'},
+                });
+                return navigation.navigate('NewMessage');
                 
-                navigation.navigate('NewMessage');
-                return navigation.getParent()?.setOptions({
-                    tabBarStyle: {display: 'none'},
-                  });
               }}>
               <Entypo
                 name="plus"
@@ -249,13 +250,14 @@ const MessageList = ({  GetProfileData}) => {
                 recentChats.map(recentChats => {
                   return recentChats.type == 'direct' ? (
                     <TouchableOpacity
-                      onPress={() =>{
-                        navigation.navigate('Message', {
-                          receiverUserId: recentChats?.userDetails?.user_id,
-                        })
-                        return navigation.getParent()?.setOptions({
+                      onPress={async () =>{
+                        
+                        await navigation.getParent()?.setOptions({
                             tabBarStyle: {display: 'none'},
                           });
+                          return navigation.navigate('Message', {
+                            receiverUserId: recentChats?.userDetails?.user_id,
+                          })
                       }}
                       style={styles.PostHeader}>
                       <View style={{flexDirection: 'row'}}>
@@ -353,13 +355,14 @@ const MessageList = ({  GetProfileData}) => {
                     <TouchableOpacity
                       onPress={() =>
                         {
+                          navigation.getParent()?.setOptions({
+                            tabBarStyle: {display: 'none'},
+                          });
 
-                            navigation.navigate('GroupMessage', {
+                          return  navigation.navigate('GroupMessage', {
                                 group_id: recentChats?.group?.group_id,
                             })
-                            return navigation.getParent()?.setOptions({
-                                tabBarStyle: {display: 'none'},
-                              });}
+                             }
                       }
                       style={styles.PostHeader}>
                       <View style={{flexDirection: 'row'}}>
