@@ -1,17 +1,17 @@
-import { 
-  Platform, 
-  StatusBar, 
-  StyleSheet, 
-  Dimensions, 
-  SafeAreaView, 
-  KeyboardAvoidingView, 
-  View, 
-  useColorScheme, 
-  ScrollView, 
-  TouchableOpacity, 
-  RefreshControl, 
-  Easing, 
-  Animated, 
+import {
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Dimensions,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  View,
+  useColorScheme,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+  Easing,
+  Animated,
   ActivityIndicator,
   Pressable
 } from 'react-native';
@@ -27,11 +27,15 @@ import { baseUrl, apiKey } from '../store/config.json';
 import io from "socket.io-client";
 import { FlashList } from '@shopify/flash-list';
 import LinearGradient from 'react-native-linear-gradient';
+import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
+import ButtonC from '../components/button';
+import Modal from 'react-native-modal'
 
-const SkeletonPlaceholder = ({ style }) => {
+
+const SkeletonPlaceholder = ({ style, refreshing }) => {
   const translateX = new Animated.Value(-350);
   const windowWidth = Dimensions.get('window').width;
-
+  const windowHeight = Dimensions.get('window').height;
   const styles = StyleSheet.create({
     container: {
       overflow: 'hidden',
@@ -43,10 +47,35 @@ const SkeletonPlaceholder = ({ style }) => {
       justifyContent: 'center',
       position: 'relative',
     },
+    ProfileWrapper: {
+      width: windowWidth * 0.25 - ResponsiveSize(15),
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+    },
+    textWrapper: {
+      width: windowWidth * 0.75 - ResponsiveSize(15),
+      paddingLeft: ResponsiveSize(0),
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+    },
+    imageWrapper: {
+      width: windowWidth * 0.75 - ResponsiveSize(15),
+      height: ResponsiveSize(100),
+      borderRadius: ResponsiveSize(25),
+      overflow: 'hidden',
+      marginTop: ResponsiveSize(20),
+    },
     profileImageSkelton: {
       width: ResponsiveSize(50),
       height: ResponsiveSize(50),
       borderRadius: ResponsiveSize(50),
+      overflow: 'hidden',
+    },
+    titleStripe: {
+      width: ResponsiveSize(80),
+      height: ResponsiveSize(10),
+      borderRadius: ResponsiveSize(5),
       overflow: 'hidden',
     },
     descriptionStripe: {
@@ -56,56 +85,72 @@ const SkeletonPlaceholder = ({ style }) => {
       marginTop: ResponsiveSize(12),
       overflow: 'hidden',
     },
+
+    gradient: {
+      ...StyleSheet.absoluteFillObject,
+    },
+    linearGradient: {
+      flex: 1,
+      width: ResponsiveSize(350),
+    },
     linearGradientLine: {
       flex: 1,
       width: ResponsiveSize(350),
     },
   });
-
-  useEffect(() => {
-   
-    const animation = Animated.loop(
-      Animated.timing(translateX, {
-        toValue: 350,
-        duration: 2000,
-        easing: Easing.ease,
-        useNativeDriver: true,
-      })
-    );
-    animation.start();
-
-    return () => animation.stop(); // Clean up animation on unmount
-  }, []);
+  Animated.loop(
+    Animated.timing(translateX, {
+      toValue: 350,
+      duration: 2000,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    }),
+  ).start();
 
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.profileImageSkelton}>
-        <Animated.View style={{ transform: [{ translateX }] }}>
-          <LinearGradient
-            colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.linearGradientLine}
-          />
-        </Animated.View>
+      <View style={styles.ProfileWrapper}>
+        <View style={styles.profileImageSkelton}>
+          <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
+            <LinearGradient
+              colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.linearGradientLine}
+            />
+          </Animated.View>
+        </View>
       </View>
-      <View style={styles.descriptionStripe}>
-        <Animated.View style={{ transform: [{ translateX }] }}>
-          <LinearGradient
-            colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.linearGradientLine}
-          />
-        </Animated.View>
+      <View style={styles.textWrapper}>
+        <View style={styles.descriptionStripe}>
+          <Animated.View
+            style={[styles.gradient, { transform: [{ translateX }] }]}>
+            <LinearGradient
+              colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.linearGradientLine}
+            />
+          </Animated.View>
+        </View>
+        <View style={styles.imageWrapper}>
+          <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
+            <LinearGradient
+              colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.linearGradient}
+            />
+          </Animated.View>
+        </View>
       </View>
     </View>
   );
 };
 
 const AnnouncementDetail = ({ route }) => {
-  console.log(route?.params, "details");
   const windowWidth = Dimensions.get('window').width;
+  const windowHeight = Dimensions.get('window').height;
   const scheme = useColorScheme();
   const navigation = useNavigation();
   const [announcement, setAnnouncement] = useState([]);
@@ -179,7 +224,7 @@ const AnnouncementDetail = ({ route }) => {
     },
     SinglePost: {
       paddingHorizontal: ResponsiveSize(15),
-      
+
       paddingBottom: ResponsiveSize(10),
       flexDirection: 'row',
       alignItems: 'flex-start',
@@ -219,33 +264,67 @@ const AnnouncementDetail = ({ route }) => {
       justifyContent: 'center',
       paddingTop: ResponsiveSize(50),
     },
+    modalTopLayer: {
+      height: windowHeight * 0.3,
+      width: windowWidth * 0.7,
+      paddingTop: 10,
+      backgroundColor: 'white',
+      bottom: ResponsiveSize(0),
+      borderRadius: ResponsiveSize(15),
+      overflow: 'hidden',
+      zIndex: 999,
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    CancelBtnModal: {
+      width: windowWidth * 0.6,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: ResponsiveSize(10),
+      marginTop: ResponsiveSize(20),
+      borderWidth: ResponsiveSize(1),
+      borderColor: global.description,
+      borderRadius: ResponsiveSize(50),
+    },
+    DeleteBtnModal: {
+      width: windowWidth * 0.6,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: ResponsiveSize(10),
+      marginTop: ResponsiveSize(10),
+      borderWidth: ResponsiveSize(1),
+      borderColor: global.description,
+      borderRadius: ResponsiveSize(50),
+      backgroundColor: global.red
+    }
   });
   const fetchAnnouncementDetails = async () => {
     try {
-        const Token = await AsyncStorage.getItem('Token');
-        const response = await fetch(`${baseUrl}/announcements/get-announcement-by-Id/${route?.params?.announcement_id}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey,
-                'accesstoken': `Bearer ${Token}`,
-            },
-        });
-        const result = await response.json();
-        if (result.statusCode === 200) {
-            console.log(result.announcement, "userDetails");
-            setAnnouncementDetails(result.announcement);
-        }
+      const Token = await AsyncStorage.getItem('Token');
+      const response = await fetch(`${baseUrl}/announcements/get-announcement-by-Id/${route?.params?.announcement_id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'accesstoken': `Bearer ${Token}`,
+        },
+      });
+      const result = await response.json();
+      if (result.statusCode === 200) {
+        console.log(result.announcement, "userDetails");
+        setAnnouncementDetails(result.announcement);
+      }
     } catch (error) {
-        console.error("Failed to fetch user details:", error);
+      console.error("Failed to fetch user details:", error);
     }
-};
-useEffect(() => {
-    
-    fetchAnnouncementDetails();
-}, []);
+  };
   useEffect(() => {
-    
+    fetchAnnouncementDetails();
+  }, []);
+  useEffect(() => {
     if (focus) {
       loadComments();
     }
@@ -265,8 +344,8 @@ useEffect(() => {
         }
       });
       const result = await response.json();
-      
-      if (result.comments.length >= 10) {
+
+      if (result?.comments?.length >= 10) {
         setAnnouncement(prev => [...prev, ...result.comments]);
       } else {
         setAnnouncement(prev => [...prev, ...result.comments]);
@@ -295,9 +374,10 @@ useEffect(() => {
       });
       const result = await response.json();
 
-      if (result.comments.length >= 10) {
+      if (result?.comments?.length >= 10) {
         setAnnouncement(prev => [...prev, ...result.comments]);
       } else {
+        setAnnouncement(prev => [...prev, ...result.comments]);
         setIsMore(false);
       }
     } catch (error) {
@@ -340,8 +420,80 @@ useEffect(() => {
     });
   };
 
+  
+
+
+
+
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState();
+  useEffect(() => {
+    return () => {
+      closeBottomSheet()
+    }
+  }, [])
+
+  const { openBottomSheet, closeBottomSheet } = useBottomSheet();
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const deleteAnnouncement = async () => {
+    setDeleteLoading(true)
+    const Token = await AsyncStorage.getItem('Token');
+    const socket = io(`${baseUrl}/chat`, {
+      transports: ['websocket'],
+      extraHeaders: {
+        'x-api-key': "TwillioAPI",
+        'accesstoken': `Bearer ${Token}`
+      }
+    });
+    socket.on('connect').emit('deleteAnnouncement', {
+      "announcement_id": selectedAnnouncement,
+    }).on('announcement', (data) => {
+      closeBottomSheet()
+      setAnnouncement(data);
+      setDeleteLoading(false)
+      setModalVisible(false)
+      setSelectedAnnouncement()
+    })
+  }
+  const handleOpenSheet = () => {
+    openBottomSheet(
+      <>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            paddingHorizontal: ResponsiveSize(15),
+          }}>
+          <ButtonC
+            onPress={() => setModalVisible(true)}
+            BtnStyle={{ width: windowWidth * 0.9 }}
+            TextStyle={{ color: global.white }}
+            bgColor={global.red}
+            style={{ borderColor: '#EEEEEE', borderWidth: ResponsiveSize(1) }}
+            title={'Delete'}>
+          </ButtonC>
+        </View>
+      </>,
+      ['15%'],
+    );
+  };
+  const requestCameraPermission = async (announcement_id) => {
+    setSelectedAnnouncement(announcement_id)
+    try {
+      handleOpenSheet();
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+
+
+
+
   const renderItem = useCallback(({ item }) => (
-    <View style={styles.SinglePost2}>
+    <TouchableOpacity onLongPress={requestCameraPermission} style={styles.SinglePost2}>
       <View style={styles.ProfileSide2}>
         <FastImage
           source={
@@ -357,16 +509,16 @@ useEffect(() => {
         />
       </View>
       <View style={styles.TextSide2}>
-        <TouchableOpacity>
+        <TouchableOpacity onLongPress={requestCameraPermission} >
           <TextC
             text={`${item?.user_details?.user_name}`}
             font={'Montserrat-Bold'}
-            size={ResponsiveSize(11)}
+            size={ResponsiveSize(12)}
           />
           <TextC
             text={item?.comment}
             font={'Montserrat-Regular'}
-            size={ResponsiveSize(12)}
+            size={ResponsiveSize(11)}
             style={{ color: global.placeholderColor }}
           />
         </TouchableOpacity>
@@ -377,18 +529,17 @@ useEffect(() => {
             ) : (
               <AntDesign name="hearto" size={ResponsiveSize(14)} />
             )}
-            <TextC text={`${item.likes_count}`} font={'Montserrat-Bold'} size={ResponsiveSize(9)} />
+            <TextC text={`${item.likes_count}`} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ marginLeft: ResponsiveSize(3) }} />
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   ), [announcement]);
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={{ flexGrow: 1 }}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0 }
+      keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0}
     >
       <SafeAreaView style={{ flex: 1 }}>
         <StatusBar
@@ -401,53 +552,86 @@ useEffect(() => {
             <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={'Announcements'} />
           </Pressable>
         </View>
-        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-          {/* Render the announcement details */}
-          <View style={styles.SinglePost}>
-            <View style={styles.ProfileSide}>
-              <FastImage
-                source={AnnouncementDetails?.userDetail?.profile_picture_url === ''
-                  ? require('../assets/icons/avatar.png')
-                  : {
-                    uri: AnnouncementDetails?.userDetail?.profile_picture_url,
-                    priority: FastImage.priority.high,
-                  }}
-                style={styles.PostProfileImage2}
-                resizeMode="cover"
-              />
-            </View>
-            <View style={styles.TextSide}>
-              <TextC text={AnnouncementDetails?.userDetail?.user_name} font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
-              <TextC style={{ color: global.placeholderColor }} text={AnnouncementDetails?.message} font={'Montserrat-Regular'} size={ResponsiveSize(12)} />
-            </View>
-          </View>
-
-          <View style={styles.container}>
-            {announcement.length > 0 ? (
-              <FlashList
-                data={announcement}
-                renderItem={renderItem}
-                keyExtractor={item => item.comment_id}
-              />
-            ) : (
-              <View style={styles.NoCommentText}>
-                <TextC text={"No comment found"} font={'Montserrat-Medium'} />
+        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
+          {refreshing ?
+            <>
+              <SkeletonPlaceholder />
+              <SkeletonPlaceholder />
+              <SkeletonPlaceholder />
+            </> :
+            <>
+              <View style={styles.SinglePost}>
+                <View style={styles.ProfileSide}>
+                  <FastImage
+                    source={AnnouncementDetails?.userDetail?.profile_picture_url === ''
+                      ? require('../assets/icons/avatar.png')
+                      : {
+                        uri: AnnouncementDetails?.userDetail?.profile_picture_url,
+                        priority: FastImage.priority.high,
+                      }}
+                    style={styles.PostProfileImage2}
+                    resizeMode="cover"
+                  />
+                </View>
+                <View style={styles.TextSide}>
+                  <TextC text={AnnouncementDetails?.userDetail?.user_name} font={'Montserrat-Bold'} size={ResponsiveSize(12)} />
+                  <TextC style={{ color: global.placeholderColor }} text={AnnouncementDetails?.message} font={'Montserrat-Regular'} size={ResponsiveSize(11)} />
+                </View>
               </View>
-            )}
-            {isMore && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(20) }}>
-                <TouchableOpacity disabled={moreLoader} onPress={() => loadMoreComments(page + 1)} style={styles.LoadMore}>
-                  {moreLoader ? (
-                    <ActivityIndicator size={ResponsiveSize(15)} color={global.white} />
-                  ) : (
-                    <TextC text={"Load more"} font={'Montserrat-Medium'} style={{ color: global.white }} />
-                  )}
-                </TouchableOpacity>
+              <View style={styles.container}>
+                {announcement?.length > 0 ? (
+                  <FlashList
+                    data={announcement}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.comment_id}
+                  />
+                ) : (
+                  <View style={styles.NoCommentText}>
+                    <TextC text={"No comment found"} font={'Montserrat-Medium'} />
+                  </View>
+                )}
+                {isMore && (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(20) }}>
+                    <TouchableOpacity disabled={moreLoader} onPress={() => loadMoreComments(page + 1)} style={styles.LoadMore}>
+                      {moreLoader ? (
+                        <ActivityIndicator size={ResponsiveSize(15)} color={global.white} />
+                      ) : (
+                        <TextC text={"Load more"} font={'Montserrat-Medium'} style={{ color: global.white }} />
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
-            )}
-          </View>
+            </>
+          }
         </ScrollView>
       </SafeAreaView>
+
+
+      <Modal
+        isVisible={isModalVisible}
+        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+        animationIn={'bounceInUp'}
+        avoidKeyboard={true}
+        onBackdropPress={() => setModalVisible(false)}
+      >
+        <View style={styles.modalTopLayer}>
+          <TextC text={"Are you sure?"} size={ResponsiveSize(13)} font={'Montserrat-Bold'} />
+          <TextC text={"This action cannot be undone."} size={ResponsiveSize(10)} font={'Montserrat-Medium'} />
+
+          <TouchableOpacity onPress={() => {
+            closeBottomSheet()
+            setModalVisible(false)
+          }} style={styles.CancelBtnModal}><TextC text={'Cancel'} font={"Montserrat-SemiBold"} /></TouchableOpacity>
+          <TouchableOpacity onPress={() => deleteAnnouncement()} style={styles.DeleteBtnModal}>
+            {deleteLoading ?
+              <ActivityIndicator color={global.white} size={'small'} />
+              :
+              <TextC text={'Delete'} font={"Montserrat-SemiBold"} style={{ color: global.white }} />
+            }
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };

@@ -42,6 +42,7 @@ import NotPostDetail from '../pages/NotPostDetail.jsx';
 import groupDetail from '../pages/groupDetail.jsx';
 import UserChatSetting from '../pages/UserChatSetting.jsx';
 import GroupChatSetting from '../pages/GroupChatSetting.jsx';
+import UpdateAnnouncement from '../pages/UpdateAnnouncement.jsx';
 
 
 
@@ -160,6 +161,7 @@ const GroupStackNavigation = () => {
     <Stack.Navigator>
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="announcement" component={Announcement} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="createAnnouncement" component={CreateAnnouncement} />
+      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="UpdateAnnouncement" component={UpdateAnnouncement} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="announcementDetail" component={AnnouncementDetail} />
     </Stack.Navigator>
   )

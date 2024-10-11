@@ -13,7 +13,10 @@ import {
   RefreshControl,
   Easing,
   Animated,
-  Image
+  Image,
+  Button,
+  ActivityIndicator,
+
 } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHeaderHeight } from "@react-navigation/elements";
@@ -24,12 +27,17 @@ import Fontisto from 'react-native-vector-icons/Fontisto';
 import FastImage from 'react-native-fast-image';
 import TextC from '../components/text/text';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { baseUrl } from '../store/config.json';
 import io from "socket.io-client";
 import { FlashList } from '@shopify/flash-list';
 import LinearGradient from 'react-native-linear-gradient';
 import * as UserProfile from '../store/actions/UserProfile/index';
 import { connect } from 'react-redux';
+import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
+import ButtonC from '../components/button';
+import Modal from 'react-native-modal'
+import { baseUrl, apiKey } from '../store/config.json'
+
+
 
 
 const SkeletonPlaceholder = ({ style, refreshing }) => {
@@ -149,13 +157,17 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
 };
 
 
-const Announcement = ({GetUserProfileReducer}) => {
+const Announcement = ({ GetUserProfileReducer }) => {
   const windowWidth = Dimensions.get('window').width;
+  const windowHeight = Dimensions.get('window').height;
   const scheme = useColorScheme();
   const navigation = useNavigation();
   const [announcement, setAnnouncement] = useState([]);
   const [userName, setUserName] = useState('');
+  const [userId, setUserId] = useState();
+  const [caption, setCaption] = useState("");
   const [profilePicture, setProfilePicture] = useState('');
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState();
   const [refreshing, setRefreshing] = useState(false);
   const focus = useIsFocused();
   const headerHeight = useHeaderHeight();
@@ -240,19 +252,66 @@ const Announcement = ({GetUserProfileReducer}) => {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    modalTopLayer: {
+      height: windowHeight * 0.3,
+      width: windowWidth * 0.7,
+      paddingTop: 10,
+      backgroundColor: 'white',
+      bottom: ResponsiveSize(0),
+      borderRadius: ResponsiveSize(15),
+      overflow: 'hidden',
+      zIndex: 999,
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+
+    modalTopLayer2: {
+      height: windowHeight * 0.25,
+      width: windowWidth * 0.7,
+      paddingTop: 10,
+      backgroundColor: 'white',
+      bottom: ResponsiveSize(0),
+      borderRadius: ResponsiveSize(15),
+      overflow: 'hidden',
+      zIndex: 999,
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    CancelBtnModal: {
+      width: windowWidth * 0.6,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: ResponsiveSize(10),
+      marginTop: ResponsiveSize(20),
+      borderWidth: ResponsiveSize(1),
+      borderColor: global.description,
+      borderRadius: ResponsiveSize(50),
+    },
+    DeleteBtnModal: {
+      width: windowWidth * 0.6,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: ResponsiveSize(10),
+      marginTop: ResponsiveSize(10),
+      borderWidth: ResponsiveSize(1),
+      borderColor: global.description,
+      borderRadius: ResponsiveSize(50),
+      backgroundColor: global.red
     }
   });
-
 
   useEffect(() => {
     const initializeData = async () => {
       const Token = await AsyncStorage.getItem('Token');
       const Picture = await AsyncStorage.getItem('Picture');
       const Name = await AsyncStorage.getItem('Name');
-
       setProfilePicture(Picture);
       setUserName(Name);
-
       const socket = io(`${baseUrl}/chat`, {
         transports: ['websocket'],
         extraHeaders: {
@@ -260,7 +319,6 @@ const Announcement = ({GetUserProfileReducer}) => {
           'accesstoken': `Bearer ${Token}`,
         }
       });
-
       socket.on('announcement', (data) => {
         setAnnouncement(data);
         setRefreshing(false);
@@ -305,9 +363,91 @@ const Announcement = ({GetUserProfileReducer}) => {
     });
   };
 
+
+  const [page, setPage] = useState(2)
+  const [hasMoreContent, setHasMoreContent] = useState(true);
+
+
+
+  const loadMoreAnnouncement = async () => {
+    try {
+      const Token = await AsyncStorage.getItem('Token');
+      const response = await fetch(`${baseUrl}/announcements/get-all-announcement/${page}/25`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'accesstoken': `Bearer ${Token}`,
+        },
+      });
+      const result = await response.json();
+      if (dataRe?.message.length >= 25) {
+        setAnnouncement((prevMessages) => [...dataRe?.message, ...prevMessages])
+        setPage(page + 1)
+        setLoadMoreLoader(false)
+    }
+    else {
+        setHasMoreContent(false)
+        setAnnouncement((prevMessages) => [...dataRe?.message, ...prevMessages])
+        setPage(page + 1)
+        setLoadMoreLoader(false)
+    }
+      console.log(result?.announcements[0], "userDetails211211k");
+    } catch (error) {
+      console.error("Failed to fetch user details:", error);
+    }
+  };
+
+
+  loadMoreAnnouncement()
+
+  useEffect(() => {
+    const loadUserId = async () => {
+      const user_ID = await AsyncStorage.getItem('U_id');
+      setUserId(user_ID)
+    }
+    loadUserId()
+  }, [])
+
+
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [editAndDelete, setEditAndDelete] = useState(false);
+
+
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const deleteAnnouncement = async () => {
+    setDeleteLoading(true)
+    const Token = await AsyncStorage.getItem('Token');
+    const socket = io(`${baseUrl}/chat`, {
+      transports: ['websocket'],
+      extraHeaders: {
+        'x-api-key': "TwillioAPI",
+        'accesstoken': `Bearer ${Token}`
+      }
+    });
+    socket.on('connect').emit('deleteAnnouncement', {
+      "announcement_id": selectedAnnouncement,
+    }).on('announcement', (data) => {
+      setAnnouncement(data);
+      setDeleteLoading(false)
+      setModalVisible(false)
+      setSelectedAnnouncement()
+    })
+  }
+
+  const requestCameraPermission = async (announcement_id, captions) => {
+    setSelectedAnnouncement(announcement_id)
+    setCaption(captions)
+    try {
+      setEditAndDelete(true);
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   const renderItem = useCallback(({ item }) => {
     return (
-      <View style={styles.SinglePost}>
+      <TouchableOpacity onLongPress={() => item?.user_details?.user_id == userId ? requestCameraPermission(item?.announcement_id, item?.message) : undefined} style={styles.SinglePost}>
         <View style={styles.ProfileSide}>
           <FastImage
             source={item?.user_details?.profile_picture_url
@@ -318,11 +458,11 @@ const Announcement = ({GetUserProfileReducer}) => {
           />
         </View>
         <View style={styles.TextSide}>
-          <TouchableOpacity onPress={() => navigation.navigate("announcementDetail", { announcement_id: item?.announcement_id })}>
+          <TouchableOpacity onLongPress={() => item?.user_details?.user_id == userId ? requestCameraPermission(item?.announcement_id, item?.message) : undefined} onPress={() => navigation.navigate("announcementDetail", { announcement_id: item?.announcement_id })}>
             <View style={styles.ProfileDetail}>
-              <TextC text={`${item?.user_details?.user_name}`} font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
+              <TextC text={`${item?.user_details?.user_name}`} font={'Montserrat-Bold'} size={ResponsiveSize(12)} />
             </View>
-            <TextC style={{ color: global.placeholderColor }} text={item?.message} font={'Montserrat-Regular'} size={ResponsiveSize(12)} />
+            <TextC style={{ color: global.placeholderColor }} text={item?.message} font={'Montserrat-Regular'} size={ResponsiveSize(11)} />
           </TouchableOpacity>
           <View style={styles.PostSetting}>
             <TouchableOpacity onPress={() => navigation.navigate('createAnnouncement', { Reply_user_name: item?.user_details?.user_name, user_Profile: profilePicture, isReply: true, announcement_id: item?.announcement_id })} style={styles.Comment}>
@@ -337,9 +477,14 @@ const Announcement = ({GetUserProfileReducer}) => {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }, [profilePicture, announcement]);
+
+
+
+
+
 
   return (
     <KeyboardAvoidingView
@@ -352,23 +497,11 @@ const Announcement = ({GetUserProfileReducer}) => {
           backgroundColor={scheme === 'dark' ? DarkTheme.colors.background : 'white'}
           barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
         />
-        {/* <View style={styles.ContainerHeader}>
-          <View style={styles.HeaderLeft}>
-            <TextInput style={styles.SearchHeader} placeholder='Search Announcement' />
-          </View>
-          <View style={styles.HeaderRight}>
-            <TouchableOpacity style={styles.ShareBtn} onPress={() => navigation.navigate('createAnnouncement', { user_name: userName, user_Profile: profilePicture })}>
-              <AntDesign name='plus' size={ResponsiveSize(22)} color={global.white} />
-            </TouchableOpacity>
-          </View>
-        </View> */}
-
-
 
         <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", height: ResponsiveSize(60), width: windowWidth, backgroundColor: "white", paddingHorizontal: ResponsiveSize(15), borderBottomWidth: ResponsiveSize(1), borderBottomColor: "#EEEEEE" }}>
           <View>
             <Image source={require('../assets/icons/Logo.png')} style={{ objectFit: 'contain', width: ResponsiveSize(115), height: ResponsiveSize(22) }} />
-            <TextC text={GetUserProfileReducer?.data?.airline} font={"Montserrat-Bold"}/>
+            <TextC text={GetUserProfileReducer?.data?.airline} font={"Montserrat-Bold"} />
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
             <TouchableOpacity style={styles.ShareBtn} onPress={() => navigation.navigate('createAnnouncement', { user_name: userName, user_Profile: profilePicture })}>
@@ -393,6 +526,76 @@ const Announcement = ({GetUserProfileReducer}) => {
           }
         </ScrollView>
       </SafeAreaView>
+
+
+
+      <Modal
+        isVisible={isModalVisible}
+        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+        animationIn={'bounceInUp'}
+        avoidKeyboard={true}
+        onBackdropPress={() => setModalVisible(false)}
+      >
+        <View style={styles.modalTopLayer}>
+          <TextC text={"Are you sure?"} size={ResponsiveSize(13)} font={'Montserrat-Bold'} />
+          <TextC text={"This action cannot be undone."} size={ResponsiveSize(10)} font={'Montserrat-Medium'} />
+
+          <TouchableOpacity onPress={() => {
+            setModalVisible(false)
+          }} style={styles.CancelBtnModal}><TextC text={'Cancel'} font={"Montserrat-SemiBold"} /></TouchableOpacity>
+          <TouchableOpacity onPress={() => deleteAnnouncement()} style={styles.DeleteBtnModal}>
+            {deleteLoading ?
+              <ActivityIndicator color={global.white} size={'small'} />
+              :
+              <TextC text={'Delete'} font={"Montserrat-SemiBold"} style={{ color: global.white }} />
+            }
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+
+
+      <Modal
+        isVisible={editAndDelete}
+        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+        animationIn={'bounceInUp'}
+        avoidKeyboard={true}
+        onBackdropPress={() => setEditAndDelete(false)}
+      >
+        <View style={styles.modalTopLayer2}>
+          <View
+            style={{
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: ResponsiveSize(15),
+            }}>
+            <ButtonC
+              onPress={() => {
+                setEditAndDelete(false)
+                setModalVisible(true)
+              }}
+              BtnStyle={{ width: windowWidth * 0.45 }}
+              TextStyle={{ color: global.white }}
+              bgColor={global.red}
+              style={{ borderColor: '#EEEEEE', borderWidth: ResponsiveSize(1) }}
+              title={'Delete'}>
+            </ButtonC>
+            <View style={{ marginTop: ResponsiveSize(10) }}>
+              <ButtonC
+                onPress={() => {
+                  setEditAndDelete(false)
+                  navigation.navigate('UpdateAnnouncement', { user_name: userName, user_Profile: profilePicture, caption: caption })
+                }}
+                BtnStyle={{ width: windowWidth * 0.45 }}
+                TextStyle={{ color: global.white }}
+                bgColor={global.secondaryColor}
+                style={{ borderColor: '#EEEEEE', borderWidth: ResponsiveSize(1) }}
+                title={'Update'}></ButtonC>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };

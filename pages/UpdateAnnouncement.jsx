@@ -17,7 +17,7 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 
 
-const CreateAnnouncement = ({ route }) => {
+const UpdateAnnouncement = ({ route }) => {
     const windowWidth = Dimensions.get('window').width;
     const [ShareText, setShareText] = useState("")
     const [loading, setLoading] = useState(false)
@@ -40,6 +40,8 @@ const CreateAnnouncement = ({ route }) => {
         }
     }, []);
 
+
+    console.log(route.params,'routekaparams')
     // const sendMessage = async () => {
     //     if (ShareText !== "") {
     //         setLoading(true)
@@ -312,7 +314,7 @@ const CreateAnnouncement = ({ route }) => {
                             {loading ?
                                 <ActivityIndicator size={ResponsiveSize(13)} color={global.white} />
                                 :
-                                <TextC text={'Post'} font={'Montserrat-Medium'} style={{ color: global.white }} size={ResponsiveSize(12)} />
+                                <TextC text={'Update'} font={'Montserrat-Medium'} style={{ color: global.white }} size={ResponsiveSize(12)} />
                             }
                         </TouchableOpacity>
                     </View>
@@ -333,7 +335,7 @@ const CreateAnnouncement = ({ route }) => {
                                         <TextC text={route?.params?.Reply_user_name} size={ResponsiveSize(10)} font={'Montserrat-Medium'} style={{ color: global.primaryColor, marginRight: ResponsiveSize(3) }} />
                                     </View>
                                 }
-                                <TextInput onChangeText={(e) => setShareText(e)} blurOnSubmit={false} multiline={true} style={styles.TextInputSent} placeholder="What's happening?" />
+                                <TextInput defaultValue={route.params?.caption} onChangeText={(e) => setShareText(e)} blurOnSubmit={false} multiline={true} style={styles.TextInputSent} placeholder="What's happening?" />
                                 {documentImage &&
                                     <View style={styles.AnnounceView}>
                                         <FastImage
@@ -369,4 +371,4 @@ const CreateAnnouncement = ({ route }) => {
     )
 }
 
-export default CreateAnnouncement
+export default UpdateAnnouncement
