@@ -13,8 +13,12 @@ import {
     TouchableOpacity,
     useColorScheme,
     View,
-    Image
+    Image,
+    Text,
+  
+
 } from "react-native";
+import Modal from "react-native-modal";
 import { global, ResponsiveSize } from "../components/constant";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import TextC from "../components/text/text";
@@ -30,13 +34,35 @@ import { useBottomSheet } from "../components/bottomSheet/BottomSheet";
 import ButtonC from "../components/button";
 import { PERMISSIONS, request } from "react-native-permissions";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import Icon from 'react-native-vector-icons/FontAwesome'; 
 
-
-const UserChatSetting = () => {
-    // console.log(route.params,"iop")
+const UserChatSetting = ({route}) => {
+     console.log(route.params,"iop")
     const scheme = useColorScheme();
+    const [isVisible, setIsVisible] = useState(false);
     const windowWidth = Dimensions.get('window').width;
+    const [inputText, setInputText] = useState('');
     const styles = StyleSheet.create({
+        BoxWrapper1: {
+            padding: 20,
+            backgroundColor: '#fff',  // White background for the box
+          },
+          actionItem: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 15,  // Space between each action item
+          },
+          icon: {
+            marginRight: 15,  // Space between the icon and the text
+          },
+          text: {
+            fontSize: 16,
+            color: '#000',  // Black text for "Add to Favourites"
+          },
+          textRed: {
+            fontSize: 16,
+            color: '#d9232d',  // Red text for "Block" and "Report"
+          },
         wrapper: {
             flexDirection: 'row',
             alignItems: 'center',
@@ -44,13 +70,56 @@ const UserChatSetting = () => {
             width: windowWidth,
             paddingHorizontal: ResponsiveSize(15),
             paddingVertical: ResponsiveSize(15),
-            backgroundColor: global.white
+            backgroundColor: global.white,
+         
         },
+        modalContent: {
+            backgroundColor: 'white',
+            padding: 20,
+            borderRadius: 10,
+            alignItems: 'center',
+          },
+          modalTitle: {
+            fontSize: 18,
+            fontWeight: 'bold',
+            marginBottom: 15,
+          },
+          textInput: {
+            width: '100%',
+            height: 40,
+            borderColor: '#ccc',
+            borderWidth: 1,
+            borderRadius: 5,
+            paddingHorizontal: 10,
+            marginBottom: 20,
+          },
+          attachmentButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 20,
+          },
+          attachmentText: {
+            fontSize: 16,
+            marginLeft: 10,
+          },
+          closeButton: {
+            backgroundColor: '#d9232d',
+            paddingVertical: 10,
+            paddingHorizontal: 20,
+            borderRadius: 5,
+            marginRight:10
+          },
+          closeButtonText: {
+            color: 'white',
+            fontSize: 16,
+         
+          },
         logoSide1: {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'flex-start',
             width: '33.33%',
+          
         },
         logoSide2: {
             flexDirection: 'row',
@@ -88,7 +157,8 @@ const UserChatSetting = () => {
             borderRadius: ResponsiveSize(80),
             borderWidth: ResponsiveSize(1),
             borderColor: global.description,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            marginBottom: ResponsiveSize(10),
         },
 
         ProfileIcons: {
@@ -133,13 +203,34 @@ const UserChatSetting = () => {
     const [documentImage, setDocumentImage] = useState('');
     const [document, setDocument] = useState('');
     const [groupName, setGroupName] = useState('');
+    const [userDetails, setUserDetails] = useState(null);
     const [loading, setLoading] = useState(false);
-
+    const fetchUserDetails = async () => {
+        try {
+            const Token = await AsyncStorage.getItem('Token');
+            const response = await fetch(`${baseUrl}/users/user-details-by-user-id/${route?.params?.user_id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'accesstoken': `Bearer ${Token}`,
+                },
+            });
+            const result = await response.json();
+            if (result.statusCode === 200) {
+                console.log(result.data, "userDetails");
+                setUserDetails(result.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch user details:", error);
+        }
+    };
   
     useEffect(() => {
-        return () => {
+        
+            fetchUserDetails();
             closeBottomSheet();
-        };
+        
     }, []);
     const handleOpenSheet = () => {
         openBottomSheet(
@@ -209,31 +300,27 @@ const UserChatSetting = () => {
             <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
                 <StatusBar backgroundColor={global.white} />
                 <View style={styles.wrapper}>
-                    <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
+                    <Pressable onPress={() => {
+                         navigation.getParent()?.setOptions({
+                            tabBarStyle: {display: 'none'},
+                          });
+                        return navigation.goBack()
+                        }} style={styles.logoSide1}>
                         <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
                     </Pressable>
                     <View style={styles.logoSide2}>
-                        <TextC size={ResponsiveSize(16)} font={'Montserrat-Bold'} text={"New Group"} />
+                        {/* <TextC size={ResponsiveSize(16)} font={'Montserrat-Bold'} text={"New Group"} /> */}
                     </View>
-                    <View style={styles.logoSide3}>
-                        {groupName !== "" ?
-                            <TouchableOpacity disabled={loading} onPress={() => console.log("next")} style={styles.NextBtn}>
-                                {loading ?
-                                    <ActivityIndicator size="small" color={global.primaryColor} />
-                                    :
-                                    <TextC size={ResponsiveSize(11)} text={'Next'} font={'Montserrat-SemiBold'} />
-                                }
-                            </TouchableOpacity>
-
-                            : ""}
-                    </View>
+                 <View  style={styles.logoSide2}>
+                    
+                 </View>
                 </View>
                 <View style={styles.bodyWrapper}>
                     <View style={styles.GroupName}>
-                        {documentImage !== '' ? (
-                            <TouchableOpacity onPress={requestCameraPermission}>
-                                <Image style={styles.ProfileImage} src={documentImage} />
-                            </TouchableOpacity>
+                        {userDetails?.profile_picture_url !== '' ? (
+                            <View >
+                                <Image style={styles.ProfileImage} src={userDetails?.profile_picture_url} />
+                            </View>
                         ) : (
                             <TouchableOpacity onPress={requestCameraPermission}>
                                 <Image
@@ -242,43 +329,56 @@ const UserChatSetting = () => {
                                 />
                             </TouchableOpacity>
                         )}
-                        <TextInput onChangeText={(e) => setGroupName(e)} placeholder="Group Name Here" style={styles.GroupNameTitle} />
+                        <TextC size={ResponsiveSize(16)} font={'Montserrat-Bold'} text={userDetails?.user_name} />
+                        {/* <TextInput onChangeText={(e) => setGroupName(e)} placeholder="Group Name Here" style={styles.GroupNameTitle} /> */}
                     </View>
                 </View>
-                <View style={styles.Participants}>
-                    <View style={{ paddingHorizontal: ResponsiveSize(15), paddingBottom: ResponsiveSize(0) }}>
-                        <TextC size={ResponsiveSize(16)} font={'Montserrat-SemiBold'} text={"Participants"} />
-                    </View>
-                    <View style={styles.BoxWrapper}>
-                        {/* {route?.params !== undefined && route?.params !== "" && route?.params !== null && route?.params.length > 0 ? route?.params?.map(recentChats => {
-                            return ( */}
-                                <View style={styles.box}>
-                             
-                                    <Image
-                                        source={
-                                            // recentChats?.profile_picture_url == ''
-                                                // ?
-                                                 require('../assets/icons/avatar.png')
-                                                // : { uri: recentChats?.profile_picture_url }
-                                        }
-                                        style={styles.ProfileIcons}
-                                        resizeMode="cover" />
-                                    <TextC ellipsizeMode='tail' 
-                                    numberOfLines={1} style={{ width: ResponsiveSize(60) }}
-                                    //  text={recentChats?.user_name} 
-                                     text={"John Doe"}
-                                     font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
-                                </View>
-                            {/* )
-                        }
-                        ) : */}
-                            {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
-                                <TextC text={'No Connections found'} font={'Montserrat-Medium'} size={ResponsiveSize(11)} />
-                            </View> */}
-                        {/* } */}
-                    </View>
-                </View>
+                <View style={styles.BoxWrapper1}>
+      {/* Add to Favourites */}
+    
+
+      {/* Block Ali Medical */}
+      <TouchableOpacity style={styles.actionItem}>
+        <Icon name="ban" size={20} color="#d9232d" style={styles.icon} />
+        <TextC size={ResponsiveSize(16)} style={{color: '#d9232d'}} font={'Montserrat-Medium'} text={`Block ${userDetails?.user_name}`} />
+      </TouchableOpacity>
+
+      {/* Report Ali Medical */}
+      <TouchableOpacity style={styles.actionItem} onPress={() => setIsVisible(!isVisible)}>
+        <Icon name="thumbs-down" size={20} color="#d9232d" style={styles.icon} />
+        <TextC size={ResponsiveSize(16)} style={{color: '#d9232d'}} font={'Montserrat-Medium'} text={`Report ${userDetails?.user_name}`} />
+      </TouchableOpacity>
+    </View>
             </ScrollView>
+            <Modal isVisible={isVisible}>
+            <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Report User</Text>
+          <TouchableOpacity style={styles.attachmentButton} onPress={() => requestCameraPermission()}>
+            <Icon name="paperclip" size={20} color="#000" />
+            <Text style={styles.attachmentText}>Attach File</Text>
+          </TouchableOpacity>
+          {/* Text Input Field */}
+          <TextInput
+            placeholder="Enter your message..."
+            style={styles.textInput}
+            value={inputText}
+            onChangeText={(text) => setInputText(text)}
+          />
+
+          {/* Attachment Button */}
+       
+<View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+<TouchableOpacity onPress={()=> setIsVisible(false)} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=> setIsVisible(false)} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>Report User</Text>
+          </TouchableOpacity>
+</View>
+          {/* Close Button */}
+      
+        </View>
+      </Modal>
         </SafeAreaView>
     )
 }

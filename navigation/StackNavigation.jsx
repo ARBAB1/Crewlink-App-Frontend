@@ -42,6 +42,7 @@ import NotPostDetail from '../pages/NotPostDetail.jsx';
 import groupDetail from '../pages/groupDetail.jsx';
 import UserChatSetting from '../pages/UserChatSetting.jsx';
 import GroupChatSetting from '../pages/GroupChatSetting.jsx';
+import GroupChatMember from '../pages/GroupChatMember.jsx';
 
 
 
@@ -101,6 +102,9 @@ const HomeStackNavigation = () => {
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="SearchUser" component={SearchUser} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="MessageList" component={MessageList} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Status" component={CreateStatus} />
+      <Stack.Screen options={{
+        headerShown: false, navigationBarHidden: true,
+      }} name="GroupChatMember" component={GroupChatMember} />
    
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,

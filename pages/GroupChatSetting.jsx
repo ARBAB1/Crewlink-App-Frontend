@@ -30,13 +30,36 @@ import { useBottomSheet } from "../components/bottomSheet/BottomSheet";
 import ButtonC from "../components/button";
 import { PERMISSIONS, request } from "react-native-permissions";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import Icon from 'react-native-vector-icons/FontAwesome'; 
+import { set } from "react-hook-form";
 
 
-const GroupChatSetting = () => {
-    // console.log(route.params,"iop")
+const GroupChatSetting = ({route}) => {
+     console.log(route.params,"iop")
+const group_id = route?.params?.group_id
     const scheme = useColorScheme();
     const windowWidth = Dimensions.get('window').width;
     const styles = StyleSheet.create({
+        BoxWrapper1: {
+            padding: 20,
+            backgroundColor: '#fff',  // White background for the box
+          },
+          actionItem: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 15,  // Space between each action item
+          },
+          icon: {
+            marginRight: 15,  // Space between the icon and the text
+          },
+          text: {
+            fontSize: 16,
+            color: '#000',  // Black text for "Add to Favourites"
+          },
+          textRed: {
+            fontSize: 16,
+            color: '#d9232d',  // Red text for "Block" and "Report"
+          },
         wrapper: {
             flexDirection: 'row',
             alignItems: 'center',
@@ -112,15 +135,39 @@ const GroupChatSetting = () => {
             paddingVertical: ResponsiveSize(20),
             flexDirection: 'column',
         },
+        profileContainer: {
+            marginRight: 10,
+            borderWidth: 1,
+            borderRadius: 20,  // Makes the image circular
+          },
+          profileIcon: {
+            width: 40,  // Adjust for size similar to WhatsApp profile icons
+            height: 40,
+            borderRadius: 20,  // Makes the image circular
+          },
+          detailsContainer: {
+            flex: 1,
+            justifyContent: 'center',
+          },
+          roleText: {
+            fontSize: 12,
+            color: 'green',  // Admin status in green like in WhatsApp
+          },
+          userNameText: {
+            fontSize: 16,
+            color: '#000',  // Username in black
+          },
         box: {
-            width: windowWidth ,
-            position: 'relative',
-            justifyContent:'space-around',
             flexDirection: 'row',
-            // justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-            paddingTop: ResponsiveSize(10)
+    alignItems: 'center',
+    display:'flex',
+    width: windowWidth,
+
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
         },
         BoxWrapper: {
             flex: 1,
@@ -134,15 +181,38 @@ const GroupChatSetting = () => {
     const navigation = useNavigation();
     const { openBottomSheet, closeBottomSheet } = useBottomSheet();
     const [documentImage, setDocumentImage] = useState('');
-    const [document, setDocument] = useState('');
-    const [groupName, setGroupName] = useState('');
+    const [GroupMember, setGroupMember] = useState([]);
+    const [GroupDetail, setGroupDetail] = useState('');
     const [loading, setLoading] = useState(false);
-
+    const [EditVisible, setEditVisible] = useState(false)
+    const [GroupName, setGroupName] = useState('')
+   const GroupDetails = async (group_id) => {
+   console.log(group_id,"grouid")
+         
+            const Token = await AsyncStorage.getItem('Token');
+            const socket = io(`${baseUrl}/chat`, {
+                transports: ['websocket'],
+                extraHeaders: {
+                    'x-api-key': "TwillioAPI",
+                    'accesstoken': `Bearer ${Token}`
+                }
+            });
+            
+            socket.on('connect').emit('getGroupMemberDetails', {
+                "group_id": group_id,
+            }).on('getGroupMemberDetails', (data) => {
+                console.log(data, "data")
+                setGroupDetail(data?.groupDetails)
+                setGroupMember(data?.groupMembers)
+            })
+        
+    }
   
     useEffect(() => {
-        return () => {
-            closeBottomSheet();
-        };
+        const group_id = route?.params?.group_id
+
+        GroupDetails(group_id)
+        closeBottomSheet();
     }, []);
     const handleOpenSheet = () => {
         openBottomSheet(
@@ -212,30 +282,25 @@ const GroupChatSetting = () => {
             <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
                 <StatusBar backgroundColor={global.white} />
                 <View style={styles.wrapper}>
-                    <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
+                    <Pressable onPress={() => {
+                         navigation.getParent()?.setOptions({
+                            tabBarStyle: { display: 'none' },
+                        });
+                        navigation.goBack()}} style={styles.logoSide1}>
                         <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
                     </Pressable>
                     <View style={styles.logoSide2}>
                         {/* <TextC size={ResponsiveSize(16)} font={'Montserrat-Bold'} text={"New Group"} /> */}
                     </View>
                     <View style={styles.logoSide3}>
-                        {groupName !== "" ?
-                            <TouchableOpacity disabled={loading} onPress={() => console.log("next")} style={styles.NextBtn}>
-                                {loading ?
-                                    <ActivityIndicator size="small" color={global.primaryColor} />
-                                    :
-                                    <TextC size={ResponsiveSize(11)} text={'Next'} font={'Montserrat-SemiBold'} />
-                                }
-                            </TouchableOpacity>
-
-                            : ""}
+                     
                     </View>
                 </View>
                 <View style={styles.bodyWrapper}>
                     <View style={styles.GroupName}>
-                        {documentImage !== '' ? (
+                        {GroupDetail.group_image !== '' ? (
                             <TouchableOpacity onPress={requestCameraPermission}>
-                                <Image style={styles.ProfileImage} src={documentImage} />
+                                <Image style={styles.ProfileImage} src={GroupDetail.group_image} />
                             </TouchableOpacity>
                         ) : (
                             <TouchableOpacity onPress={requestCameraPermission}>
@@ -245,8 +310,51 @@ const GroupChatSetting = () => {
                                 />
                             </TouchableOpacity>
                         )}
-                        <TextC size={ResponsiveSize(18)}  font={'Montserrat-SemiBold'} text={"Group Name"} />
-                        {/* <TextInput onChangeText={(e) => setGroupName(e)} placeholder="Group Name Here" style={styles.GroupNameTitle} /> */}
+{!EditVisible ?
+                        <TextC
+                                    ellipsizeMode='tail'
+                                    numberOfLines={1}
+                                  
+                                    text={GroupDetail.group_name}
+                                    // text={member?.isAdmin ? "Group Admin" : "Member"}
+
+                                    font={'Montserrat-Bold'}
+                                    size={ResponsiveSize(18)}
+                                  /> :
+                                  <TextInput onChangeText={(e) => setGroupName(e)} placeholder="Group Name Here" style={styles.GroupNameTitle} />
+
+
+}
+
+                        {/* <TextC size={ResponsiveSize(18)}  font={'Montserrat-SemiBold'} text={GroupDetail.group_name} /> */}
+                        {!EditVisible ?
+ <TouchableOpacity onPress={() => setEditVisible(!EditVisible)}>
+ <TextC
+             ellipsizeMode='tail'
+             numberOfLines={1}
+             style={styles.roleText}
+             text={"Change Group Name"}
+             // text={member?.isAdmin ? "Group Admin" : "Member"}
+
+             font={'Montserrat-Bold'}
+             size={ResponsiveSize(10)}
+           />
+ </TouchableOpacity>:
+ <TouchableOpacity onPress={() => setEditVisible(!EditVisible)}>
+ <TextC
+             ellipsizeMode='tail'
+             numberOfLines={1}
+             style={styles.roleText}
+             text={'Confirm'}
+             // text={member?.isAdmin ? "Group Admin" : "Member"}
+
+             font={'Montserrat-Bold'}
+             size={ResponsiveSize(10)}
+/>
+ </TouchableOpacity>
+                        }
+                       
+                      
                     </View>
                 </View>
                 <View style={styles.Participants}>
@@ -254,43 +362,98 @@ const GroupChatSetting = () => {
                         <TextC size={ResponsiveSize(16)} font={'Montserrat-SemiBold'} text={"Participants"} />
                     </View>
                     <View style={styles.BoxWrapper}>
-                        {/* {route?.params !== undefined && route?.params !== "" && route?.params !== null && route?.params.length > 0 ? route?.params?.map(recentChats => {
-                            return ( */}
-                                <View style={styles.box}>
-                             <View>
-                             <Image
-                                        source={
-                                            // recentChats?.profile_picture_url == ''
-                                                // ?
-                                                 require('../assets/icons/avatar.png')
-                                                // : { uri: recentChats?.profile_picture_url }
-                                        }
-                                        style={styles.ProfileIcons}
-                                        resizeMode="cover" />
-                             </View>
-                                  <View style={{ marginLeft: ResponsiveSize(10) }}>
-                                  <TextC ellipsizeMode='tail' 
-                                    numberOfLines={1} style={{ width: ResponsiveSize(60) }}
-                                    //  text={recentChats?.user_name} 
-                                     text={"John Doe"}
-                                     font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
-                                      <TextC ellipsizeMode='tail' 
-                                    numberOfLines={1} style={{ width: ResponsiveSize(60) }}
-                                    //  text={recentChats?.user_name} 
-                                     text={"John Doe"}
-                                     font={'Montserrat-Bold'} size={ResponsiveSize(11)} />
-                                  </View>
-
-                                  
+                    <View style={styles.box} >
+                                <View style={styles.profileContainer}>
+                                  <Image
+                                    source={
+                                     
+                                        require('../assets/icons/user2.png')
+                                      
+                                    }
+                                    style={styles.profileIcon}
+                                    resizeMode="cover"
+                                  />
                                 </View>
-                            {/* )
-                        }
-                        ) : */}
-                            {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
+                              
+                                <TouchableOpacity onPress={() => navigation.navigate('GroupChatMember')} style={styles.detailsContainer}>
+                                  {/* Role (Admin/Member) */}
+                                  <TextC
+                                    ellipsizeMode='tail'
+                                    numberOfLines={1}
+                                    style={styles.roleText}
+                                    text={"Add Participants"}
+                                    // text={member?.isAdmin ? "Group Admin" : "Member"}
+
+                                    font={'Montserrat-Bold'}
+                                    size={ResponsiveSize(10)}
+                                  />
+                              
+                                  {/* Username */}
+                                
+                                </TouchableOpacity>
+                              </View>
+                        {GroupMember !== undefined && GroupMember !== "" && GroupMember !== null && GroupMember.length > 0 ? GroupMember?.map((member, index) => {
+                            return (
+                                <View style={styles.box} key={index}>
+                                <View style={styles.profileContainer}>
+                                  <Image
+                                    source={
+                                      member?.profile_picture_url === ''
+                                        ? require('../assets/icons/avatar.png')
+                                        : { uri: member?.profile_picture_url }
+                                    }
+                                    style={styles.profileIcon}
+                                    resizeMode="cover"
+                                  />
+                                </View>
+                              
+                                <View style={styles.detailsContainer}>
+                                  {/* Role (Admin/Member) */}
+                                  <TextC
+                                    ellipsizeMode='tail'
+                                    numberOfLines={1}
+                                    style={styles.roleText}
+                                    text={member?.isAdmin ? "Group Admin" : "Member"}
+                                    font={'Montserrat-Bold'}
+                                    size={ResponsiveSize(10)}
+                                  />
+                              
+                                  {/* Username */}
+                                  <TextC
+                                    ellipsizeMode='tail'
+                                    numberOfLines={1}
+                                    style={styles.userNameText}
+                                    text={member?.user_name}
+                                    font={'Montserrat-Bold'}
+                                    size={ResponsiveSize(14)}
+                                  />
+                                </View>
+                              </View>
+                              
+                         )
+                        
+                        }) : (
+                           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
                                 <TextC text={'No Connections found'} font={'Montserrat-Medium'} size={ResponsiveSize(11)} />
-                            </View> */}
-                        {/* } */}
+                            </View>
+                        )}
                     </View>
+                    <View style={styles.BoxWrapper1}>
+      {/* Add to Favourites */}
+    
+
+      {/* Block Ali Medical */}
+      <TouchableOpacity style={styles.actionItem}>
+        <Icon name="ban" size={20} color="#d9232d" style={styles.icon} />
+        <TextC size={ResponsiveSize(16)} style={{color: '#d9232d'}} font={'Montserrat-Medium'} text={`Exit ${GroupDetail?.group_name}`} />
+      </TouchableOpacity>
+
+      {/* Report Ali Medical */}
+      <TouchableOpacity style={styles.actionItem}>
+        <Icon name="thumbs-down" size={20} color="#d9232d" style={styles.icon} />
+        <TextC size={ResponsiveSize(16)} style={{color: '#d9232d'}} font={'Montserrat-Medium'} text={`Report ${GroupDetail?.group_name}`} />
+      </TouchableOpacity>
+    </View>
                 </View>
             </ScrollView>
         </SafeAreaView>

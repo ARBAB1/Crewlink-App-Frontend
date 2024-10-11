@@ -938,7 +938,7 @@ const Message = ({ route }) => {
 
                         </Pressable>
                         :
-                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer1}>
+                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer1} onPress={() => items?.item?.isShared == "Y" ?navigation.navigate('PostDetail',  items?.item?.post_id ): null}>
                             {items?.item?.isShared == "Y" ?
                                 <>
                                     <ImageBackground
@@ -1217,7 +1217,7 @@ const Message = ({ route }) => {
                    
                     </View>
                     <Pressable onPress={() => {
-                        navigation.navigate('UserChatSetting')
+                        navigation.navigate('UserChatSetting',{user_id: route?.params?.receiverUserId})
                        return navigation.getParent()?.setOptions({
                             tabBarStyle: {
                               display: 'flex',
