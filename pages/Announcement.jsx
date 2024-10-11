@@ -369,37 +369,37 @@ const Announcement = ({ GetUserProfileReducer }) => {
 
 
 
-  const loadMoreAnnouncement = async () => {
-    try {
-      const Token = await AsyncStorage.getItem('Token');
-      const response = await fetch(`${baseUrl}/announcements/get-all-announcement/${page}/25`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'accesstoken': `Bearer ${Token}`,
-        },
-      });
-      const result = await response.json();
-      if (dataRe?.message.length >= 25) {
-        setAnnouncement((prevMessages) => [...dataRe?.message, ...prevMessages])
-        setPage(page + 1)
-        setLoadMoreLoader(false)
-    }
-    else {
-        setHasMoreContent(false)
-        setAnnouncement((prevMessages) => [...dataRe?.message, ...prevMessages])
-        setPage(page + 1)
-        setLoadMoreLoader(false)
-    }
-      console.log(result?.announcements[0], "userDetails211211k");
-    } catch (error) {
-      console.error("Failed to fetch user details:", error);
-    }
-  };
+  // const loadMoreAnnouncement = async () => {
+  //   try {
+  //     const Token = await AsyncStorage.getItem('Token');
+  //     const response = await fetch(`${baseUrl}/announcements/get-all-announcement/${page}/25`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'x-api-key': apiKey,
+  //         'accesstoken': `Bearer ${Token}`,
+  //       },
+  //     });
+  //     const result = await response.json();
+  //     if (dataRe?.message.length >= 25) {
+  //       setAnnouncement((prevMessages) => [...dataRe?.message, ...prevMessages])
+  //       setPage(page + 1)
+  //       setLoadMoreLoader(false)
+  //   }
+  //   else {
+  //       setHasMoreContent(false)
+  //       setAnnouncement((prevMessages) => [...dataRe?.message, ...prevMessages])
+  //       setPage(page + 1)
+  //       setLoadMoreLoader(false)
+  //   }
+  //     console.log(result?.announcements[0], "userDetails211211k");
+  //   } catch (error) {
+  //     console.error("Failed to fetch user details:", error);
+  //   }
+  // };
 
 
-  loadMoreAnnouncement()
+  // loadMoreAnnouncement()u
 
   useEffect(() => {
     const loadUserId = async () => {
@@ -585,7 +585,7 @@ const Announcement = ({ GetUserProfileReducer }) => {
               <ButtonC
                 onPress={() => {
                   setEditAndDelete(false)
-                  navigation.navigate('UpdateAnnouncement', { user_name: userName, user_Profile: profilePicture, caption: caption })
+                  navigation.navigate('UpdateAnnouncement', { user_name: userName, user_Profile: profilePicture, caption: caption,announcement_id:selectedAnnouncement })
                 }}
                 BtnStyle={{ width: windowWidth * 0.45 }}
                 TextStyle={{ color: global.white }}

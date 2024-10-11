@@ -693,7 +693,7 @@ const Message = ({ route }) => {
             <>
                 <View style={styles.messageWrapper}>
                     {items?.item?.senderUserId == user_id ?
-                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer2}>
+                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer2} onPress={() => items?.item?.isShared == "Y" ?navigation.navigate('PostDetail',  items?.item?.post_id ): null}>
                             <View style={styles.empty}></View>
                             {items?.item?.isShared == "Y" ?
                                 <View style={{ flexDirection: 'column' }}>
@@ -990,7 +990,7 @@ const Message = ({ route }) => {
                                                 }
                                                 style={styles.PostProfileImage2}
                                                 resizeMode="cover" />
-                                            <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)} style={styles.otherMedia2}>
+                                            <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)} style={styles.otherMedia2} >
                                                 {isVideo[1] == '4' ?
                                                     <>
                                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>

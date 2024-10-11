@@ -41,7 +41,6 @@ const UpdateAnnouncement = ({ route }) => {
     }, []);
 
 
-    console.log(route.params,'routekaparams')
     // const sendMessage = async () => {
     //     if (ShareText !== "") {
     //         setLoading(true)
@@ -62,30 +61,6 @@ const UpdateAnnouncement = ({ route }) => {
     //         })
     //     }
     // }
-
-    const sendReply = async () => {
-        if (ShareText !== "") {
-            setLoading(true)
-            const Token = await AsyncStorage.getItem('Token');
-            const socket = io(`${baseUrl}/chat`, {
-                transports: ['websocket'],
-                extraHeaders: {
-                    'x-api-key': "TwillioAPI",
-                    'accesstoken': `Bearer ${Token}`
-                }
-            });
-            socket.on('connect').emit('createAnnouncementComment', {
-                "comment_type": "ANNOUNCEMENT_COMMENT",
-                "comment": ShareText,
-                "parent_id": route?.params?.announcement_id
-            }, () => {
-                navigation.navigate('announcement')
-                setLoading(false)
-                setShareText("")
-            })
-        }
-    }
-
 
 
 
@@ -146,6 +121,7 @@ const UpdateAnnouncement = ({ route }) => {
         }
         else {
             if (ShareText !== "") {
+                console.log(route.params?.announcement_id,ShareText,'update KAr')
                 setLoading(true)
                 const Token = await AsyncStorage.getItem('Token');
                 const socket = io(`${baseUrl}/chat`, {
@@ -155,8 +131,9 @@ const UpdateAnnouncement = ({ route }) => {
                         'accesstoken': `Bearer ${Token}`
                     }
                 });
-                socket.on('connect').emit('createAnnouncement', {
-                    "announcement": ShareText,
+                socket.on('connect').emit('updateAnnouncement', {
+                    "announcement_id":route.params?.announcement_id,
+                    "message": ShareText,
                 }, () => {
                     setLoading(false)
                     setShareText("")

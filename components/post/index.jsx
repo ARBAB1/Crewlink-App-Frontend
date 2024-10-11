@@ -989,7 +989,7 @@ const Post = ({
       paddingRight: ResponsiveSize(2),
     },
     modalTopLayer: {
-      height: windowHeight * 0.6,
+      height: windowHeight * 0.7,
       width: windowWidth,
       paddingTop: 10,
       position: 'absolute',
@@ -1082,13 +1082,14 @@ const Post = ({
     },
     TextInputBackground: {
       backgroundColor: '#EEEEEE',
-      marginTop: ResponsiveSize(15),
+      marginTop: ResponsiveSize(20),
       height: ResponsiveSize(180),
       borderRadius: ResponsiveSize(20),
     },
     SharePostBackground: {
       paddingHorizontal: ResponsiveSize(10),
       fontFamily: 'Montserrat-Medium',
+      paddingTop:ResponsiveSize(10)
     },
     ConnectionList: {
       flexDirection: 'row',
@@ -1158,6 +1159,9 @@ const Post = ({
   const [reShareLoader, setReshareLoader] = useState(false)
   const [MsgReShareLoader, setMsgReshareLoader] = useState()
   const [reShareCaption, setReShareCaption] = useState("")
+
+
+
   const ResharePost = async () => {
     setReshareLoader(true)
     console.log('step1')
@@ -1175,11 +1179,12 @@ const Post = ({
       },
       body: formData
     });
-    console.log('step2')
     const jsonResponse = await response.json();
-    console.log(jsonResponse, 'jsonResponcehaiYa')
     setReshareLoader(false)
+    setIsShareModal(false)
   }
+
+
 
   const sendMessage = async (message_Props, user_Id) => {
     setMsgReshareLoader({ user_Id: user_Id, value: true })
@@ -1704,7 +1709,7 @@ const Post = ({
               </View>
               <TextInput style={style.SharePostBackground} placeholder='Write something about this..' onChangeText={(e) => setReShareCaption(e)} />
               <View style={{ paddingHorizontal: ResponsiveSize(15), flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', height: ResponsiveSize(120) }}>
-                <TouchableOpacity style={{ backgroundColor: global.secondaryColor, paddingHorizontal: ResponsiveSize(15), paddingVertical: ResponsiveSize(5), borderRadius: ResponsiveSize(20) }} disabled={reShareLoader} onPress={() => ResharePost()}>
+                <TouchableOpacity style={{ backgroundColor: global.secondaryColor, paddingHorizontal: ResponsiveSize(15), paddingVertical: ResponsiveSize(5), borderRadius: ResponsiveSize(20),width:ResponsiveSize(100) }} disabled={reShareLoader} onPress={() => ResharePost()}>
                   {reShareLoader ?
                     <ActivityIndicator color={global.white} size={ResponsiveSize(12)} />
                     :

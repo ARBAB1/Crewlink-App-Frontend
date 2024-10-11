@@ -269,7 +269,6 @@ const HomeScreen = ({
     );
   }, []);
 
-  console.log(post[0],'first post')
 
 
   return (
