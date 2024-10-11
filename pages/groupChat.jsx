@@ -19,6 +19,7 @@ import {
     Vibration,
     View,
 } from "react-native";
+import Entypo from 'react-native-vector-icons/Entypo';
 import { global, ResponsiveSize } from "../components/constant";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import TextC from "../components/text/text";
@@ -49,11 +50,17 @@ const GroupMessage = ({ route }) => {
     const navigation = useNavigation();
     const headerHeight = useHeaderHeight();
     const [imageRatio, setImageRatio] = useState("")
+    const [groupDetails, setGroupDetails] = useState(null);
+
     const styles = StyleSheet.create({
+        logoSide: {
+            flexDirection: 'row',
+        },
         wrapper: {
             flexDirection: 'row',
             alignItems: 'center',
             width: windowWidth,
+            justifyContent: 'space-between',
             paddingHorizontal: ResponsiveSize(15),
             paddingVertical: ResponsiveSize(15),
             backgroundColor: global.white,
@@ -354,6 +361,27 @@ const GroupMessage = ({ route }) => {
     const scrollViewRef = useRef();
 
     const { openBottomSheet, closeBottomSheet } = useBottomSheet();
+    const fetchGroupDetails = async () => {
+        try {
+            const Token = await AsyncStorage.getItem('Token');
+            const response = await fetch(`${baseUrl}/messages/get-group-details/${route?.params?.group_id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'accesstoken': `Bearer ${Token}`,
+                },
+            });
+            const result = await response.json();
+            console.log(result, "userDetails");
+            if (result.statusCode === 200) {
+                console.log(result?.groupDetails, "userDetails");
+                setGroupDetails(result?.groupDetails);
+            }
+        } catch (error) {
+            console.error("Failed to fetch user details:", error);
+        }
+    };
     const openPhotoLibrary = async () => {
         const result = await launchImageLibrary({
             mediaType: 'mixed'
@@ -362,9 +390,9 @@ const GroupMessage = ({ route }) => {
             closeBottomSheet();
             navigation.navigate('GroupmessageMedia', {
                 media_url: result?.assets,
-                group_id: route?.params?.group_id,
-                profile_picture_url: route?.params?.profile_picture_url,
-                user_name: route?.params?.user_name
+                group_id: groupDetails?.group_id,
+                profile_picture_url: groupDetails?.group_image,
+                user_name: groupDetails?.group_name
             })
         }
     };
@@ -380,8 +408,8 @@ const GroupMessage = ({ route }) => {
                     navigation.navigate('MediaDetail', {
                         uri: address,
                         ratio: ratio,
-                        profile_picture_url: route?.params?.profile_picture_url,
-                        user_name: route?.params?.user_name,
+                        profile_picture_url: groupDetails?.group_image,
+                        user_name: groupDetails?.group_name,
                         isImage: isImage
                     })
                 },
@@ -393,8 +421,8 @@ const GroupMessage = ({ route }) => {
         else {
             navigation.navigate('MediaDetail', {
                 uri: address,
-                profile_picture_url: route?.params?.profile_picture_url,
-                user_name: route?.params?.user_name,
+                profile_picture_url: groupDetails?.profile_picture_url,
+                user_name: groupDetails?.group_name,
                 isImage: isImage
             })
         }
@@ -438,9 +466,9 @@ const GroupMessage = ({ route }) => {
             closeBottomSheet();
             navigation.navigate('GroupmessageMedia', {
                 media_url: result?.assets,
-                group_id: route?.params?.group_id,
-                profile_picture_url: route?.params?.profile_picture_url,
-                user_name: route?.params?.user_name
+                group_id: groupDetails?.group_id,
+                profile_picture_url: groupDetails?.group_image,
+                user_name: groupDetails?.group_name
             })
         }
     };
@@ -475,6 +503,7 @@ const GroupMessage = ({ route }) => {
     }
 
     useEffect(() => {
+        fetchGroupDetails()
         loadRecentChats()
         navigation.getParent()?.setOptions({
             tabBarStyle: { display: 'none' },
@@ -545,9 +574,9 @@ const GroupMessage = ({ route }) => {
             });
             socket.on('connect').emit('createGroupMessage', {
                 "message": message_Props,
-                "group_id": route?.params?.group_id,
+                "group_id": groupDetails?.group_id,
                 "repliedMessageId": ReplyMessage?.message_id
-            }).emit('oldGroupMessages', { group_id: route?.params?.group_id }).on('groupMessages', (data) => {
+            }).emit('oldGroupMessages', { group_id: groupDetails?.group_id }).on('groupMessages', (data) => {
                 CancelReply()
                 setRecentChats(data?.message);
             })
@@ -719,7 +748,7 @@ const GroupMessage = ({ route }) => {
                                                                     </View>
                                                                     :
                                                                     <View>
-                                                                        <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                                        <Text style={styles.ReplyMsgUserName}>{groupDetails?.group_name}</Text>
                                                                         <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>Photo</Text>
                                                                     </View>
                                                                 }
@@ -739,7 +768,7 @@ const GroupMessage = ({ route }) => {
                                                                 {items?.item?.repliedMessage?.senderUserId == user_id ?
                                                                     <Text style={styles.ReplyMsgUserName}>You</Text>
                                                                     :
-                                                                    <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                                    <Text style={styles.ReplyMsgUserName}>{groupDetails?.group_name}</Text>
                                                                 }
                                                                 <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%' }}>{items?.item?.repliedMessage?.message}</Text>
                                                             </View>
@@ -837,7 +866,7 @@ const GroupMessage = ({ route }) => {
                                                             </View>
                                                             :
                                                             <View>
-                                                                <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                                <Text style={styles.ReplyMsgUserName}>{groupDetails?.group_name}</Text>
                                                                 <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%', color: global.black }}>Photo</Text>
                                                             </View>
                                                         }
@@ -857,7 +886,7 @@ const GroupMessage = ({ route }) => {
                                                         {items?.item?.repliedMessage?.senderUserId == user_id ?
                                                             <Text style={styles.ReplyMsgUserName}>You</Text>
                                                             :
-                                                            <Text style={styles.ReplyMsgUserName}>{route?.params?.user_name}</Text>
+                                                            <Text style={styles.ReplyMsgUserName}>{groupDetails?.group_name}</Text>
                                                         }
                                                         <Text ellipsizeMode='tail' numberOfLines={2} style={{ ...styles.messageUser, width: '100%', color: global.black }}>{items?.item?.repliedMessage?.message}</Text>
                                                     </View>
@@ -899,7 +928,7 @@ const GroupMessage = ({ route }) => {
                     'accesstoken': `Bearer ${Token}`
                 },
                 body: JSON.stringify({
-                    receiverUserId: route?.params?.receiverUserId,
+                    receiverUserId: groupDetails?.receiverUserId,
                 })
             });
             const dataRe = await response.json();
@@ -934,21 +963,38 @@ const GroupMessage = ({ route }) => {
                     barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
                 />
                 <View style={styles.wrapper}>
-                    <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
-                        <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
-                    </Pressable>
-                    <TouchableOpacity style={styles.logoSide2} onPress={()=>navigation.navigate('groupDetail')}>
-                        <ImageBackground
-                            source={
-                                route?.params?.profile_picture_url == ''
-                                    ? require('../assets/icons/avatar.png')
-                                    : { uri: route?.params?.profile_picture_url }
-                            }
-                            style={styles.PostProfileImage}
-                            resizeMode="cover"></ImageBackground>
-                        <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={route?.params?.user_name} />
-                    </TouchableOpacity>
+                    <View style={styles.logoSide}>
+                        <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
+                            <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
+                        </Pressable>
+                        <TouchableOpacity style={styles.logoSide2} onPress={() => navigation.navigate('groupDetail')}>
+                            <ImageBackground
+                                source={
+                                    groupDetails?.group_image == ''
+                                        ? require('../assets/icons/avatar.png')
+                                        : { uri: groupDetails?.group_image }
+                                }
+                                style={styles.PostProfileImage}
+                                resizeMode="cover"></ImageBackground>
+                            <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={route?.params?.user_name} />
+                        </TouchableOpacity>
+                        <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={groupDetails?.group_name} />
+                    </View>
                 </View>
+                <Pressable onPress={() => {
+                    navigation.navigate('GroupChatSetting')
+                    return navigation.getParent()?.setOptions({
+                        tabBarStyle: {
+                            display: 'flex',
+                            backgroundColor: '#69BE25',
+                            borderTopLeftRadius: ResponsiveSize(20),
+                            borderTopRightRadius: ResponsiveSize(20),
+                        },
+                    });
+
+                }} style={styles.logoSide1}>
+                    <Entypo name='dots-three-vertical' color={global.primaryColor} size={ResponsiveSize(22)} />
+                </Pressable>
                 <ScrollView
                     ref={scrollViewRef}
                     contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white, position: 'relative', paddingTop: ResponsiveSize(10), paddingBottom: ResponsiveSize(ReplyMessage?.message_id ? 100 : 65) }}
@@ -1004,7 +1050,7 @@ const GroupMessage = ({ route }) => {
                                 {ReplyMessage?.senderUserId == user_id ?
                                     <TextC text={`Replying to yourself`} font={"Montserrat-Medium"} size={ResponsiveSize(10)} style={{ color: global.description, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
                                     :
-                                    <TextC text={`Replying to ${route?.params?.user_name}`} font={"Montserrat-Medium"} size={ResponsiveSize(10)} style={{ color: global.description, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
+                                    <TextC text={`Replying to ${groupDetails?.group_name}`} font={"Montserrat-Medium"} size={ResponsiveSize(10)} style={{ color: global.description, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
                                 }
                                 {ReplyMessage?.media_url ?
                                     <TextC text={"Photo"} font={"Montserrat-Medium"} size={ResponsiveSize(11)} style={{ color: global.black, paddingTop: ResponsiveSize(3), width: ResponsiveSize(220) }} ellipsizeMode='tail' numberOfLines={1} />
@@ -1049,7 +1095,7 @@ const GroupMessage = ({ route }) => {
                     </View>
                 </View>
             </SafeAreaView>
-        </KeyboardAvoidingView>
+        </KeyboardAvoidingView >
     )
 }
 export default GroupMessage;
