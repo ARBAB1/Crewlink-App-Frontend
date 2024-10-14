@@ -17,6 +17,7 @@ import Feather from 'react-native-vector-icons/Feather'
 import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import DatePicker from "react-native-date-picker";
+import { PERMISSIONS, request } from "react-native-permissions";
 
 
 
@@ -121,6 +122,7 @@ const ChangeAirline = ({ getAllAirline, ChangeAirline }) => {
                 type: 'image/jpeg',
             });
             const Responce = await ChangeAirline(formData)
+            console.log(Responce, 'res')
             if (Responce == 'successfully applied for airline change') {
              
                 showToast({
@@ -161,12 +163,11 @@ const ChangeAirline = ({ getAllAirline, ChangeAirline }) => {
 
     const requestCameraPermission = async () => {
         try {
-            const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            Platform.OS === 'android'
+            ? await request(PERMISSIONS.ANDROID.CAMERA)
+            : await request(PERMISSIONS.IOS.CAMERA);
                 handleOpenSheet()
-            } else {
-                console.log("Camera permission denied");
-            }
+          
         } catch (err) {
             console.warn(err);
         }
@@ -274,8 +275,9 @@ const ChangeAirline = ({ getAllAirline, ChangeAirline }) => {
                             <View>
                                 <TouchableOpacity onPress={() => setExpiry(true)} style={styles.ImageInput}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <TextC text={(value && value.toLocaleString().split(",")[0]) || "Expiry Date"} style={{ color: global.placeholderColor, marginLeft: ResponsiveSize(10), width: ResponsiveSize(200) }} size={ResponsiveSize(11)} font={"Montserrat-Regular"} ellipsizeMode={"tail"} numberOfLines={1} />
+                                        <TextC text={(value && new Date(value).toDateString()) || "Expiry Date"} style={{ color: global.placeholderColor, marginLeft: ResponsiveSize(10), width: ResponsiveSize(200) }} size={ResponsiveSize(11)} font={"Montserrat-Regular"} ellipsizeMode={"tail"} numberOfLines={1} />
                                     </View>
+                                    {console.log(value ,"value")}
                                 </TouchableOpacity>
                                 <DatePicker
                                     modal
@@ -285,7 +287,7 @@ const ChangeAirline = ({ getAllAirline, ChangeAirline }) => {
                                     minimumDate={new Date()}
                                     onConfirm={(date) => {
                                         setExpiry(false)
-                                        onChange(date.toISOString())
+                                        onChange(date?.toISOString())
                                     }}
                                     onCancel={() => {
                                         setExpiry(false)

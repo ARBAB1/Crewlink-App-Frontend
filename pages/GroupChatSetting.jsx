@@ -13,8 +13,10 @@ import {
     TouchableOpacity,
     useColorScheme,
     View,
-    Image
+    Image,
+    Text
 } from "react-native";
+import Modal from "react-native-modal";
 import { global, ResponsiveSize } from "../components/constant";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import TextC from "../components/text/text";
@@ -176,7 +178,37 @@ const group_id = route?.params?.group_id
             justifyContent: 'flex-start',
             alignItems: 'center',
             position: 'relative',
-        }
+        },
+         modalContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+           
+        },
+        modalContent: {
+            width: '80%',
+            backgroundColor: 'white',
+            padding: 20,
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 10,
+        },
+        actionItem: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 15,
+        },
+        icon: {
+            marginRight: 15,
+        },
+        actionText: {
+            fontSize: 16,
+            color: '#000',
+        },
+        actionTextRed: {
+            fontSize: 16,
+            color: '#d9232d',
+        },
     });
     const navigation = useNavigation();
     const { openBottomSheet, closeBottomSheet } = useBottomSheet();
@@ -186,6 +218,16 @@ const group_id = route?.params?.group_id
     const [loading, setLoading] = useState(false);
     const [EditVisible, setEditVisible] = useState(false)
     const [GroupName, setGroupName] = useState('')
+    const [selectedMember, setSelectedMember] = useState(null); // Store selected member
+    const [isModalVisible, setIsModalVisible] = useState(false); // Control modal visibility
+    const handleMemberClick = (member) => {
+        setSelectedMember(member);
+        setIsModalVisible(true); // Show modal
+    };
+    const closeModal = () => {
+        setSelectedMember(null);
+        setIsModalVisible(false); // Hide modal
+    };
    const GroupDetails = async (group_id) => {
    console.log(group_id,"grouid")
          
@@ -211,8 +253,8 @@ const group_id = route?.params?.group_id
     useEffect(() => {
         const group_id = route?.params?.group_id
 
-        GroupDetails(group_id)
         closeBottomSheet();
+        GroupDetails(group_id)
     }, []);
     const handleOpenSheet = () => {
         openBottomSheet(
@@ -298,9 +340,12 @@ const group_id = route?.params?.group_id
                 </View>
                 <View style={styles.bodyWrapper}>
                     <View style={styles.GroupName}>
-                        {GroupDetail.group_image !== '' ? (
+                        {documentImage !== '' ? (
                             <TouchableOpacity onPress={requestCameraPermission}>
-                                <Image style={styles.ProfileImage} src={GroupDetail.group_image} />
+                                <Image style={styles.ProfileImage} src={
+                                    documentImage ? documentImage :
+                                    GroupDetail.group_image
+                                    } />
                             </TouchableOpacity>
                         ) : (
                             <TouchableOpacity onPress={requestCameraPermission}>
@@ -394,7 +439,13 @@ const group_id = route?.params?.group_id
                               </View>
                         {GroupMember !== undefined && GroupMember !== "" && GroupMember !== null && GroupMember.length > 0 ? GroupMember?.map((member, index) => {
                             return (
-                                <View style={styles.box} key={index}>
+                                <TouchableOpacity
+                                key={index}
+                                style={styles.box}
+                                onPress={() => handleMemberClick(member)}
+                            >
+                                
+                        
                                 <View style={styles.profileContainer}>
                                   <Image
                                     source={
@@ -428,7 +479,7 @@ const group_id = route?.params?.group_id
                                     size={ResponsiveSize(14)}
                                   />
                                 </View>
-                              </View>
+                                </TouchableOpacity>
                               
                          )
                         
@@ -456,6 +507,41 @@ const group_id = route?.params?.group_id
     </View>
                 </View>
             </ScrollView>
+              {/* Modal for Member Options */}
+              <Modal
+                    transparent={true}
+                    visible={isModalVisible}
+                    animationType="slide"
+                    onRequestClose={closeModal}
+                >
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 20 }}>
+                                {selectedMember?.user_name}
+                            </Text>
+
+                            <TouchableOpacity style={styles.actionItem}>
+                                <Icon name="wechat" size={20} style={styles.icon} />
+                                <Text style={styles.actionText}>Message {selectedMember?.user_name}</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.actionItem}>
+                                <Icon name="user" size={20} style={styles.icon} />
+                                <Text style={styles.actionText}>View {selectedMember?.user_name}</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.actionItem}>
+                                <Icon name="shield" size={20} style={styles.icon} />
+                                <Text style={styles.actionText}>Remove {selectedMember?.user_name}</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.actionItem} onPress={closeModal}>
+                                <Icon name="close" size={20} style={styles.icon} />
+                                <Text style={styles.actionTextRed}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
         </SafeAreaView>
     )
 }

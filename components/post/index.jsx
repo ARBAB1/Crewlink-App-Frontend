@@ -14,6 +14,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Text,
   TouchableWithoutFeedback,
 } from 'react-native';
 import Modal from 'react-native-modal';
@@ -47,7 +48,7 @@ const Post = ({
   commnetCount,
   description,
   content,
-  userLocation,
+  post_city,
   timeAgo,
   LikeFunc,
   DisLikeFunc,
@@ -59,10 +60,12 @@ const Post = ({
   LoadReplies,
   DeletComments,
   type,
+  userLocation,
   getAllConnections,
   reshareUserDetails,
   content_type
 }) => {
+  console.log(post_city, 'post_city')
   const navigation = useNavigation();
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -1227,7 +1230,7 @@ const Post = ({
           />
           <TextC
             size={ResponsiveSize(10)}
-            text={userLocation}
+            text={post_city?post_city:userLocation}
             font={'Montserrat-Medium'}
           />
         </View>

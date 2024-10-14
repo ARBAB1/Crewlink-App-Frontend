@@ -168,7 +168,7 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
 
 
             if (item?.notification_type === notificationTypes.POST_TAG || item?.notification_type === notificationTypes.NEW_POST || item?.notification_type === notificationTypes.POST_RESHARE || item?.notification_type === notificationTypes.LIKE_POST || item.notification_type === notificationTypes.POST_COMMENT || item.notification_type === notificationTypes.POST_COMMENT_REPLY) {
-                navigation.navigate('PostDetail',  item );
+            navigation.navigate('PostDetail',  item );
             }else if (item?.notification_type === notificationTypes.CONNECTION || item?.notification_type === notificationTypes.ACCEPT_CONNECTION ) {
                navigation.navigate('Profile', { screen: 'UserProfileScreen', params: { user_id: item?.content_id } }) //navigation.navigate('UserProfileScreen', { user_id: item?.content_id })
             }else if (item?.notification_type === notificationTypes.EVENT_JOIN) {

@@ -183,7 +183,7 @@ const PrivacySetting = ({
   const AddOrRemoveConnection = user_id => {
     setSelectedConnections(prev => {
       if (prev.includes(user_id)) {
-        return prev.filter(id => id !== user_id); // Remove if already selected
+        return prev?.filter(id => id !== user_id); // Remove if already selected
       } else {
         return [...prev, user_id]; // Add to selected
       }
@@ -251,7 +251,7 @@ const PrivacySetting = ({
     CheckCustomSettings();
   }, []);
 
-  const filteredConnections = allConnectionData.filter(connection =>
+  const filteredConnections = allConnectionData?.filter(connection =>
     connection.user_name.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -379,7 +379,7 @@ const PrivacySetting = ({
             />
 
             <ScrollView style={styles.AirlineBoundries} showsVerticalScrollIndicator={false}>
-              {filteredConnections.map(connection => (
+              {filteredConnections?.map(connection => (
                 <TouchableOpacity
                   key={connection.user_id}
                   onPress={() => AddOrRemoveConnection(connection.user_id)}

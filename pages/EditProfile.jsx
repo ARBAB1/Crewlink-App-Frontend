@@ -81,10 +81,6 @@ const EditProfile = ({
 
   const schema = yup.object().shape({
     name: yup.string().required('Name is required'),
-    phone: yup.string(),
-    gender: yup.string(),
-    dob: yup.string(),
-    description: yup.string(),
   });
 
   const {
@@ -290,6 +286,7 @@ const EditProfile = ({
   const [country, setCountry] = useState([])
 
   const onSubmit = async data => {
+    console.log(data, "data")
     setLoading(true);
     if (documentImage) {
       const formData = new FormData();
@@ -299,6 +296,8 @@ const EditProfile = ({
         type: 'image/jpeg',
       });
       const LoadUpdateImage = await UpdateProfile(formData);
+      console.log(LoadUpdateImage
+        , "LoadUpdateImage")
     }
     const LoadUpdate = await UpdateProfileData({
       user_name: data.name,
@@ -309,6 +308,7 @@ const EditProfile = ({
       country_code: dialCode,
       home_base: country.length > 0 ? country[0] : ""
     });
+    console.log(LoadUpdate, "LoadUpdate")
     if (LoadUpdate?.message == 'User profile updated successfully') {
       showToast({
         message: 'User profile updated successfully',
@@ -401,6 +401,7 @@ const EditProfile = ({
   const LoadCountry = async () => {
     const loadAllCountriesDetail = await getAllCountries();
     setAllCountriesData(loadAllCountriesDetail);
+    // console.log(loadAllCountriesDetail, "loadAllCountriesDetail")
   };
 
 
@@ -412,7 +413,7 @@ const EditProfile = ({
     setCountry("")
   }
 
-  console.log(GetUserProfileReducer?.data?.country_code)
+  console.log(GetUserProfileReducer?.data,"aaaa")
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}

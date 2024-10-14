@@ -177,6 +177,7 @@ const HomeScreen = ({
   const getFeeds = async () => {
     setLoading(true);
     const result = await GetUserPosts({ city: selectedCity });
+    console.log(result, 'result')
     if (result) {
       setPost(result.reverse())
       setLoading(false)
@@ -252,7 +253,7 @@ const HomeScreen = ({
           selfLiked={items?.item?.selfLiked}
           postId={items?.item?.post_id}
           timeAgo={items?.item?.created_at}
-          userLocation={`${items?.item?.lastCheckin?.city} | ${items?.item?.lastCheckin?.state}`}
+          post_city={`${items?.item?.post_city}`}
           userName={items?.item?.userDetails?.user_name}
           profileImage={items?.item?.userDetails?.profile_picture_url}
           likeCount={items?.item?.likes_count}

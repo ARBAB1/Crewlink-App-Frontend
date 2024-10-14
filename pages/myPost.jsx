@@ -51,6 +51,7 @@ const MyPost = ({ route, UserPostsAll }) => {
             user_id: route?.params?.user_id,
             page: 1
         })
+        console.log(result, 'UserPostsAll')
         setPost(result?.data)
         setLoading(false)
     }

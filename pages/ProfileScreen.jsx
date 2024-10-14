@@ -11,22 +11,21 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import React, { useCallback, useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import TextC from '../components/text/text';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import { global, ResponsiveSize } from '../components/constant';
+import {useNavigation} from '@react-navigation/native';
+import {global, ResponsiveSize} from '../components/constant';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import * as UserProfile from '../store/actions/UserProfile/index';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import FastImage from 'react-native-fast-image';
 import Modal from 'react-native-modal';
 
-
-const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
+const ProfileScreen = ({GetUserProfileReducer, GetProfileData}) => {
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const navigation = useNavigation();
@@ -170,20 +169,24 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
 
   const [viewProfile, setViewProfile] = useState(false);
 
+  console.log(GetUserProfileReducer?.data, 'lastcheckin');
   return (
     <>
       <SafeAreaView style={styles.container}>
         <StatusBar backgroundColor={'white'} barStyle={'dark-content'} />
         {GetUserProfileReducer?.loading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <ActivityIndicator size="large" color={global.primaryColor} />
           </View>
         ) : (
-          <ScrollView refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          } style={{ flexGrow: 1 }} >
+          <ScrollView
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            style={{flexGrow: 1}}>
             <View style={styles.ProfileHeader}>
-              <View style={{ width: 25 }}></View>
+              <View style={{width: 25}}></View>
               <View>
                 <TextC
                   font={'Montserrat-Bold'}
@@ -198,12 +201,18 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
 
             <View style={styles.ProfileInfo}>
               <View style={styles.profileImageWrapper}>
-                <TouchableOpacity style={styles.ProfileImage} onPress={() => setViewProfile(true)}>
+                <TouchableOpacity
+                  style={styles.ProfileImage}
+                  onPress={() => setViewProfile(true)}>
                   <FastImage
                     source={
                       GetUserProfileReducer?.data?.profile_picture_url == ''
                         ? require('../assets/icons/avatar.png')
-                        : { uri: GetUserProfileReducer?.data?.profile_picture_url, priority: FastImage.priority.high }
+                        : {
+                            uri: GetUserProfileReducer?.data
+                              ?.profile_picture_url,
+                            priority: FastImage.priority.high,
+                          }
                     }
                     style={styles.ProfileImageMain}
                   />
@@ -215,7 +224,7 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
                     text={GetUserProfileReducer?.data?.post_count || 0}
                     font={'Montserrat-SemiBold'}
                     size={ResponsiveSize(20)}
-                    style={{ color: '#69BE25' }}
+                    style={{color: '#69BE25'}}
                   />
                   <TextC
                     text={'Posts'}
@@ -236,7 +245,7 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
                       text={GetUserProfileReducer?.data?.connection_count || 0}
                       font={'Montserrat-SemiBold'}
                       size={ResponsiveSize(20)}
-                      style={{ color: '#69BE25' }}
+                      style={{color: '#69BE25'}}
                     />
                     <TextC
                       text={'Connects'}
@@ -255,13 +264,16 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
                   <TextC
                     text={
                       GetUserProfileReducer?.data?.last_checkin ==
-                        'No last check-in available'
+                        'No last check-in available' &&
+                      GetUserProfileReducer?.data?.last_checkin == undefined &&
+                      GetUserProfileReducer?.data?.last_checkin == null &&
+                      GetUserProfileReducer?.data?.last_checkin == ''
                         ? 'No Check-in'
                         : GetUserProfileReducer?.data?.last_checkin
                     }
                     font={'Montserrat-SemiBold'}
                     size={ResponsiveSize(12)}
-                    style={{ width: '100%', textAlign: 'center' }}
+                    style={{width: '100%', textAlign: 'center'}}
                     ellipsizeMode={'tail'}
                     numberOfLines={1}
                   />
@@ -270,22 +282,22 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
             </View>
 
             <View style={styles.ProfileTitleDescription}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <TextC
                   font={'Montserrat-SemiBold'}
                   text={GetUserProfileReducer?.data?.user_name}
                   size={ResponsiveSize(15)}
                 />
-                {GetUserProfileReducer?.data?.airline &&
+                {GetUserProfileReducer?.data?.airline && (
                   <View style={styles.AirlineTag}>
                     <TextC
                       font={'Montserrat-SemiBold'}
                       text={GetUserProfileReducer?.data?.airline}
                       size={ResponsiveSize(10)}
-                      style={{ color: global.primaryColor }}
+                      style={{color: global.primaryColor}}
                     />
                   </View>
-                }
+                )}
               </View>
               {GetUserProfileReducer?.data?.bio && (
                 <ReadMore
@@ -310,7 +322,9 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
                 onPress={() => navigation.navigate('EditProfile')}>
                 <Text style={styles.SetttingBtnText}>Edit Profile</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.SetttingBtn} onPress={() => navigation.navigate('SearchUser')}>
+              <TouchableOpacity
+                style={styles.SetttingBtn}
+                onPress={() => navigation.navigate('SearchUser')}>
                 <Text style={styles.SetttingBtnText}>Search</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -320,17 +334,17 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={{ flexGrow: 1 }}>
+            <ScrollView style={{flexGrow: 1}}>
               <View style={styles.wrapper}>
                 {GetUserProfileReducer?.data?.posts !== undefined &&
-                  GetUserProfileReducer?.data?.posts !== null &&
-                  GetUserProfileReducer?.data?.posts !== '' &&
-                  GetUserProfileReducer?.data?.posts?.length > 0 ? (
+                GetUserProfileReducer?.data?.posts !== null &&
+                GetUserProfileReducer?.data?.posts !== '' &&
+                GetUserProfileReducer?.data?.posts?.length > 0 ? (
                   GetUserProfileReducer?.data?.posts.map(userPosts => (
                     <TouchableOpacity
                       onPress={() =>
-                        navigation.navigate('MyPost', {
-                          user_id: GetUserProfileReducer?.data?.user_id,
+                        navigation.navigate('PostDetail', {
+                          content_id: userPosts?.parent_id,
                         })
                       }
                       key={userPosts?.parent_id}
@@ -379,7 +393,7 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
                         text={'Start Your First Post'}
                         font={'Montserrat-Medium'}
                         size={ResponsiveSize(11)}
-                        style={{ color: 'white' }}
+                        style={{color: 'white'}}
                       />
                     </TouchableOpacity>
                   </View>
@@ -391,7 +405,7 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
       </SafeAreaView>
       <Modal
         isVisible={viewProfile}
-        style={{ margin: 0, paddingHorizontal: windowWidth * 0.05 }}
+        style={{margin: 0, paddingHorizontal: windowWidth * 0.05}}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
         onBackdropPress={() => setViewProfile(false)}
@@ -400,7 +414,10 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
           source={
             GetUserProfileReducer?.data?.profile_picture_url == ''
               ? require('../assets/icons/avatar.png')
-              : { uri: GetUserProfileReducer?.data?.profile_picture_url, priority: FastImage.priority.high }
+              : {
+                  uri: GetUserProfileReducer?.data?.profile_picture_url,
+                  priority: FastImage.priority.high,
+                }
           }
           style={styles.CountryModalLayers}
         />
@@ -409,7 +426,7 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData }) => {
   );
 };
 
-function mapStateToProps({ GetUserProfileReducer }) {
-  return { GetUserProfileReducer };
+function mapStateToProps({GetUserProfileReducer}) {
+  return {GetUserProfileReducer};
 }
 export default connect(mapStateToProps, UserProfile)(ProfileScreen);
