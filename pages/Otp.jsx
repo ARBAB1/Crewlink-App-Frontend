@@ -10,11 +10,8 @@ import * as VrifyOtpAction from "../store/actions/VerifyOtp/index";
 import { connect } from "react-redux";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ResponsiveSize, global } from '../components/constant';
-import { useToast } from '../components/Toast/ToastContext';
-
 
 const OtpScreen = ({ verifyOtp, OtpVerificationReducer, ResendOtp }) => {
-  const { showToast } = useToast();
   const optInput = useRef()
   const navigation = useNavigation()
   const [opt, setOtp] = useState("")
@@ -90,24 +87,24 @@ const OtpScreen = ({ verifyOtp, OtpVerificationReducer, ResendOtp }) => {
       setIsActive(true)
       setLoader(false)
       optInput.current.clear()
-      showToast({
-        title:"OTP resent successfully",
-        message:"OTP resent successfully, Please check you email.",
-        iconColor:"#339a77",
-        iconName:"mail",
-        bg:"#e6f5ef"
-      })
+      // showToast({
+      //   title:"OTP resent successfully",
+      //   message:"OTP resent successfully, Please check you email.",
+      //   iconColor:"#339a77",
+      //   iconName:"mail",
+      //   bg:"#e6f5ef"
+      // })
     }
     else if (resendOtp.message == "You have exceeded the maximum number of OTP requests per hour. Please try again later") {
       optInput.current.clear()
       setLoader(false)
-      showToast({
-        title:"Limit exceeded",
-        message:"Exceeded the maximum number of OTP requests per hour.",
-        iconColor:"red",
-        iconName:"mail",
-        bg:"#fff2f2"
-      })
+      // showToast({
+      //   title:"Limit exceeded",
+      //   message:"Exceeded the maximum number of OTP requests per hour.",
+      //   iconColor:"red",
+      //   iconName:"mail",
+      //   bg:"#fff2f2"
+      // })
     }
     else if(resendOtp.message == "User Already Verified"){
       navigation.navigate("Login")

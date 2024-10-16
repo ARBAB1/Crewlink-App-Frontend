@@ -22,7 +22,6 @@ import {useForm, Controller} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import * as UserRegisterAction from '../store/actions/UserRegister/index';
 import {connect} from 'react-redux';
-import {useToast} from '../components/Toast/ToastContext';
 import {useHeaderHeight} from '@react-navigation/elements';
 import {KeyboardAvoidingView, Platform} from 'react-native';
 
@@ -93,7 +92,6 @@ const ChangePassword = ({changePassword}) => {
   });
 
   const [loading, setLoading] = useState(false);
-  const {showToast} = useToast();
 
   const onSubmit = async data => {
     setLoading(true);
@@ -102,26 +100,26 @@ const ChangePassword = ({changePassword}) => {
       new_password: data?.password,
     });
     if (LoadChangePassword == 'Password Changed successfully') {
-      showToast({
-        message: 'Password changed successfully. Your account is now secure.',
-        title: 'Password Changed successfully',
-        iconColor: 'green',
-        iconName: 'lock',
-        bg: '#abffdb',
-      });
+      // showToast({
+      //   message: 'Password changed successfully. Your account is now secure.',
+      //   title: 'Password Changed successfully',
+      //   iconColor: 'green',
+      //   iconName: 'lock',
+      //   bg: '#abffdb',
+      // });
       setLoading(false);
       setTimeout(() => {
         navigation.goBack();
       }, 3000);
     }
     if (LoadChangePassword == 'Old Password is Wrong') {
-      showToast({
-        message: 'Current password is incorrect. please try again',
-        title: 'Current password is incorrect',
-        iconColor: 'red',
-        iconName: 'lock',
-        bg: '#fff2f2',
-      });
+      // showToast({
+      //   message: 'Current password is incorrect. please try again',
+      //   title: 'Current password is incorrect',
+      //   iconColor: 'red',
+      //   iconName: 'lock',
+      //   bg: '#fff2f2',
+      // });
       setLoading(false);
     }
   };

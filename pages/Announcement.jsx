@@ -229,6 +229,15 @@ const Announcement = ({ GetUserProfileReducer }) => {
       backgroundColor: global.description,
       overflow: 'hidden',
     },
+    
+    AnnouncementMedia: {
+      height: ResponsiveSize(150),
+      width: windowWidth * 0.78 - ResponsiveSize(15),
+      borderRadius: ResponsiveSize(10),
+      backgroundColor: global.description,
+      overflow: 'hidden',
+      marginTop:ResponsiveSize(10)
+    },
     ProfileDetail: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -333,6 +342,11 @@ const Announcement = ({ GetUserProfileReducer }) => {
     }
   }, [focus]);
 
+
+
+
+
+  
   const onRefresh = useCallback(() => {
     setRefreshing(true);
   }, []);
@@ -463,6 +477,13 @@ const Announcement = ({ GetUserProfileReducer }) => {
               <TextC text={`${item?.user_details?.user_name}`} font={'Montserrat-Bold'} size={ResponsiveSize(12)} />
             </View>
             <TextC style={{ color: global.placeholderColor }} text={item?.message} font={'Montserrat-Regular'} size={ResponsiveSize(11)} />
+            <FastImage
+              source={item?.user_details?.profile_picture_url
+                ? { uri: item?.user_details?.profile_picture_url, priority: FastImage.priority.high }
+                : require('../assets/icons/avatar.png')}
+              style={styles.AnnouncementMedia}
+              resizeMode="cover"
+            />
           </TouchableOpacity>
           <View style={styles.PostSetting}>
             <TouchableOpacity onPress={() => navigation.navigate('createAnnouncement', { Reply_user_name: item?.user_details?.user_name, user_Profile: profilePicture, isReply: true, announcement_id: item?.announcement_id })} style={styles.Comment}>
@@ -501,7 +522,16 @@ const Announcement = ({ GetUserProfileReducer }) => {
         <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", height: ResponsiveSize(60), width: windowWidth, backgroundColor: "white", paddingHorizontal: ResponsiveSize(15), borderBottomWidth: ResponsiveSize(1), borderBottomColor: "#EEEEEE" }}>
           <View>
             <Image source={require('../assets/icons/Logo.png')} style={{ objectFit: 'contain', width: ResponsiveSize(115), height: ResponsiveSize(22) }} />
-            <TextC text={GetUserProfileReducer?.data?.airline} font={"Montserrat-Bold"} />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TextC text={GetUserProfileReducer?.data?.airline} font={"Montserrat-Bold"} />
+              <FastImage
+                source={GetUserProfileReducer?.data?.airlineLogo
+                  ? { uri: GetUserProfileReducer?.data?.airlineLogo, priority: FastImage.priority.high }
+                  : require('../assets/icons/avatar.png')}
+                style={{ height: ResponsiveSize(30), width: ResponsiveSize(30) }}
+                resizeMode="cover"
+              />
+            </View>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
             <TouchableOpacity style={styles.ShareBtn} onPress={() => navigation.navigate('createAnnouncement', { user_name: userName, user_Profile: profilePicture })}>
@@ -585,7 +615,7 @@ const Announcement = ({ GetUserProfileReducer }) => {
               <ButtonC
                 onPress={() => {
                   setEditAndDelete(false)
-                  navigation.navigate('UpdateAnnouncement', { user_name: userName, user_Profile: profilePicture, caption: caption,announcement_id:selectedAnnouncement })
+                  navigation.navigate('UpdateAnnouncement', { user_name: userName, user_Profile: profilePicture, caption: caption, announcement_id: selectedAnnouncement })
                 }}
                 BtnStyle={{ width: windowWidth * 0.45 }}
                 TextStyle={{ color: global.white }}

@@ -7,6 +7,7 @@ import {
   Text,
   Dimensions,
   Pressable,
+  Alert,
 } from 'react-native';
 import React, {useEffect, useState, useRef} from 'react';
 import ButtonC from '../components/button/index';
@@ -21,7 +22,6 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ResponsiveSize, global} from '../components/constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TextC from '../components/text/text';
-import {useToast} from '../components/Toast/ToastContext';
 import { useHeaderHeight } from "@react-navigation/elements";
 import {
   KeyboardAvoidingView,
@@ -51,7 +51,6 @@ const CheckInDetail = ({
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
 
-  const {showToast} = useToast();
 
   useEffect(() => {
     LoadName();
@@ -103,13 +102,14 @@ const CheckInDetail = ({
   };
 
   const SelectStateToast = () => {
-    showToast({
-      title: 'Please select State',
-      message: 'Please select State and try again.',
-      iconColor: '#339a77',
-      iconName: 'infocirlceo',
-      bg: '#e6f5ef',
-    });
+    // showToast({
+    //   title: 'Please select State',
+    //   message: 'Please select State and try again.',
+    //   iconColor: '#339a77',
+    //   iconName: 'infocirlceo',
+    //   bg: '#e6f5ef',
+    // });
+    Alert.alert('Please select State')
   };
 
   const styles = StyleSheet.create({

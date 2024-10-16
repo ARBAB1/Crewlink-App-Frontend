@@ -11,7 +11,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as UserRegisterAction from "../store/actions/UserRegister/index";
 import { connect } from "react-redux";
-import { useToast } from "../components/Toast/ToastContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -21,7 +20,6 @@ const DeleteAccount = ({ DeleteAccountAction, onLogin }) => {
     const windowHeight = Dimensions.get('window').height;
     const scheme = useColorScheme();
     const navigation = useNavigation()
-    const { showToast } = useToast();
 
     const styles = StyleSheet.create({
         wrapper: {
@@ -108,13 +106,13 @@ const DeleteAccount = ({ DeleteAccountAction, onLogin }) => {
             setLoading(false)
         }
         else if (LoadUpdate == "Wrong Password") {
-            showToast({
-                message: "Wrong Password",
-                title: "Cannot delete account, check your password",
-                iconColor: "red",
-                iconName: "lock",
-                bg: "#fff2f2"
-            })
+            // showToast({
+            //     message: "Wrong Password",
+            //     title: "Cannot delete account, check your password",
+            //     iconColor: "red",
+            //     iconName: "lock",
+            //     bg: "#fff2f2"
+            // })
             setLoading(false)
         }
         setLoading(false)

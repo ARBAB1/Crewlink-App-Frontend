@@ -27,7 +27,8 @@ const MainHeader = ({ GetUserProfileReducer, loading }) => {
         LocationTExt: {
             fontFamily: "Montserrat-Bold",
             fontSize: ResponsiveSize(11),
-            color: '#69BE25'
+            color: '#69BE25',
+            width: ResponsiveSize(60)
         }
     })
     return (
@@ -35,17 +36,15 @@ const MainHeader = ({ GetUserProfileReducer, loading }) => {
             <Image source={require('../../assets/icons/Logo.png')} style={{ objectFit: 'contain', width: ResponsiveSize(115), height: ResponsiveSize(22) }} />
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
 
-                <View style={styles.locationHeader}>
-                    <TouchableOpacity onPress={() => navigation.navigate('InAppCheckIn')}>
-                        {loading ? <ActivityIndicator size={'small'} color={global.secondaryColor} />
-                            :
-                            <TextC style={styles.LocationTExt} text={GetUserProfileReducer?.data?.last_checkin ==
-                                'No last check-in available'
-                                ? 'No Check-in'
-                                : GetUserProfileReducer?.data?.last_checkin} />
-                        }
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity onPress={() => navigation.navigate('InAppCheckIn')}>
+                    {loading ? <ActivityIndicator size={ResponsiveSize(12)} color={global.secondaryColor} />
+                        :
+                        <TextC ellipsizeMode={"tail"} numberOfLines={1} style={styles.LocationTExt} text={GetUserProfileReducer?.data?.last_checkin ==
+                            'No last check-in available'
+                            ? 'No Check-in'
+                            : GetUserProfileReducer?.data?.last_checkin} />
+                    }
+                </TouchableOpacity>
 
                 <TouchableOpacity style={{ paddingVertical: ResponsiveSize(4), paddingLeft: ResponsiveSize(10), paddingRight: ResponsiveSize(5) }} onPress={() => navigation.navigate('Notification')}>
                     <Ionicons name='notifications-outline' size={ResponsiveSize(20)} color={global.primaryColor} />

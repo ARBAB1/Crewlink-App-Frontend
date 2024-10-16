@@ -28,7 +28,6 @@ import { connect } from 'react-redux';
 import PhoneInput from 'react-native-phone-number-input';
 import DatePicker from 'react-native-date-picker';
 import ModalSelector from 'react-native-modal-selector';
-import { useToast } from '../components/Toast/ToastContext';
 import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
 import ButtonC from '../components/button';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
@@ -81,10 +80,6 @@ const EditProfile = ({
 
   const schema = yup.object().shape({
     name: yup.string().required('Name is required'),
-    phone: yup.string(),
-    gender: yup.string(),
-    dob: yup.string(),
-    description: yup.string(),
   });
 
   const {
@@ -286,7 +281,6 @@ const EditProfile = ({
       paddingVertical: ResponsiveSize(10)
     },
   });
-  const { showToast } = useToast();
   const [country, setCountry] = useState([])
 
   const onSubmit = async data => {
@@ -310,23 +304,23 @@ const EditProfile = ({
       home_base: country.length > 0 ? country[0] : ""
     });
     if (LoadUpdate?.message == 'User profile updated successfully') {
-      showToast({
-        message: 'User profile updated successfully',
-        title: 'Profile updated',
-        iconColor: 'green',
-        iconName: 'lock',
-        bg: '#abffdb',
-      });
+      // showToast({
+      //   message: 'User profile updated successfully',
+      //   title: 'Profile updated',
+      //   iconColor: 'green',
+      //   iconName: 'lock',
+      //   bg: '#abffdb',
+      // });
       navigation.navigate('ProfileMain');
       GetProfileData();
     } else if (LoadUpdate?.message !== 'User profile updated successfully') {
-      showToast({
-        message: 'Something went wrong. please try again',
-        title: 'Something went wrong',
-        iconColor: 'red',
-        iconName: 'lock',
-        bg: '#fff2f2',
-      });
+      // showToast({
+      //   message: 'Something went wrong. please try again',
+      //   title: 'Something went wrong',
+      //   iconColor: 'red',
+      //   iconName: 'lock',
+      //   bg: '#fff2f2',
+      // });
     }
     setLoading(false);
   };

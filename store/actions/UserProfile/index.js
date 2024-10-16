@@ -54,7 +54,7 @@ export const UpdateProfileData = (data) => async (dispatch) => {
             body: JSON.stringify(data)
         });
         const res = await response.json()
- 
+
         return res
     }
     catch (error) {
@@ -75,7 +75,7 @@ export const UpdateProfile = (data) => async (dispatch) => {
             body: data
         });
         const res = await response.json()
-    
+
         return res
     }
     catch (error) {
@@ -97,10 +97,10 @@ export const Login = () => async (dispatch) => {
     });
 }
 
-export const GetUserPosts = ({city}) => async (dispatch) => {
+export const GetUserPosts = ({ city, page }) => async (dispatch) => {
     const Token = await AsyncStorage.getItem('Token');
     try {
-        const response = await fetch(`${baseUrl.baseUrl}/posts/get-posts-feed/1/50000?city=${city}`, {
+        const response = await fetch(`${baseUrl.baseUrl}/posts/get-posts-feed/${page}/15?city=${city}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -108,8 +108,18 @@ export const GetUserPosts = ({city}) => async (dispatch) => {
                 'accesstoken': `Bearer ${Token}`
             },
         });
-        const res = await response.json()
-        return res?.data
+        if (response.ok == true) {
+            const res = await response.json()
+            if (res.statusCode == 200 && 201) {
+                return { ...res, status: 'Post_Found' }
+            }
+            else if (res.statusCode == 404) {
+                return { status: 'No_Post_Found' }
+            }
+        }
+        else {
+            return { status: 'something_Went_Wrong' }
+        }
     }
     catch (error) {
         console.log(error)

@@ -106,7 +106,7 @@ const HomeStackNavigation = () => {
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="GroupChatMember" component={GroupChatMember} />
-   
+      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="UserProfileScreen" component={UserProfileScreen} />
       <Stack.Screen options={{
         headerShown: false, navigationBarHidden: true,
       }} name="Message" component={Message} />

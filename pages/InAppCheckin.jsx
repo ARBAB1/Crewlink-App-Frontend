@@ -21,7 +21,6 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { ResponsiveSize, global } from '../components/constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TextC from '../components/text/text';
-import { useToast } from '../components/Toast/ToastContext';
 import { useHeaderHeight } from "@react-navigation/elements";
 import {
     KeyboardAvoidingView,
@@ -51,8 +50,6 @@ const InappCheckin = ({
     const [userName, setUserName] = useState();
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
-
-    const { showToast } = useToast();
 
     useEffect(() => {
         LoadName();
@@ -88,6 +85,7 @@ const InappCheckin = ({
         setAllCityData(loadAllCityDetail);
     };
     const onSubmit = async () => {
+        console.log('okokokokokok')
         if (currentCountry && currentState && currentCity && layoverTime) {
             const checkInLoad = await CheckInInApp({
                 country: currentCountry,
@@ -95,8 +93,8 @@ const InappCheckin = ({
                 city: currentCity,
                 layover_time: layoverTime,
             });
-            if (checkInLoad.message == 'Check-in updated successfully') {
-               navigation.navigate('Home',{CheckInCity: currentCity})
+            if (checkInLoad.statusCode === 200) {
+               navigation.navigate('HomeScreen',{CheckInCity: currentCity})
             }
         } else {
             setShowError(true);
@@ -104,13 +102,14 @@ const InappCheckin = ({
     };
 
     const SelectStateToast = () => {
-        showToast({
-            title: 'Please select State',
-            message: 'Please select State and try again.',
-            iconColor: '#339a77',
-            iconName: 'infocirlceo',
-            bg: '#e6f5ef',
-        });
+        // showToast({
+        //     title: 'Please select State',
+        //     message: 'Please select State and try again.',
+        //     iconColor: '#339a77',
+        //     iconName: 'infocirlceo',
+        //     bg: '#e6f5ef',
+        // });
+        Alert.alert('Please select State');
     };
 
     const styles = StyleSheet.create({

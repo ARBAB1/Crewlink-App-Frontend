@@ -102,7 +102,6 @@ export const LikeCountSwitch = (body) => async (dispatch, getState) => {
 }
 export const CreatePostFunction = (FormData, path, goHome) => async (dispatch) => {
     const Token = await AsyncStorage.getItem('Token');
-    console.log(FormData?._parts,'format Data recent')
     dispatch({
         type: TASK_POST_CREATE_START,
         uploadLoading: true,
@@ -110,7 +109,7 @@ export const CreatePostFunction = (FormData, path, goHome) => async (dispatch) =
         uploadFiles: path
     });
     try {
-        goHome()
+        // goHome()
         const response = await fetch(`${baseUrl.baseUrl}/posts/createPost`, {
             method: "POST",
             headers: {
@@ -122,7 +121,7 @@ export const CreatePostFunction = (FormData, path, goHome) => async (dispatch) =
         });
         if (response.ok) {
             const res = await response?.json();
-            console.log(res)
+            console.log(res,'response console after Post')
             dispatch({
                 type: TASK_POST_CREATE_END,
                 uploadLoading: false,

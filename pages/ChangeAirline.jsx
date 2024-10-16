@@ -11,7 +11,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as UserRegisterAction from "../store/actions/UserRegister/index";
 import { connect } from "react-redux";
-import { useToast } from "../components/Toast/ToastContext";
 import InAppSelect from "../components/select/inAppSelect";
 import Feather from 'react-native-vector-icons/Feather'
 import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
@@ -107,7 +106,6 @@ const ChangeAirline = ({ getAllAirline, ChangeAirline }) => {
     });
 
     const [loading, setLoading] = useState(false)
-    const { showToast } = useToast();
     const onSubmit = async (data) => {
         if (documentImage) {
             setLoading(true)
@@ -122,14 +120,13 @@ const ChangeAirline = ({ getAllAirline, ChangeAirline }) => {
             });
             const Responce = await ChangeAirline(formData)
             if (Responce == 'successfully applied for airline change') {
-             
-                showToast({
-                    message: "Successfully applied for airline change",
-                    title: "Successfully applied",
-                    iconColor: "green",
-                    iconName: "lock",
-                    bg: "#abffdb"
-                })
+                // showToast({
+                //     message: "Successfully applied for airline change",
+                //     title: "Successfully applied",
+                //     iconColor: "green",
+                //     iconName: "lock",
+                //     bg: "#abffdb"
+                // })
                 setLoading(false)
                 setTimeout(() => {
                     navigation.goBack()

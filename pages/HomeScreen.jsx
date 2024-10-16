@@ -14,9 +14,9 @@ import {
   TouchableOpacity,
   RefreshControl,
   FlatList,
-  ScrollView
+  ScrollView,
+  Image
 } from 'react-native';
-import {  } from 'react-native-gesture-handler';
 import CityScroll from '../components/citiesScroll';
 import Post from '../components/post';
 import * as UserProfile from '../store/actions/UserProfile/index';
@@ -28,6 +28,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import { Easing } from 'react-native-reanimated';
 import { useHeaderHeight } from "@react-navigation/elements";
 import MainHeader from '../components/mainHeader';
+import { useSWRConfig } from 'swr';
+import { useToast } from "react-native-toast-notifications";
 
 
 
@@ -166,44 +168,112 @@ const HomeScreen = ({
   const [post, setPost] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedCity, setSelectedCity] = useState('');
+  const [page, setPage] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
+  const toast = useToast();
 
 
-
+  // useEffect(() => {
+  //   toast.show("Something went wrong")
+  // }, []);
 
   const handleCitySelect = (city) => {
     setSelectedCity(city);
   };
   const getFeeds = async () => {
     setLoading(true);
-    const result = await GetUserPosts({ city: selectedCity });
-    if (result) {
-      setPost(result.reverse())
+    const result = await GetUserPosts({ city: selectedCity, page: page });
+    if (result?.status == "No_Post_Found") {
+      toast.show("No Posts Found")
       setLoading(false)
-      navigation.dispatch(
-        CommonActions.navigate({
-          index: 0,
-          routes: [
-            { name: 'Home' },
-          ],
-        })
-      );
-    }
-    else {
       setPost([])
+    }
+    else if (result?.status == "something_Went_Wrong") {
+      toast.show("Something Went Wrong")
       setLoading(false)
-      navigation.dispatch(
-        CommonActions.navigate({
-          index: 0,
-          routes: [
-            { name: 'Home' },
-          ],
-        })
-      );
+      setPost([])
+    }
+    else if (result?.status == "Post_Found") {
+      if (result?.data?.length >= 15) {
+        cacheloader(result?.data)
+        navigation.dispatch(
+          CommonActions.navigate({
+            index: 0,
+            routes: [
+              { name: 'Home' },
+            ],
+          })
+        );
+      }
+      else {
+        cacheloader(result?.data)
+        setHasMoreContent(false)
+        navigation.dispatch(
+          CommonActions.navigate({
+            index: 0,
+            routes: [
+              { name: 'Home' },
+            ],
+          })
+        );
+      }
+    }
+
+  };
+
+
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMoreContent, setHasMoreContent] = useState(true);
+
+
+
+  const getMoreFeeds = async () => {
+    setLoadingMore(true);
+    const result = await GetUserPosts({ city: selectedCity, page: page });
+    if (result?.status == "No_Post_Found") {
+      toast.show("No Posts Found")
+      setLoading(false)
+      setPost([])
+    }
+    else if (result?.status == "something_Went_Wrong") {
+      toast.show("Something Went Wrong")
+      setLoading(false)
+      setPost([])
+    }
+    else if (result?.status == "Post_Found") {
+      if (result?.data?.length >= 15) {
+        cacheloader(result?.data)
+        navigation.dispatch(
+          CommonActions.navigate({
+            index: 0,
+            routes: [
+              { name: 'Home' },
+            ],
+          })
+        );
+      }
+      else {
+        cacheloader(result?.data)
+        setHasMoreContent(false)
+        navigation.dispatch(
+          CommonActions.navigate({
+            index: 0,
+            routes: [
+              { name: 'Home' },
+            ],
+          })
+        );
+      }
     }
   };
+
+
   useEffect(() => {
-  
+    getMoreFeeds();
+  }, [page]);
+
+
+  useEffect(() => {
     GetProfileData();
     if (PostCreationReducer?.uploadLoading == false) {
       getFeeds();
@@ -235,14 +305,17 @@ const HomeScreen = ({
     },
   });
 
-
   const onRefresh = async () => {
+    cache.delete('UserFeed')
     setRefreshing(true);
     getFeeds()
+    setPage(1)
+    setHasMoreContent(true)
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
   }
+
 
   const renderItem = useCallback((items) => {
     return (
@@ -264,10 +337,28 @@ const HomeScreen = ({
           likes_show_flag={items?.item?.likes_show_flag}
           content_type={items?.item?.content_type}
           reshareUserDetails={items?.item?.reshareUserDetails}
+          user_idIn={items?.item?.user_id}
         />
       </>
     );
   }, []);
+
+  const { cache } = useSWRConfig()
+
+  const cacheloader = async (loadAllFeed) => {
+    const preLoad = cache.get('UserFeed')
+    const combinedData = [...preLoad || [], ...(loadAllFeed || [])];
+    const uniqueData = Array.from(
+      combinedData.reduce((map, item) => {
+        map.set(item?.post_id, item);
+        return map;
+      }, new Map()).values()
+    );
+    cache.set("UserFeed", uniqueData)
+    setPost(cache.get('UserFeed'))
+    setLoadingMore(false)
+    setLoading(false)
+  }
 
 
 
@@ -278,7 +369,7 @@ const HomeScreen = ({
       keyboardVerticalOffset={
         Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0
       }>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
         <StatusBar
           backgroundColor={
             scheme === 'dark' ? DarkTheme.colors.background : 'white'
@@ -286,118 +377,106 @@ const HomeScreen = ({
           barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
         />
         <MainHeader loading={loading} />
-        <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          contentContainerStyle={{
-            flexGrow: 1,
-            ...(scheme === 'dark'
-              ? { backgroundColor: DarkTheme.colors.background }
-              : { backgroundColor: 'white' }),
-          }}>
-          <View>
-            <CityScroll onCitySelect={handleCitySelect} />
+        {loading ? (
+          <View style={{ paddingTop: ResponsiveSize(10) }}>
+            <SkeletonPlaceholder />
+            <SkeletonPlaceholder />
+            <SkeletonPlaceholder />
           </View>
-
-          {PostCreationReducer?.uploadLoading && (
-            <View style={styles.UploadingLoader} >
-              <TouchableOpacity onPress={() => navigation.navigate('Status')}>
-
-
-                <ImageBackground
-                  style={styles.profileImageUpload}
-                  source={{ uri: `file://${PostCreationReducer?.uploadFiles}` }}>
-                  <ActivityIndicator size={'small'} color={global.white} />
-                </ImageBackground>
-              </TouchableOpacity>
-              <View style={styles.PostDescription}>
-                <TextC
-                  text={'Finishing up'}
-                  font={'Montserrat-SemiBold'}
-                  size={ResponsiveSize(12)}
-                  style={{ color: global.black }}
-                />
-                <AntDesign
-                  name="checkcircleo"
-                  color={global.secondaryColor}
-                  style={{
-                    marginTop: ResponsiveSize(3),
-                    marginLeft: ResponsiveSize(5),
-                  }}
-                />
-              </View>
-            </View>
-          )}
-
-          {loading ? (
-            <View style={{ paddingTop: ResponsiveSize(10) }}>
-              <SkeletonPlaceholder />
-              <SkeletonPlaceholder />
-              <SkeletonPlaceholder />
-            </View>
-          ) : (
-            <View>
-              {post !== undefined &&
-                post !== null &&
-                post !== '' &&
-                post.length > 0 ?
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  initialNumToRender={10}
-                  data={post}
-                  keyExtractor={(items, index) => index?.toString()}
-                  maxToRenderPerBatch={10}
-                  windowSize={10}
-                  onEndReachedThreshold={0.5}
-                  renderItem={renderItem}
-                />
-                :
-                <View style={{ paddingTop: ResponsiveSize(30), flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        ) : (
+          <>
+            {post !== undefined &&
+              post !== null &&
+              post !== '' &&
+              post.length > 0 ?
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                initialNumToRender={10}
+                data={post}
+                keyExtractor={(items, index) => index?.toString()}
+                maxToRenderPerBatch={10}
+                windowSize={10}
+                onEndReachedThreshold={0.5}
+                renderItem={renderItem}
+                onRefresh={onRefresh}
+                refreshing={refreshing}
+                ListHeaderComponent={
+                  <>
+                    <View>
+                      <CityScroll onCitySelect={handleCitySelect} />
+                    </View>
+                    {PostCreationReducer?.uploadLoading && (
+                      <View style={styles.UploadingLoader} >
+                        <TouchableOpacity>
+                          <ImageBackground
+                            style={styles.profileImageUpload}
+                            source={{ uri: `file://${PostCreationReducer?.uploadFiles}` }}>
+                            <ActivityIndicator size={'small'} color={global.white} />
+                          </ImageBackground>
+                        </TouchableOpacity>
+                        <View style={styles.PostDescription}>
+                          <TextC
+                            text={'Finishing up'}
+                            font={'Montserrat-SemiBold'}
+                            size={ResponsiveSize(12)}
+                            style={{ color: global.black }}
+                          />
+                          <AntDesign
+                            name="checkcircleo"
+                            color={global.secondaryColor}
+                            style={{
+                              marginTop: ResponsiveSize(3),
+                              marginLeft: ResponsiveSize(5),
+                            }}
+                          />
+                        </View>
+                      </View>
+                    )}
+                  </>
+                }
+                ListFooterComponent={
+                  hasMoreContent &&
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: ResponsiveSize(30), paddingTop: ResponsiveSize(10) }}>
+                    {loadingMore ?
+                      <ActivityIndicator size={ResponsiveSize(21)} color={global.primaryColor} />
+                      :
+                      <TouchableOpacity onPress={() => setPage(page + 1)} style={{ backgroundColor: global.secondaryColor, paddingHorizontal: ResponsiveSize(20), paddingVertical: ResponsiveSize(8), borderRadius: ResponsiveSize(30) }}>
+                        <TextC
+                          text={'Load more'}
+                          font={'Montserrat-SemiBold'}
+                          size={ResponsiveSize(11)}
+                          style={{ color: global.primaryColor }}
+                        />
+                      </TouchableOpacity>
+                    }
+                  </View>
+                }
+              />
+              :
+              <>
+                <View>
+                  <CityScroll onCitySelect={handleCitySelect} />
+                </View>
+                <ScrollView refreshControl={
+                  <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                } contentContainerStyle={{ flex: 1, paddingHorizontal: ResponsiveSize(30), flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <TextC
-                    text={'No posts yet'}
-                    font={'Montserrat-SemiBold'}
+                    text={'No posts found'}
+                    font={'Montserrat-Bold'}
                     size={ResponsiveSize(18)}
                     style={{ color: global.primaryColor }}
                   />
-                </View>
-              }
-              {/* {post !== undefined &&
-                post !== null &&
-                post !== '' &&
-                post.length > 0 ?
-                post?.map(data => (
-                  <Post
-                    key={data?.post_id}
-                    selfLiked={data?.selfLiked}
-                    postId={data?.post_id}
-                    timeAgo={data?.created_at}
-                    userLocation={`${data?.lastCheckin?.city} | ${data?.lastCheckin?.state}`}
-                    userName={data?.userDetails?.user_name}
-                    profileImage={data?.userDetails?.profile_picture_url}
-                    likeCount={data?.likes_count}
-                    commnetCount={data?.comments_count}
-                    description={data?.caption}
-                    content={data?.attachments}
-                    comments_show_flag={data?.comments_show_flag}
-                    allow_comments_flag={data?.allow_comments_flag}
-                    likes_show_flag={data?.likes_show_flag}
-                    content_type={data?.content_type}
-                    reshareUserDetails={data?.reshareUserDetails}
-                  />
-                )) :
-                <View style={{ paddingTop: ResponsiveSize(30), flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                   <TextC
-                    text={'No posts yet'}
-                    font={'Montserrat-SemiBold'}
-                    size={ResponsiveSize(18)}
-                    style={{ color: global.primaryColor }}
+                    text={'No posts available to display. Check back later for updates or new content!'}
+                    font={'Montserrat-Medium'}
+                    size={ResponsiveSize(11)}
+                    style={{ color: global.placeholderColor, textAlign: 'center', paddingTop: ResponsiveSize(5) }}
                   />
-                </View>
-              } */}
-            </View>
-          )}
-        </ScrollView>
+                </ScrollView>
+              </>
+            }
+          </>
+        )}
       </SafeAreaView >
     </KeyboardAvoidingView>
   );

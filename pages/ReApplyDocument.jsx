@@ -12,7 +12,6 @@ import InputC from '../components/inputs';
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useToast } from '../components/Toast/ToastContext';
 import DatePicker from 'react-native-date-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
@@ -26,7 +25,6 @@ import SelectC from '../components/select';
 
 const ReApplyDocument = ({ ReApplyDocReducer, getAllAirline }) => {
   const navigation = useNavigation()
-  const { showToast } = useToast();
   const windowHeight = Dimensions.get('window').height;
   const windowWidth = Dimensions.get('window').width;
   const [expiry, setExpiry] = useState(false)
@@ -71,13 +69,13 @@ const ReApplyDocument = ({ ReApplyDocReducer, getAllAirline }) => {
       navigation.navigate('Login')
     }
     else {
-      showToast({
-        title: "Email not found",
-        message: "Please check your email. and try again.",
-        iconColor: "red",
-        iconName: "mail",
-        bg: "#fff2f2"
-      })
+      // showToast({
+      //   title: "Email not found",
+      //   message: "Please check your email. and try again.",
+      //   iconColor: "red",
+      //   iconName: "mail",
+      //   bg: "#fff2f2"
+      // })
     }
   }
 

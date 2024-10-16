@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Dimensions, Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Dimensions, Text, View, StyleSheet, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { ScrollView } from "react-native-gesture-handler";
 import { DefaultTheme, DarkTheme, useNavigation } from '@react-navigation/native';
 import { useColorScheme } from 'react-native';
@@ -7,7 +7,8 @@ import TextC from "../text/text";
 import * as CityAction from "../../store/actions/Cities/index";
 import CityReducer from "../../store/reducers/Cities";
 import { connect } from "react-redux";
-const CityScroll = ({ getAllCities,onCitySelect }) => {
+import { global } from "../constant";
+const CityScroll = ({ getAllCities, onCitySelect }) => {
     const navigation = useNavigation();
     const scheme = useColorScheme();
     const [cityList, setCityList] = useState([]);
@@ -22,14 +23,25 @@ const CityScroll = ({ getAllCities,onCitySelect }) => {
         ScrollCard: {
             height: 100,
             width: 70,
-            backgroundColor: 'blue',
+            backgroundColor: "#EEEEEE",
             borderRadius: 20,
             marginHorizontal: 5,
             overflow: 'hidden',
-            marginBottom:5
-            
+            marginBottom: 5
         },
-        ScrollCardWrapper:{
+        ScrollCardLoading: {
+            height: 100,
+            width: 70,
+            backgroundColor: "#EEEEEE",
+            borderRadius: 20,
+            marginHorizontal: 5,
+            overflow: 'hidden',
+            marginBottom: 5,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center'
+        },
+        ScrollCardWrapper: {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center'
@@ -40,10 +52,10 @@ const CityScroll = ({ getAllCities,onCitySelect }) => {
         }
     })
 
-    const getAllCity = async()=>{
-  const response = await getAllCities();
+    const getAllCity = async () => {
+        const response = await getAllCities();
 
-setCityList(response)
+        setCityList(response)
     }
     useEffect(() => {
         getAllCity();
@@ -52,63 +64,39 @@ setCityList(response)
         <>
             <View style={styles.container}>
                 <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-              {
-                cityList?.map((item, index) => {
-                    return (
-                        <TouchableOpacity key={index} style={styles.ScrollCardWrapper}
-                        onPress={() => onCitySelect(item.city)} // Call onCitySelect when city is clicked
-                        >
-                            <View style={styles.ScrollCard}>
-                                <Image source={{ uri: item.city_image_url }} style={styles.cityContentImage} />
+                    {
+                        cityList !== undefined && cityList !== null && cityList !== "" && cityList.length > 0 ? cityList?.map((item, index) => {
+                            return (
+                                <TouchableOpacity key={index} style={styles.ScrollCardWrapper}
+                                    onPress={() => onCitySelect(item.city)} // Call onCitySelect when city is clicked
+                                >
+                                    <View style={styles.ScrollCard}>
+                                        <Image source={{ uri: item.city_image_url }} style={styles.cityContentImage} />
+                                    </View>
+                                    <TextC text={item.city} font={'Montserrat-Medium'} size={12} style={{ width: 60 }} ellipsizeMode={"tail"} numberOfLines={1} />
+                                </TouchableOpacity>
+                            )
+                        }) :
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <TouchableOpacity style={styles.ScrollCardWrapper}>
+                                    <View style={styles.ScrollCardLoading}>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.ScrollCardWrapper}>
+                                    <View style={styles.ScrollCardLoading}>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.ScrollCardWrapper}>
+                                    <View style={styles.ScrollCardLoading}>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.ScrollCardWrapper}>
+                                    <View style={styles.ScrollCardLoading}>
+                                    </View>
+                                </TouchableOpacity>
                             </View>
-                            <TextC text={item.city} font={'Montserrat-Medium'} size={12} style={{width:60}} ellipsizeMode={"tail"} numberOfLines={1}/>
-                        </TouchableOpacity>
-                    )
-                })
-              }
-                  
-                    {/* <View style={styles.ScrollCardWrapper}>
-                        <View style={styles.ScrollCard}>
-                            <Image source={require('../../assets/icons/cityImage2.png')} style={styles.cityContentImage} />
-                        </View>
-                        <TextC text={"Chicago"} font={'Montserrat-Medium'} size={12} style={{width:60}} ellipsizeMode={"tail"} numberOfLines={1}/>
-                    </View>
-                    <View style={styles.ScrollCardWrapper}>
-                        <View style={styles.ScrollCard}>
-                            <Image source={require('../../assets/icons/cityImage3.png')} style={styles.cityContentImage} />
-                        </View>
-                        <TextC text={"San Francisco"} font={'Montserrat-Medium'} size={12} style={{width:60}} ellipsizeMode={"tail"} numberOfLines={1}/>
-                    </View>
-                    <View style={styles.ScrollCardWrapper}>
-                        <View style={styles.ScrollCard}>
-                            <Image source={require('../../assets/icons/cityImage4.png')} style={styles.cityContentImage} />
-                        </View>
-                        <TextC text={"Los Angeles"} font={'Montserrat-Medium'} size={12} style={{width:60}} ellipsizeMode={"tail"} numberOfLines={1}/>
-                    </View>
-                    <View style={styles.ScrollCardWrapper}>
-                        <View style={styles.ScrollCard}>
-                            <Image source={require('../../assets/icons/cityImage1.png')} style={styles.cityContentImage} />
-                        </View>
-                        <TextC text={"NewYork"} font={'Montserrat-Medium'} size={12} style={{width:60}} ellipsizeMode={"tail"} numberOfLines={1}/>
-                    </View>
-                    <View style={styles.ScrollCardWrapper}>
-                        <View style={styles.ScrollCard}>
-                            <Image source={require('../../assets/icons/cityImage2.png')} style={styles.cityContentImage} />
-                        </View>
-                        <TextC text={"Chicago"} font={'Montserrat-Medium'} size={12} style={{width:60}} ellipsizeMode={"tail"} numberOfLines={1}/>
-                    </View> 
-                    <View style={styles.ScrollCardWrapper}>
-                        <View style={styles.ScrollCard}>
-                            <Image source={require('../../assets/icons/cityImage3.png')} style={styles.cityContentImage} />
-                        </View>
-                        <TextC text={"San Francisco"} font={'Montserrat-Medium'} size={12} style={{width:60}} ellipsizeMode={"tail"} numberOfLines={1}/>
-                    </View>
-                    <View style={styles.ScrollCardWrapper}>
-                        <View style={styles.ScrollCard}>
-                            <Image source={require('../../assets/icons/cityImage4.png')} style={styles.cityContentImage} />
-                        </View>
-                        <TextC text={"Los Angeles"} font={'Montserrat-Medium'} size={12} style={{width:60}} ellipsizeMode={"tail"} numberOfLines={1}/>
-                    </View> */}
+
+                    }
                 </ScrollView>
             </View>
         </>

@@ -21,13 +21,11 @@ import InputC from '../components/inputs';
 import * as yup from 'yup';
 import {useForm, Controller} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
-import {useToast} from '../components/Toast/ToastContext';
 import {useHeaderHeight} from '@react-navigation/elements';
 import {KeyboardAvoidingView, Platform} from 'react-native';
 
 const OtpScreen = ({sendEmail, ForgotPasswordReducer}) => {
   const navigation = useNavigation();
-  const {showToast} = useToast();
   const windowHeight = Dimensions.get('window').height;
   const windowWidth = Dimensions.get('window').width;
   const schema = yup.object().shape({
@@ -51,13 +49,13 @@ const OtpScreen = ({sendEmail, ForgotPasswordReducer}) => {
     if (sentemailLoad.message == 'Password reset email sent.') {
       navigation.navigate('Login');
     } else {
-      showToast({
-        title: 'Email not found',
-        message: 'Please check your email. and try again.',
-        iconColor: 'red',
-        iconName: 'mail',
-        bg: '#fff2f2',
-      });
+      // showToast({
+      //   title: 'Email not found',
+      //   message: 'Please check your email. and try again.',
+      //   iconColor: 'red',
+      //   iconName: 'mail',
+      //   bg: '#fff2f2',
+      // });
     }
   };
 

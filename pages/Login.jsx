@@ -7,34 +7,34 @@ import {
   Text,
   Pressable,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import InputC from '../components/inputs/index';
 import ButtonC from '../components/button/index';
 import * as yup from 'yup';
-import {useForm, Controller} from 'react-hook-form';
-import {yupResolver} from '@hookform/resolvers/yup';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import AntDedign from 'react-native-vector-icons/AntDesign';
-import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
-import {useNavigation} from '@react-navigation/native';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
 import * as LoginUserAction from '../store/actions/UserLogin/index';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TextC from '../components/text/text';
-import {ResponsiveSize, global} from '../components/constant';
-import {useToast} from '../components/Toast/ToastContext';
+import { ResponsiveSize, global } from '../components/constant';
 import { useHeaderHeight } from "@react-navigation/elements";
 import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
+import { useToast } from "react-native-toast-notifications";
 
 
-const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
+const LogIn = ({ onLogin, LoginReducer, loginUser, CheckUserStatus }) => {
   const navigation = useNavigation();
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
-  const {showToast} = useToast();
+  const toast = useToast();
 
 
   const schema = yup.object().shape({
@@ -44,7 +44,7 @@ const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
   const {
     control,
     handleSubmit,
-    formState: {errors},
+    formState: { errors },
     reset,
   } = useForm({
     resolver: yupResolver(schema),
@@ -118,7 +118,7 @@ const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
     const LoginStart = await loginUser({
       email: data.email,
       password: data.password,
-      fcm_token:`${token}`
+      fcm_token: `${token}`
     });
     if (LoginStart?.message == 'Login successful') {
       await AsyncStorage.removeItem('Token');
@@ -155,21 +155,9 @@ const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
       //   navigation.navigate('Approval', { status: "REJECTED" })
       // }
     } else if (LoginStart?.message == 'Invalid Email or Password') {
-      showToast({
-        message: 'Check your email and password, try again',
-        title: 'Invalid Email or Password',
-        iconColor: 'red',
-        iconName: 'mail',
-        bg: '#fff2f2',
-      });
+      toast.show("Check your email and password, try again")
     } else if (LoginStart?.message == 'User not registered') {
-      showToast({
-        message: 'Check your email and password, try again',
-        title: 'User not registered',
-        iconColor: 'red',
-        iconName: 'mail',
-        bg: '#fff2f2',
-      });
+      toast.show("Email not registered")
     }
   };
   const headerHeight = useHeaderHeight();
@@ -178,7 +166,7 @@ const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-  
+
     if (enabled) {
       ('Authorization status:', authStatus);
     }
@@ -186,115 +174,115 @@ const LogIn = ({onLogin, LoginReducer, loginUser, CheckUserStatus}) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{flexGrow:1}}
+      style={{ flexGrow: 1 }}
       keyboardVerticalOffset={
         Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0
       }>
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={{flexGrow: 1}}>
-        <StatusBar backgroundColor={global.primaryColor} />
-        <View style={styles.bodyWrapper}>
-          <View style={styles.header}>
-            <Pressable style={styles.gobackBtn} onPress={navigation.goBack}>
-              <AntDedign
-                name="left"
-                size={ResponsiveSize(20)}
-                color={global.secondaryColor}
-              />
-            </Pressable>
-          </View>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.titleTextFirst}>Hey,</Text>
-            <Text style={styles.titleTextSecond}>Welcome</Text>
-            <Text style={styles.titleTextSecond}>Back</Text>
-          </View>
-
-          <View style={styles.inputWrapper}>
-            <Controller
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({field: {onChange, value}}) => (
-                <InputC
-                  label={'Email address'}
-                  error={errors?.email?.message}
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder={'helloworld@gmail.com'}
-                  secureTextEntry={false}
+      <SafeAreaView style={styles.container}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <StatusBar backgroundColor={global.primaryColor} />
+          <View style={styles.bodyWrapper}>
+            <View style={styles.header}>
+              <Pressable style={styles.gobackBtn} onPress={navigation.goBack}>
+                <AntDedign
+                  name="left"
+                  size={ResponsiveSize(20)}
+                  color={global.secondaryColor}
                 />
-              )}
-              name="email"
-            />
-            <View style={styles.secondInputWrapper}>
+              </Pressable>
+            </View>
+            <View style={styles.titleWrapper}>
+              <Text style={styles.titleTextFirst}>Hey,</Text>
+              <Text style={styles.titleTextSecond}>Welcome</Text>
+              <Text style={styles.titleTextSecond}>Back</Text>
+            </View>
+
+            <View style={styles.inputWrapper}>
               <Controller
                 control={control}
                 rules={{
                   required: true,
                 }}
-                render={({field: {onChange, value}}) => (
+                render={({ field: { onChange, value } }) => (
                   <InputC
-                    label={'Password'}
-                    error={errors?.password?.message}
+                    label={'Email address'}
+                    error={errors?.email?.message}
                     value={value}
                     onChangeText={onChange}
-                    placeholder={'Your password'}
-                    secureTextEntry={true}
+                    placeholder={'helloworld@gmail.com'}
+                    secureTextEntry={false}
                   />
                 )}
-                name="password"
+                name="email"
+              />
+              <View style={styles.secondInputWrapper}>
+                <Controller
+                  control={control}
+                  rules={{
+                    required: true,
+                  }}
+                  render={({ field: { onChange, value } }) => (
+                    <InputC
+                      label={'Password'}
+                      error={errors?.password?.message}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder={'Your password'}
+                      secureTextEntry={true}
+                    />
+                  )}
+                  name="password"
+                />
+              </View>
+            </View>
+
+            <View style={styles.forgotPasswordWrapper}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ResetPassword')}>
+                <TextC
+                  text={'Forgot password?'}
+                  style={{ color: global.white }}
+                  size={ResponsiveSize(11)}
+                  font={'Montserrat-Regular'}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.loginBtnWrapper}>
+              <ButtonC
+                title="Login"
+                disabled={LoginReducer?.loading}
+                loading={LoginReducer?.loading}
+                bgColor={global.secondaryColor}
+                TextStyle={{ color: global.primaryColorDark }}
+                onPress={handleSubmit(onSubmit)}
               />
             </View>
-          </View>
 
-          <View style={styles.forgotPasswordWrapper}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('ResetPassword')}>
+            <View style={styles.haveAccoundWrapper}>
               <TextC
-                text={'Forgot password?'}
-                style={{color: global.white}}
+                text={'Don’t have an account?'}
+                style={{ color: global.white }}
                 size={ResponsiveSize(11)}
                 font={'Montserrat-Regular'}
               />
-            </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+                <TextC
+                  text={'Sign up'}
+                  style={{ color: global.secondaryColor, marginLeft: 5 }}
+                  size={ResponsiveSize(11)}
+                  font={'Montserrat-Regular'}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <View style={styles.loginBtnWrapper}>
-            <ButtonC
-              title="Login"
-              disabled={LoginReducer?.loading}
-              loading={LoginReducer?.loading}
-              bgColor={global.secondaryColor}
-              TextStyle={{color: global.primaryColorDark}}
-              onPress={handleSubmit(onSubmit)}
-            />
-          </View>
-
-          <View style={styles.haveAccoundWrapper}>
-            <TextC
-              text={'Don’t have an account?'}
-              style={{color: global.white}}
-              size={ResponsiveSize(11)}
-              font={'Montserrat-Regular'}
-            />
-            <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-              <TextC
-                text={'Sign up'}
-                style={{color: global.secondaryColor, marginLeft: 5}}
-                size={ResponsiveSize(11)}
-                font={'Montserrat-Regular'}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
     </KeyboardAvoidingView>
   );
 };
 
-function mapStateToProps({LoginReducer}) {
-  return {LoginReducer};
+function mapStateToProps({ LoginReducer }) {
+  return { LoginReducer };
 }
 export default connect(mapStateToProps, LoginUserAction)(LogIn);

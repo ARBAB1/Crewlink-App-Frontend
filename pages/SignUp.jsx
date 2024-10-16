@@ -26,7 +26,6 @@ import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TextC from '../components/text/text';
 import {ResponsiveSize, global} from '../components/constant';
-import {useToast} from '../components/Toast/ToastContext';
 import { useHeaderHeight } from "@react-navigation/elements";
 
 
@@ -35,7 +34,6 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const SignUp = ({insertUser, RegisterUserReducer, getAllAirline}) => {
-  const {showToast} = useToast();
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [allAirLine, setAllAirLine] = useState();

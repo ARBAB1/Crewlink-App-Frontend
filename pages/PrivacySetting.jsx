@@ -238,11 +238,11 @@ const PrivacySetting = ({
     CheckCustomSettings();
   };
 
-  const handleDeleteCustomConnections = async () => {
-    await DeleteCustomConnections(selectedConnections);
-    setConnectionVisible(false);
-    CheckCustomSettings();
-  };
+  // const handleDeleteCustomConnections = async () => {
+  //   await DeleteCustomConnections(selectedConnections);
+  //   setConnectionVisible(false);
+  //   CheckCustomSettings();
+  // };
 
   useEffect(() => {
     LoadPrivacy();
@@ -251,7 +251,7 @@ const PrivacySetting = ({
     CheckCustomSettings();
   }, []);
 
-  const filteredConnections = allConnectionData.filter(connection =>
+  const filteredConnections = allConnectionData?.filter(connection =>
     connection.user_name.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -296,14 +296,39 @@ const PrivacySetting = ({
               style={{ color: global.placeholderColor }}
             />
           </View>
-
-         
         </View>
 
         <View style={styles.SearchCenter}>
           <TextC size={ResponsiveSize(15)} text={'Check-In'} font={'Montserrat-Bold'} />
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15) }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: ResponsiveSize(15) }}>
             <TextC size={ResponsiveSize(12)} text={'Hide Check-in feature'} font={'Montserrat-SemiBold'} />
+            <ModalSelector
+              selectStyle={styles.TextFeidContainerRight}
+              data={[
+                { key: 1, label: 'PUBLIC' },
+                { key: 2, label: 'PRIVATE' },
+                { key: 3, label: 'FOLLOWERS' },
+                { key: 4, label: 'CUSTOM' },
+              ]}
+              initValue={CheckInPrivacy}
+              onChange={e => CheckInPrivacyHandler(e.label)}
+            />
+          </View>
+          <View style={{ paddingTop: ResponsiveSize(10) }}>
+            <TextC
+              size={ResponsiveSize(11)}
+              text={'Turn off commenting to control discussions on your content.'}
+              font={'Montserrat-Medium'}
+              style={{ color: global.placeholderColor }}
+            />
+          </View>
+        </View>
+
+
+        <View style={styles.SearchCenter}>
+          <TextC size={ResponsiveSize(15)} text={'Group setting'} font={'Montserrat-Bold'} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: ResponsiveSize(15) }}>
+            <TextC size={ResponsiveSize(12)} text={'Anyone can add me'} font={'Montserrat-SemiBold'} />
             <ModalSelector
               selectStyle={styles.TextFeidContainerRight}
               data={[
@@ -379,7 +404,7 @@ const PrivacySetting = ({
             />
 
             <ScrollView style={styles.AirlineBoundries} showsVerticalScrollIndicator={false}>
-              {filteredConnections.map(connection => (
+              {filteredConnections?.map(connection => (
                 <TouchableOpacity
                   key={connection.user_id}
                   onPress={() => AddOrRemoveConnection(connection.user_id)}

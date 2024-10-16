@@ -24,7 +24,6 @@ import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TextC from '../components/text/text';
 import {ResponsiveSize, global} from '../components/constant';
-import {useToast} from '../components/Toast/ToastContext';
 import DatePicker from 'react-native-date-picker';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {useBottomSheet} from '../components/bottomSheet/BottomSheet';
@@ -39,7 +38,6 @@ const windowHeight = Dimensions.get('window').height;
 
 const SignUp = ({insertUser, RegisterUserReducer, getAllAirline, route}) => {
   const {userName, airline, position, email, password} = route.params;
-  const {showToast} = useToast();
   const navigation = useNavigation();
   const [dob, setDob] = useState(false);
   const [expiry, setExpiry] = useState(false);
@@ -90,13 +88,13 @@ const SignUp = ({insertUser, RegisterUserReducer, getAllAirline, route}) => {
         if (Responce == 'Signup successfull') {
           navigation.navigate('Otp');
         } else if (Responce == 'Email already exists') {
-          showToast({
-            title: 'Email already exists',
-            message: 'Email already exists.Please try again.',
-            iconColor: 'red',
-            iconName: 'mail',
-            bg: '#fff2f2',
-          });
+          // showToast({
+          //   title: 'Email already exists',
+          //   message: 'Email already exists.Please try again.',
+          //   iconColor: 'red',
+          //   iconName: 'mail',
+          //   bg: '#fff2f2',
+          // });
         }
       } catch (e) {
         console.log(e);

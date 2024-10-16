@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Platform,
   View,
@@ -13,28 +13,29 @@ import {
   NativeModules,
   Linking,
 } from 'react-native';
-import {showEditor} from 'react-native-video-trim';
-import {request, PERMISSIONS} from 'react-native-permissions';
+import { showEditor } from 'react-native-video-trim';
+import { request, PERMISSIONS } from 'react-native-permissions';
 import RNFS from 'react-native-fs';
-import {FlatList, ScrollView} from 'react-native-gesture-handler';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import TextC from '../components/text/text';
 import Entypo from 'react-native-vector-icons/Entypo';
-import {color} from '@rneui/base';
-import {global, ResponsiveSize} from '../components/constant';
+import { color } from '@rneui/base';
+import { global, ResponsiveSize } from '../components/constant';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import CreatePostHeader from '../components/mainHeader/createPostHeader';
 import Carousel from 'react-native-reanimated-carousel';
-import Video, {VideoRef} from 'react-native-video';
+import Video, { VideoRef } from 'react-native-video';
 import PhotoEditor from '@baronha/react-native-photo-editor';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {useBottomSheet} from '../components/bottomSheet/BottomSheet';
+import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
 import ButtonC from '../components/button';
-import {createThumbnail} from 'react-native-create-thumbnail';
+import { createThumbnail } from 'react-native-create-thumbnail';
 import FastImage from 'react-native-fast-image';
-import {FlashList} from '@shopify/flash-list';
-import {ImageZoom} from '@likashefqet/react-native-image-zoom';
+import { FlashList } from '@shopify/flash-list';
+import { ImageZoom } from '@likashefqet/react-native-image-zoom';
+import { useNavigation } from '@react-navigation/native';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -54,7 +55,7 @@ const CreatePost = () => {
   });
   const [selectMulti, setSelectMulti] = useState(false);
   const [multiContent, setMultiContent] = useState([]);
-  const {openBottomSheet, closeBottomSheet} = useBottomSheet();
+  const { openBottomSheet, closeBottomSheet } = useBottomSheet();
   const [temp, setTemp] = useState();
   const [multiVideoId, isMultiVideoId] = useState();
   const [paused, setPause] = useState(paused);
@@ -224,23 +225,21 @@ const CreatePost = () => {
               font={'Montserrat-Bold'}
               text={`Change ${isEditAvailable?.content}?`}
               size={ResponsiveSize(16)}
-              style={{color: global.black}}
+              style={{ color: global.black }}
             />
             <TextC
               font={'Montserrat-Medium'}
-              text={`if you change this ${
-                isEditAvailable?.content == 'Video' ? 'video' : 'image'
-              } now, you will lost edited ${
-                isEditAvailable?.content == 'Video' ? 'video' : 'image'
-              }.`}
+              text={`if you change this ${isEditAvailable?.content == 'Video' ? 'video' : 'image'
+                } now, you will lost edited ${isEditAvailable?.content == 'Video' ? 'video' : 'image'
+                }.`}
               size={ResponsiveSize(11)}
-              style={{color: global.placeholderColor}}
+              style={{ color: global.placeholderColor }}
             />
           </View>
 
-          <View style={{paddingTop: ResponsiveSize(20)}}>
+          <View style={{ paddingTop: ResponsiveSize(20) }}>
             <TouchableOpacity
-              style={{paddingVertical: ResponsiveSize(10)}}
+              style={{ paddingVertical: ResponsiveSize(10) }}
               onPress={() => {
                 closeBottomSheet();
               }}>
@@ -248,11 +247,11 @@ const CreatePost = () => {
                 font={'Montserrat-Medium'}
                 text={'keep editing'}
                 size={ResponsiveSize(14)}
-                style={{color: global.black}}
+                style={{ color: global.black }}
               />
             </TouchableOpacity>
             <TouchableOpacity
-              style={{paddingVertical: ResponsiveSize(10)}}
+              style={{ paddingVertical: ResponsiveSize(10) }}
               onPress={() => {
                 if (selectMulti == true) {
                   MultListAdderSecond(
@@ -278,11 +277,10 @@ const CreatePost = () => {
               }}>
               <TextC
                 font={'Montserrat-Medium'}
-                text={`change ${
-                  isEditAvailable?.content == 'Video' ? 'video' : 'image'
-                }`}
+                text={`change ${isEditAvailable?.content == 'Video' ? 'video' : 'image'
+                  }`}
                 size={ResponsiveSize(14)}
-                style={{color: global.red}}
+                style={{ color: global.red }}
               />
             </TouchableOpacity>
           </View>
@@ -331,7 +329,7 @@ const CreatePost = () => {
       ...prev,
       content: result?.split('file://')[1],
     }));
-    setIsEditAvailable({value: true, content: 'Image'});
+    setIsEditAvailable({ value: true, content: 'Image' });
   };
   const ImageEditorContainMulti = async (path, id) => {
     const result = await PhotoEditor.open({
@@ -340,11 +338,11 @@ const CreatePost = () => {
     setMultiContent(prev =>
       prev?.map(item =>
         item.id == id
-          ? {...item, content: result?.split('file://')[1], isEdited: true}
+          ? { ...item, content: result?.split('file://')[1], isEdited: true }
           : item,
       ),
     );
-    setIsEditAvailable({value: true, content: 'Image'});
+    setIsEditAvailable({ value: true, content: 'Image' });
   };
   const [hasMoreContent, setHasMoreContent] = useState(true);
   const loadImages = async () => {
@@ -379,7 +377,7 @@ const CreatePost = () => {
           item.name.endsWith('.MP4');
         if (isVideo) {
           if (Platform.OS === 'ios') {
-            const thumbnail = await createThumbnail({url: item.path});
+            const thumbnail = await createThumbnail({ url: item.path });
             return {
               id: item.name,
               content: thumbnail?.path,
@@ -471,7 +469,7 @@ const CreatePost = () => {
           setMultiContent(prev =>
             prev?.map(item =>
               item.id == multiVideoId
-                ? {...item, originalPath: event?.outputPath, isEdited: true}
+                ? { ...item, originalPath: event?.outputPath, isEdited: true }
                 : item,
             ),
           );
@@ -479,7 +477,7 @@ const CreatePost = () => {
             ...prev,
             originalPath: event?.outputPath,
           }));
-          setIsEditAvailable({value: true, content: 'Video'});
+          setIsEditAvailable({ value: true, content: 'Video' });
           setPause(true);
           break;
         }
@@ -497,7 +495,7 @@ const CreatePost = () => {
     });
   };
   const renderItem = useCallback(
-    ({item, index}) => {
+    ({ item, index }) => {
       const inde = index + 1;
       return (
         <TouchableOpacity
@@ -527,7 +525,7 @@ const CreatePost = () => {
           }}
           style={styles.box}>
           <FastImage
-            style={{width: windowWidth * 0.25, height: ResponsiveSize(90)}}
+            style={{ width: windowWidth * 0.25, height: ResponsiveSize(90) }}
             source={{
               uri: 'file://' + item?.content,
               priority: FastImage.priority.high,
@@ -539,18 +537,18 @@ const CreatePost = () => {
               <TouchableOpacity style={styles.MultiIndicator}>
                 {multiContent.length > 0
                   ? multiContent
-                      .filter(cont => cont.id == inde)
-                      .map((item, index) => (
-                        <TextC
-                          key={index}
-                          style={{color: 'white'}}
-                          size={11}
-                          text={
-                            multiContent.findIndex(item => item.id === inde) + 1
-                          }
-                          font={'Montserrat-Regular'}
-                        />
-                      ))
+                    .filter(cont => cont.id == inde)
+                    .map((item, index) => (
+                      <TextC
+                        key={index}
+                        style={{ color: 'white' }}
+                        size={11}
+                        text={
+                          multiContent.findIndex(item => item.id === inde) + 1
+                        }
+                        font={'Montserrat-Regular'}
+                      />
+                    ))
                   : ''}
               </TouchableOpacity>
             </>
@@ -574,6 +572,7 @@ const CreatePost = () => {
     }
   };
 
+  const navigation = useNavigation()
   return (
     <>
       <SafeAreaView style={styles.container}>
@@ -581,6 +580,7 @@ const CreatePost = () => {
           isImage={isImage}
           isMultiple={selectMulti}
           post={selectMulti ? multiContent : currentPreview}
+          isTextOnly={false}
         />
         <View style={styles.FirstImagePreview}>
           {multiContent.length >= 1 ? (
@@ -589,7 +589,7 @@ const CreatePost = () => {
                 size={ResponsiveSize(12)}
                 text={`${currentCarouselIndex}`}
                 font={'Montserrat-Regular'}
-                style={{color: global.white}}
+                style={{ color: global.white }}
               />
               <TextC
                 size={ResponsiveSize(12)}
@@ -604,7 +604,7 @@ const CreatePost = () => {
                 size={ResponsiveSize(12)}
                 text={`${multiContent.length}`}
                 font={'Montserrat-Regular'}
-                style={{color: global.white}}
+                style={{ color: global.white }}
               />
             </View>
           ) : (
@@ -628,7 +628,7 @@ const CreatePost = () => {
                           <>
                             <Pressable
                               onPress={() => setPause(!paused)}
-                              style={{position: 'relative'}}>
+                              style={{ position: 'relative' }}>
                               <Video
                                 source={{
                                   uri: 'file://' + items?.item?.originalPath,
@@ -692,12 +692,10 @@ const CreatePost = () => {
                       style={styles.ImageResizeBtn}>
                       <Ionicons name="resize" color={'white'} size={15} />
                     </TouchableOpacity>
-
                     <TouchableOpacity
                       onPress={() => {
                         VideoEditorMultiple(
-                          `file://${
-                            multiContent[currentCarouselIndex - 1]?.originalPath
+                          `file://${multiContent[currentCarouselIndex - 1]?.originalPath
                           }`,
                           multiContent[currentCarouselIndex - 1]?.id,
                         );
@@ -705,6 +703,17 @@ const CreatePost = () => {
                       style={styles.ImageResizeBtn}>
                       <AntDesign name="edit" color={'white'} size={15} />
                     </TouchableOpacity>
+
+
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('CreatePostTwo', { isTextOnly: true })}
+                      style={styles.ImageResizeBtn}>
+                      <MaterialCommunityIcons name="format-text" color={'white'} size={15} />
+                    </TouchableOpacity>
+
+
+
+
                   </View>
                 ) : (
                   <View style={styles.uploadControls}>
@@ -724,7 +733,6 @@ const CreatePost = () => {
                         size={15}
                       />
                     </TouchableOpacity>
-
                     <TouchableOpacity
                       onPress={() =>
                         setImageResize(
@@ -737,8 +745,7 @@ const CreatePost = () => {
                     <TouchableOpacity
                       onPress={() => {
                         ImageEditorContainMulti(
-                          `file://${
-                            multiContent[currentCarouselIndex - 1]?.content
+                          `file://${multiContent[currentCarouselIndex - 1]?.content
                           }`,
                           multiContent[currentCarouselIndex - 1]?.id,
                         );
@@ -746,6 +753,16 @@ const CreatePost = () => {
                       style={styles.ImageResizeBtn}>
                       <AntDesign name="edit" color={'white'} size={15} />
                     </TouchableOpacity>
+
+
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('CreatePostTwo', { isTextOnly: true })}
+                      style={styles.ImageResizeBtn}>
+                      <MaterialCommunityIcons name="format-text" color={'white'} size={15} />
+                    </TouchableOpacity>
+
+
+
                   </View>
                 )}
               </>
@@ -755,7 +772,7 @@ const CreatePost = () => {
                   <>
                     <Pressable
                       onPress={() => setPause(!paused)}
-                      style={{position: 'relative'}}>
+                      style={{ position: 'relative' }}>
                       <Video
                         repeat={true}
                         source={{
@@ -803,6 +820,16 @@ const CreatePost = () => {
                           style={styles.ImageResizeBtn}>
                           <AntDesign name="edit" color={'white'} size={15} />
                         </TouchableOpacity>
+
+
+
+                        <TouchableOpacity
+                          onPress={() => navigation.navigate('CreatePostTwo', { isTextOnly: true })}
+                          style={styles.ImageResizeBtn}>
+                          <MaterialCommunityIcons name="format-text" color={'white'} size={15} />
+                        </TouchableOpacity>
+
+
                       </View>
                       {paused && (
                         <View style={styles.playPaused}>
@@ -829,7 +856,7 @@ const CreatePost = () => {
                         onPress={() => {
                           setSelectMulti(!selectMulti);
                           setMultiContent([]);
-                          setIsEditAvailable({value: false, content: 'Image'});
+                          setIsEditAvailable({ value: false, content: 'Image' });
                         }}
                         style={styles.ImageResizeBtn}>
                         <MaterialCommunityIcons
@@ -854,6 +881,16 @@ const CreatePost = () => {
                         style={styles.ImageResizeBtn}>
                         <AntDesign name="edit" color={'white'} size={15} />
                       </TouchableOpacity>
+
+
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate('CreatePostTwo', { isTextOnly: true })}
+                        style={styles.ImageResizeBtn}>
+                        <MaterialCommunityIcons name="format-text" color={'white'} size={15} />
+                      </TouchableOpacity>
+
+
+
                     </View>
                   </>
                 )}
@@ -885,7 +922,7 @@ const CreatePost = () => {
                     size={ResponsiveSize(11)}
                     font={'Montserrat-Medium'}
                     text={"You don't have access to media library"}
-                    style={{color: global.primaryColor}}
+                    style={{ color: global.primaryColor }}
                   />
                   <TouchableOpacity
                     onPress={LoadPermission}
@@ -900,7 +937,7 @@ const CreatePost = () => {
                       size={ResponsiveSize(11)}
                       font={'Montserrat-Medium'}
                       text={'Go to setting'}
-                      style={{color: global.black}}
+                      style={{ color: global.black }}
                     />
                   </TouchableOpacity>
                 </View>

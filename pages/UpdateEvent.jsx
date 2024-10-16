@@ -32,7 +32,6 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {useBottomSheet} from '../components/bottomSheet/BottomSheet';
 import ButtonC from '../components/button';
-import {useToast} from '../components/Toast/ToastContext';
 import {useSWRConfig} from 'swr';
 import {check, PERMISSIONS, RESULTS, request} from 'react-native-permissions';
 import {useHeaderHeight} from '@react-navigation/elements';
@@ -57,7 +56,6 @@ const UpdateEvent = ({
   const [selected, setSelected] = useState(today?.toISOString()?.split('T')[0]);
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
-  const {showToast} = useToast();
   const [isImage, setIsImage] = useState('');
   const {cache} = useSWRConfig();
 

@@ -1,35 +1,23 @@
 import 'react-native-gesture-handler';
-import React, {useState, useEffect} from 'react';
-import {StatusBar, StyleSheet, Text, View, LogBox, Linking} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StatusBar, StyleSheet, Text, View, LogBox, Linking } from 'react-native';
 import MainNavigation from './navigation/MainNavigation';
-import {DefaultTheme, DarkTheme} from '@react-navigation/native';
-import {useColorScheme} from 'react-native';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {BottomSheetProvider} from './components/bottomSheet/BottomSheet';
+import { DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { useColorScheme } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetProvider } from './components/bottomSheet/BottomSheet';
 import store from './store/index';
-import {Provider} from 'react-redux';
-import {ToastProvider} from './components/Toast/ToastContext';
-import useSWR, {SWRConfig} from 'swr';
-import {baseUrl} from './store/config.json';
+import { Provider } from 'react-redux';
+import useSWR, { SWRConfig } from 'swr';
+import { baseUrl } from './store/config.json';
 import messaging from '@react-native-firebase/messaging';
-import notifee, {EventType} from '@notifee/react-native';
+import notifee, { EventType } from '@notifee/react-native';
+import { ToastProvider } from 'react-native-toast-notifications'
+import { ResponsiveSize } from './components/constant';
+
+
+
 const App = () => {
-  // useEffect(() => {
-  //   const handleDeepLink = (event) => {
-  //     let url = event.url;
-  //     // Handle the deep link here
-  //     console.log('Deep link URL:', url);
-  //   };
-
-  //   // Listen for deep links
-  //   Linking.addEventListener('url', handleDeepLink);
-
-  //   // Remove event listener on cleanup
-  //   return () => {
-  //     Linking.removeEventListener('url', handleDeepLink);
-  //   };
-  // }, []);
-
   useEffect(() => {
     LogBox.ignoreAllLogs();
     // Request notification permissions for iOS
@@ -60,8 +48,8 @@ const App = () => {
 
     // Handle foreground notification click event
     const unsubscribeNotifeeForeground = notifee.onForegroundEvent(
-      ({type, detail}) => {
-        const {notification, pressAction} = detail;
+      ({ type, detail }) => {
+        const { notification, pressAction } = detail;
 
         if (type === EventType.ACTION_PRESS) {
           // if (type === EventType.ACTION_PRESS && pressAction.id === 'default') {
@@ -77,8 +65,8 @@ const App = () => {
     );
 
     // Handle background notification click event
-    notifee.onBackgroundEvent(async ({type, detail}) => {
-      const {notification, pressAction} = detail;
+    notifee.onBackgroundEvent(async ({ type, detail }) => {
+      const { notification, pressAction } = detail;
 
       if (type === EventType.ACTION_PRESS) {
         // if (type === EventType.ACTION_PRESS && pressAction.id === 'default') {
@@ -134,14 +122,14 @@ const App = () => {
 
   return (
     <>
-      <GestureHandlerRootView style={{flex: 1}}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
         <BottomSheetProvider>
           <Provider store={store}>
-            <ToastProvider>
-              <SWRConfig value={{provider: () => new Map()}}>
+            <SWRConfig value={{ provider: () => new Map() }}>
+              <ToastProvider style={{borderRadius:ResponsiveSize(30),paddingHorizontal:ResponsiveSize(20)}} textStyle={{fontFamily:'Montserrat-Medium',fontSize:ResponsiveSize(11)}} offset={ResponsiveSize(70)}>
                 <MainNavigation />
-              </SWRConfig>
-            </ToastProvider>
+              </ToastProvider>
+            </SWRConfig>
           </Provider>
         </BottomSheetProvider>
       </GestureHandlerRootView>

@@ -147,6 +147,17 @@ const CreatePostTwo = ({
       minHeight: windowHeight * 0.07,
       paddingTop: ResponsiveSize(15),
     },
+    TextFeidContainerRightOnlyText:{
+      paddingHorizontal: ResponsiveSize(15),
+      fontFamily: 'Montserrat-Medium',
+      color: global.placeholderColor,
+      fontSize: ResponsiveSize(12),
+      minHeight: windowHeight * 0.07,
+      paddingTop: ResponsiveSize(15),
+      borderWidth:ResponsiveSize(1),
+      borderColor:'#EEEEEE',
+      borderRadius:ResponsiveSize(10),
+    },
     SettingList: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -235,7 +246,7 @@ const CreatePostTwo = ({
       item => item.user_id,
     );
     const stringNumbers = Tags.map(String);
-    const timestamp = new Date().getTime(); 
+    const timestamp = new Date().getTime();
     const dynamicName = `photo_${timestamp}.jpg`;
     try {
       const formData = new FormData();
@@ -306,8 +317,12 @@ const CreatePostTwo = ({
   const excludeConections = async r => {
     ExludeConnection(r);
   };
+
+
   const videoRef1 = useRef(null);
   const videoRef2 = useRef(null);
+
+
   return (
     <>
       <KeyboardAvoidingView
@@ -357,80 +372,82 @@ const CreatePostTwo = ({
                 </TouchableOpacity>
               </View>
             </View>
-            <View style={styles.singlePostContainer}>
-              {route?.params?.isMultiple == true ? (
-                <Carousel
-                  ref={ref}
-                  width={windowWidth}
-                  height={windowHeight * 0.3}
-                  loop={false}
-                  autoPlay={false}
-                  mode="parallax"
-                  modeConfig={{
-                    parallaxScrollingScale: 0.9,
-                    parallaxScrollingOffset: 50,
-                  }}
-                  data={route?.params?.post}
-                  renderItem={items => {
-                    return (
-                      <>
-                        {items?.item?.type == 'video' ? (
-                          <>
-                            <Video
-                              source={{
-                                uri: 'file://' + items?.item?.originalPath,
-                              }}
-                              controls={true}
-                              ref={videoRef1}
+            {route.params?.isTextOnly == false &&
+              <View style={styles.singlePostContainer}>
+                {route?.params?.isMultiple == true ? (
+                  <Carousel
+                    ref={ref}
+                    width={windowWidth}
+                    height={windowHeight * 0.3}
+                    loop={false}
+                    autoPlay={false}
+                    mode="parallax"
+                    modeConfig={{
+                      parallaxScrollingScale: 0.9,
+                      parallaxScrollingOffset: 50,
+                    }}
+                    data={route?.params?.post}
+                    renderItem={items => {
+                      return (
+                        <>
+                          {items?.item?.type == 'video' ? (
+                            <>
+                              <Video
+                                source={{
+                                  uri: 'file://' + items?.item?.originalPath,
+                                }}
+                                controls={true}
+                                ref={videoRef1}
+                                style={styles.singlePostInnerCarousel}
+                              />
+                            </>
+                          ) : (
+                            <Image
+                              ref={CurrentIndex}
+                              key={'1'}
                               style={styles.singlePostInnerCarousel}
+                              source={{ uri: 'file://' + items?.item?.content }}
                             />
-                          </>
-                        ) : (
-                          <Image
-                            ref={CurrentIndex}
-                            key={'1'}
-                            style={styles.singlePostInnerCarousel}
-                            source={{ uri: 'file://' + items?.item?.content }}
+                          )}
+                        </>
+                      );
+                    }}
+                  />
+                ) : (
+                  <>
+                    {route?.params?.post?.type == 'video' ? (
+                      <>
+                        {videoLink && (
+                          <Video
+                            controls={true}
+                            source={{
+                              uri: 'file://' + videoLink,
+                            }}
+                            ref={videoRef2}
+                            style={styles.singlePostInner}
                           />
                         )}
                       </>
-                    );
-                  }}
-                />
-              ) : (
-                <>
-                  {route?.params?.post?.type == 'video' ? (
-                    <>
-                      {videoLink && (
-                        <Video
-                          controls={true}
-                          source={{
-                            uri: 'file://' + videoLink,
-                          }}
-                          ref={videoRef2}
+                    ) : (
+                      <>
+                        <Image
+                          ref={CurrentIndex}
+                          key={'1'}
                           style={styles.singlePostInner}
+                          source={{ uri: 'file://' + route?.params?.post?.content }}
                         />
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <Image
-                        ref={CurrentIndex}
-                        key={'1'}
-                        style={styles.singlePostInner}
-                        source={{ uri: 'file://' + route?.params?.post?.content }}
-                      />
-                    </>
-                  )}
-                </>
-              )}
-            </View>
+                      </>
+                    )}
+                  </>
+                )}
+              </View>
+            }
             <View style={styles.descriptionCenter}>
               <TextInput
                 placeholder="Write a caption"
-                style={styles.TextFeidContainerRight1}
+                style={route.params?.isTextOnly == true ? styles.TextFeidContainerRightOnlyText : styles.TextFeidContainerRight1}
                 multiline={true}
-                numberOfLines={2}
+                numberOfLines={route.params?.isTextOnly == true ? 6 : 2}
                 textAlignVertical="top"
                 onChangeText={text => setCaption(text)}
               />

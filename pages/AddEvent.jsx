@@ -32,7 +32,6 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {useBottomSheet} from '../components/bottomSheet/BottomSheet';
 import ButtonC from '../components/button';
-import {useToast} from '../components/Toast/ToastContext';
 import {useSWRConfig} from 'swr';
 import {check, PERMISSIONS, RESULTS, request} from 'react-native-permissions';
 import {useHeaderHeight} from '@react-navigation/elements';
@@ -216,7 +215,6 @@ const AddEvent = ({
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const navigation = useNavigation();
-  const {showToast} = useToast();
   const {cache} = useSWRConfig();
 
   const schema = yup.object().shape({
@@ -273,13 +271,13 @@ const AddEvent = ({
           cache?.delete('MyEvents');
           navigation.navigate('EventScreen', {Tab: 3});
         } else if (Responce == false) {
-          showToast({
-            title: 'Something went wrong',
-            message: 'Something went wrong. Please try again.',
-            iconColor: 'red',
-            iconName: 'mail',
-            bg: '#fff2f2',
-          });
+          // showToast({
+          //   title: 'Something went wrong',
+          //   message: 'Something went wrong. Please try again.',
+          //   iconColor: 'red',
+          //   iconName: 'mail',
+          //   bg: '#fff2f2',
+          // });
         }
       } catch (e) {
         console.log(e);
