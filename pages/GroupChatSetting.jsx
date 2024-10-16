@@ -22,7 +22,7 @@ import {global, ResponsiveSize} from '../components/constant';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import TextC from '../components/text/text';
 import {TextInput} from 'react-native-gesture-handler';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import io from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TimeAgo from '@manu_omg/react-native-timeago';
@@ -151,9 +151,18 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
       flex: 1,
       justifyContent: 'center',
     },
+    roleText3: {
+      fontSize: 12,
+      color: 'green', // Admin status in green like in WhatsApp
+      marginTop: 10,
+    },
     roleText: {
       fontSize: 12,
       color: 'green', // Admin status in green like in WhatsApp
+    },
+    roleText1: {
+      fontSize: 12,
+      color: 'red', // Admin status in green like in WhatsApp
     },
     userNameText: {
       fontSize: 16,
@@ -183,6 +192,7 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
+
     },
     modalContent: {
       width: '80%',
@@ -208,8 +218,19 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
       fontSize: 16,
       color: '#d9232d',
     },
+    modalHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+     
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
   });
   const navigation = useNavigation();
+  const focus = useIsFocused();
   const {openBottomSheet, closeBottomSheet} = useBottomSheet();
   const [documentImage, setDocumentImage] = useState('');
   const [GroupMember, setGroupMember] = useState([]);
@@ -295,7 +316,6 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
         setGroupMember(data?.groupMembers);
         closeModal();
       });
-   
   };
   const handleRemoveGroupAdmin = async groupMemberId => {
     const Token = await AsyncStorage.getItem('Token');
@@ -335,23 +355,17 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
       .on('connect')
       .emit('removeUserInGroup', {
         groupId: group_id,
-        groupMemberId: groupMemberId
+        groupMemberId: groupMemberId,
       })
       .emit('getGroupMemberDetails', {
         group_id: group_id,
       })
       .on('getGroupMemberDetails', data => {
-      
         setGroupDetail(data?.groupDetails);
         setGroupMember(data?.groupMembers);
         closeModal();
       });
-      if(filterAdmin[0]?.isAdmin){
-        Alert.alert(
-          "Alert","Please Make Admin First To Remove Yourself",
-        )
-      }
-      
+  
   };
   const handleExitGroup = async groupMemberId => {
     const Token = await AsyncStorage.getItem('Token');
@@ -365,23 +379,19 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
     socket
       .on('connect')
       .emit('exitGroup', {
-        groupId: group_id
+        groupId: group_id,
       })
       .emit('getGroupMemberDetails', {
         group_id: group_id,
       })
       .on('getGroupMemberDetails', data => {
-      
         setGroupDetail(data?.groupDetails);
         setGroupMember(data?.groupMembers);
         closeModal();
       });
-   
-      
   };
   const handleExitSelfAdminGroup = async groupMemberId => {
-
-    if (filterCheckAdminList.length > 1) {
+    if (filterAdmin[0]?.isAdmin === true && filterCheckAdminList.length > 1) {
       const Token = await AsyncStorage.getItem('Token');
       const socket = io(`${baseUrl}/chat`, {
         transports: ['websocket'],
@@ -393,29 +403,25 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
       socket
         .on('connect')
         .emit('exitGroup', {
-          groupId: group_id
+          groupId: group_id,
         })
         .emit('getGroupMemberDetails', {
           group_id: group_id,
         })
         .on('getGroupMemberDetails', data => {
-        
           setGroupDetail(data?.groupDetails);
           setGroupMember(data?.groupMembers);
           closeModal();
-  navigation.navigate('Message')
+          // navigation.navigate('Message')
         });
 
       // console.log(groupMemberId, 'groupMemberId', "more than one admin");
-    }
-    else{
+    } else {
       return Alert.alert(
-        "Alert","Please Make Another Admin To Remove Yourself!",
-      )
+        'Alert',
+        'Please Make Another Admin To Remove Yourself!',
+      );
     }
-    
-   
-      
   };
   const handleMemberClick = member => {
     setSelectedMember(member);
@@ -454,7 +460,7 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
 
     closeBottomSheet();
     GroupDetails(group_id);
-  }, []);
+  }, [focus]);
   const handleOpenSheet = () => {
     openBottomSheet(
       <>
@@ -517,17 +523,21 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
       handleUpdateGroup(result?.assets[0]?.uri);
     }
   };
-  let filterAdmin
- filterAdmin =  GroupMember && ( GroupMember?.filter(x => {
-    console.log(x.user_id)
-   return x.user_id === GetUserProfileReducer.data.user_id;
-  }))
+  let filterAdmin;
+  filterAdmin =
+    GroupMember &&
+    GroupMember?.filter(x => {
+      console.log(x.user_id);
+      return x.user_id === GetUserProfileReducer.data.user_id;
+    });
 
-  let filterCheckAdminList
-  filterCheckAdminList =  GroupMember && ( GroupMember?.filter(x => {
-    console.log(x.user_id)
-   return x.isAdmin === true;
-  }))
+  let filterCheckAdminList;
+  filterCheckAdminList =
+    GroupMember &&
+    GroupMember?.filter(x => {
+      console.log(x.user_id);
+      return x.isAdmin === true;
+    });
   console.log(filterCheckAdminList, 'filterCheckAdminList');
 
   return (
@@ -602,8 +612,8 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
                 <TextC
                   ellipsizeMode="tail"
                   numberOfLines={1}
-                  style={styles.roleText}
-                  text={'Change Group Name'}
+                  style={styles.roleText3}
+                  text={'Change Name'}
                   // text={member?.isAdmin ? "Group Admin" : "Member"}
 
                   font={'Montserrat-Bold'}
@@ -611,18 +621,33 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
                 />
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity onPress={() => handleUpdateGroupName()}>
+              <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',width: '40%'}}>
+            <TouchableOpacity onPress={() => handleUpdateGroupName()}>
                 <TextC
                   ellipsizeMode="tail"
                   numberOfLines={1}
                   style={styles.roleText}
-                  text={'Confirm'}
+                  text={'Update'}
                   // text={member?.isAdmin ? "Group Admin" : "Member"}
 
                   font={'Montserrat-Bold'}
                   size={ResponsiveSize(10)}
                 />
               </TouchableOpacity>
+               <TouchableOpacity onPress={() => setEditVisible(!EditVisible)}>
+               <TextC
+                 ellipsizeMode="tail"
+                 numberOfLines={1}
+                 style={styles.roleText1}
+                 text={'Cancel'}
+                 // text={member?.isAdmin ? "Group Admin" : "Member"}
+
+                 font={'Montserrat-Bold'}
+                 size={ResponsiveSize(10)}
+               />
+             </TouchableOpacity>
+              </View>
+  
             )}
           </View>
         </View>
@@ -649,7 +674,7 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
               </View>
 
               <TouchableOpacity
-                onPress={() => navigation.navigate('GroupChatMember')}
+                onPress={() => navigation.navigate('GroupChatMember', {groupId: GroupDetail.group_id})}
                 style={styles.detailsContainer}>
                 {/* Role (Admin/Member) */}
                 <TextC
@@ -732,18 +757,47 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
             {/* Add to Favourites */}
 
             {/* Block Ali Medical */}
-            <TouchableOpacity style={styles.actionItem} onPress={handleExitGroup}>
-              <Icon name="ban" size={20} color="#d9232d" style={styles.icon} />
-              <TextC
-                size={ResponsiveSize(16)}
-                style={{color: '#d9232d'}}
-                font={'Montserrat-Medium'}
-                text={`Leave From ${GroupDetail?.group_name}`}
-              />
-            </TouchableOpacity>
+            {filterAdmin[0]?.isAdmin === true ? (
+              <>
+                <TouchableOpacity
+                  style={styles.actionItem}
+                  onPress={handleExitSelfAdminGroup}>
+                  <Icon
+                    name="ban"
+                    size={20}
+                    color="#d9232d"
+                    style={styles.icon}
+                  />
+                  <TextC
+                    size={ResponsiveSize(16)}
+                    style={{color: '#d9232d'}}
+                    font={'Montserrat-Medium'}
+                    text={'Exit Group'}
+                  />
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity
+                  style={styles.actionItem}
+                  onPress={handleExitGroup}>
+                  <Icon
+                    name="ban"
+                    size={20}
+                    color="#d9232d"
+                    style={styles.icon}
+                  />
+                  <TextC
+                    size={ResponsiveSize(16)}
+                    style={{color: '#d9232d'}}
+                    font={'Montserrat-Medium'}
+                    text={'Exit Group'}
+                  />
+                </TouchableOpacity>
+              </>
+            )}
 
             {/* Report Ali Medical */}
-           
           </View>
         </View>
       </ScrollView>
@@ -752,36 +806,55 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
       <Modal
         transparent={true}
         visible={isModalVisible}
-        animationType="slide"
+        backdropColor="black"
+        backdropOpacity={0.5}
+        
+        animationType="fade"
         onRequestClose={closeModal}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
             <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 20}}>
               {selectedMember?.user_name}
             </Text>
+            <TouchableOpacity style={styles.actionItem} onPress={closeModal}>
+              <Icon name="close" size={20} style={styles.icon} />
+              
+            </TouchableOpacity>
+           
+            </View>
+         
 
-
-            {selectedMember?.isAdmin && filterAdmin[0]?.isAdmin===true &&
-
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={() => {
+                navigation.navigate('Profile', {
+                  screen: 'UserProfileScreen',
+                  params: {user_id: selectedMember?.user_id},
+                }),
+                  closeModal();
+              }}>
+             <Icon name="user" size={20} style={styles.icon} />
+              <Text style={styles.actionText}>
+                View {selectedMember?.user_name}
+              </Text>
+            </TouchableOpacity>
+            {selectedMember?.isAdmin &&
+            filterAdmin[0]?.isAdmin === true &&
             selectedMember?.user_id === GetUserProfileReducer.data.user_id ? (
               //mai admin hn or meri userid bhi same hai or mainai khud par tap kia hai
               //me = admin tap= admin
               <>
-              
-           
                 <TouchableOpacity
                   style={styles.actionItem}
                   onPress={() =>
                     handleExitSelfAdminGroup(selectedMember?.group_member_id)
                   }>
                   <Icon name="shield" size={20} style={styles.icon} />
-                  <Text style={styles.actionText}>
-                    Exit From Group
-                  </Text>
+                  <Text style={styles.actionText}>Exit From Group</Text>
                 </TouchableOpacity>
-               
               </>
-            ) : filterAdmin[0]?.isAdmin===true &&
+            ) : filterAdmin[0]?.isAdmin === true &&
               selectedMember?.isAdmin &&
               GetUserProfileReducer.data.user_id !== selectedMember?.user_id ? (
               // selected member admin hai lekin mainai dusray admin par tap kia hai
@@ -804,7 +877,7 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
                   onPress={() =>
                     handleRemoveUserInGroup(selectedMember?.group_member_id)
                   }>
-                  <Icon name="shield" size={20} style={styles.icon} />
+                  <Icon name="trash-o" size={20} style={styles.icon} />
                   <Text style={styles.actionText}>
                     Remove {selectedMember?.user_name}
                   </Text>
@@ -814,13 +887,13 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
                   onPress={() =>
                     handleRemoveGroupAdmin(selectedMember?.group_member_id)
                   }>
-                  <Icon name="user" size={20} style={styles.icon} />
+                  <Icon name="trash-o" size={20} style={styles.icon} />
                   <Text style={styles.actionText}>Remove From Admin</Text>
                 </TouchableOpacity>
               </>
             ) : selectedMember?.isAdmin === false &&
               selectedMember?.user_id !== GetUserProfileReducer.data.user_id &&
-              filterAdmin[0]?.isAdmin===true ? (
+              filterAdmin[0]?.isAdmin === true ? (
               //jo tap kia hai wo admin bhi nai hai lekin mai admin hn
               //me = admin tap = user(not admin)
               <>
@@ -841,7 +914,7 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
                   onPress={() =>
                     handleMakeGroupAdmin(selectedMember?.group_member_id)
                   }>
-                  <Icon name="user" size={20} style={styles.icon} />
+                  <Icon name="group" size={20} style={styles.icon} />
                   <Text style={styles.actionText}>Make Group Admin</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -849,18 +922,16 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
                   onPress={() =>
                     handleRemoveUserInGroup(selectedMember?.group_member_id)
                   }>
-                  <Icon name="shield" size={20} style={styles.icon} />
+                  <Icon name="trash-o" size={20} style={styles.icon} />
                   <Text style={styles.actionText}>
                     Remove {selectedMember?.user_name}
                   </Text>
                 </TouchableOpacity>
               </>
-            ) : 
-            selectedMember?.isAdmin == true &&
+            ) : selectedMember?.isAdmin == true &&
               selectedMember?.user_id !== GetUserProfileReducer.data.user_id &&
-              filterAdmin[0]?.isAdmin===false ? (
-
-                //me = not admin tap = admin
+              filterAdmin[0]?.isAdmin === false ? (
+              //me = not admin tap = admin
               //jo tap kia hai wo admin bhi nai hai lekin mai admin hn
               <>
                 <TouchableOpacity
@@ -878,7 +949,7 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
               </>
             ) : selectedMember?.isAdmin === false &&
               selectedMember?.user_id !== GetUserProfileReducer.data.user_id &&
-              filterAdmin[0]?.isAdmin===false ? (
+              filterAdmin[0]?.isAdmin === false ? (
               //jo tap kia hai wo admin bhi nai hai lekin mai admin hn
 
               // me = not admin tap = user(not admin)
@@ -896,25 +967,24 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
                   </Text>
                 </TouchableOpacity>
               </>
-            ) :selectedMember?.isAdmin === false &&
-            selectedMember?.user_id === GetUserProfileReducer.data.user_id &&
-            filterAdmin[0]?.isAdmin===false ? (<>
-              <TouchableOpacity
+            ) : selectedMember?.isAdmin === false &&
+              selectedMember?.user_id === GetUserProfileReducer.data.user_id &&
+              filterAdmin[0]?.isAdmin === false ? (
+              <>
+                <TouchableOpacity
                   style={styles.actionItem}
                   onPress={() =>
                     handleExitGroup(selectedMember?.group_member_id)
                   }>
                   <Icon name="shield" size={20} style={styles.icon} />
-                  <Text style={styles.actionText}>
-                    Exit From Group
-                  </Text>
+                  <Text style={styles.actionText}>Exit From Group</Text>
                 </TouchableOpacity>
-            </>):<></>}
+              </>
+            ) : (
+              <></>
+            )}
 
-            <TouchableOpacity style={styles.actionItem} onPress={closeModal}>
-              <Icon name="close" size={20} style={styles.icon} />
-              <Text style={styles.actionTextRed}>Close</Text>
-            </TouchableOpacity>
+           
           </View>
         </View>
       </Modal>

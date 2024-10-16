@@ -26,9 +26,13 @@ import * as AllConnectionsAction from "../store/actions/Connections/index";
 import { connect } from "react-redux";
 
 
-const GroupChatMember = ({ getAllConnections, AllConnectionsReducer }) => {
+const GroupChatMember = ({ getAllConnections,route, AllConnectionsReducer }) => {
+    
+    console.log(route?.params?.groupId, 'gro')
     const scheme = useColorScheme();
     const windowWidth = Dimensions.get('window').width;
+    const [membersList, setMembersList] = useState([])
+    const [GroupMember, setGroupMember] = useState([]);
     const styles = StyleSheet.create({
         wrapper: {
             flexDirection: 'row',
@@ -122,23 +126,85 @@ const GroupChatMember = ({ getAllConnections, AllConnectionsReducer }) => {
             justifyContent: 'center',
         }
     });
+    const addGroupMember=async()=>{
+        console.log(membersList,route?.params?.groupId, 'mem')
+        const Token = await AsyncStorage.getItem('Token');
+        const socket = io(`${baseUrl}/chat`, {
+          transports: ['websocket'],
+          extraHeaders: {
+            'x-api-key': 'TwillioAPI',
+
+
+
+            accesstoken: `Bearer ${Token}`,
+          },
+        });
+        socket
+          .on('connect')
+          .emit('addUserInGroup', {
+            groupId: route?.params?.groupId,
+            userId: membersList
+          })
+          
+          navigation.goBack()
+    }
     const navigation = useNavigation();
     const [recentChats, setRecentChats] = useState([])
     const [searchUser, setSearchUser] = useState("")
     const [loader, setLoader] = useState(false)
-
-    const allEventDataLoader = async () => {
-        const loadAllevent = await getAllConnections({ page: 1 })
-        setRecentChats(loadAllevent)
-        setLoader(false)
+    const [members, setMembers] = useState([])
+    const GroupDetails = async (group_id) => {
+   
+    
+        const Token = await AsyncStorage.getItem('Token');
+        const socket = io(`${baseUrl}/chat`, {
+          transports: ['websocket'],
+          extraHeaders: {
+            'x-api-key': 'TwillioAPI',
+            accesstoken: `Bearer ${Token}`,
+          },
+        });
+    
+        socket
+          .on('connect')
+          .emit('getGroupMemberDetails', {
+            group_id: group_id,
+          })
+          .on('getGroupMemberDetails', data => {
+            console.log(data, 'data');
+            // setGroupDetail(data?.groupDetails);
+            setGroupMember(data?.groupMembers);
+          });
+      };
+      const allEventDataLoader = async () => {
+        const group_id = route?.params?.groupId;
+    
+        // Fetch group details and all events
+        GroupDetails(group_id);
+        const loadAllEvent = await getAllConnections({ page: 1 });
+        console.log(GroupMember, 'GroupMember');
+        console.log(loadAllEvent, 'loadAllEvent');
+    
+        // Filter loadAllEvent to exclude users present in GroupMember
+        const filteredEvents = loadAllEvent.filter(event => 
+            !GroupMember.some(member => member.user_id === event.user_id)
+        );
+    
+        console.log(filteredEvents, 'filteredEvents');
+        setRecentChats(filteredEvents);
+        setLoader(false);
     }
+    
+    
     useEffect(() => {
         setLoader(true)
+       
         allEventDataLoader({ refreshing: false })
     }, []);
 
-    const [members, setMembers] = useState([])
-
+   
+  
+console.log(members, 'membersaq')
     const addMembers = (user) => {
         setMembers((prevItems) => {
             const exists = prevItems.some(item => item.user_id === user.user_id);
@@ -150,9 +216,23 @@ const GroupChatMember = ({ getAllConnections, AllConnectionsReducer }) => {
                 return [...prevItems, user];
             }
         });
+        setMembersList((prevItems) => {
+            const exists = prevItems.some(item => item === user.user_id);
+            if (exists) {
+                return prevItems.filter(item => item !== user.user_id);
+            } else {
+                return [...prevItems, user.user_id];
+            }
+        });
     };
 
+  
 
+
+
+    console.log(membersList, "membersList")
+
+ 
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <StatusBar
@@ -171,9 +251,10 @@ const GroupChatMember = ({ getAllConnections, AllConnectionsReducer }) => {
                         {/* <TextC size={ResponsiveSize(16)} font={'Montserrat-Bold'} text={"New Group"} /> */}
                     </View>
                     <TouchableOpacity style={styles.logoSide3}>
+                 
                         {members.length > 0 ?
-                            <TouchableOpacity onPress={() => navigation.navigate('NewGroupSecondScreen', members)} style={styles.NextBtn}>
-                                <TextC size={ResponsiveSize(11)} text={'Next'} font={'Montserrat-SemiBold'} />
+                            <TouchableOpacity onPress={() => addGroupMember()} style={styles.NextBtn}>
+                                <TextC size={ResponsiveSize(11)} text={'Add'} font={'Montserrat-SemiBold'} />
                             </TouchableOpacity> : ""}
                     </TouchableOpacity>
                 </View>
