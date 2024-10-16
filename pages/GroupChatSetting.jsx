@@ -988,7 +988,7 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </SafeAreaView> 
   );
 };
 // function mapStateToProps({ AllConnectionsReducer }) {
