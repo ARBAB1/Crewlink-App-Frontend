@@ -333,8 +333,9 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
     });
     socket
       .on('connect')
-      .emit('exitGroup', {
-        groupId: group_id
+      .emit('removeUserInGroup', {
+        groupId: group_id,
+        groupMemberId: groupMemberId
       })
       .emit('getGroupMemberDetails', {
         group_id: group_id,
@@ -350,6 +351,70 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
           "Alert","Please Make Admin First To Remove Yourself",
         )
       }
+      
+  };
+  const handleExitGroup = async groupMemberId => {
+    const Token = await AsyncStorage.getItem('Token');
+    const socket = io(`${baseUrl}/chat`, {
+      transports: ['websocket'],
+      extraHeaders: {
+        'x-api-key': 'TwillioAPI',
+        accesstoken: `Bearer ${Token}`,
+      },
+    });
+    socket
+      .on('connect')
+      .emit('exitGroup', {
+        groupId: group_id
+      })
+      .emit('getGroupMemberDetails', {
+        group_id: group_id,
+      })
+      .on('getGroupMemberDetails', data => {
+      
+        setGroupDetail(data?.groupDetails);
+        setGroupMember(data?.groupMembers);
+        closeModal();
+      });
+   
+      
+  };
+  const handleExitSelfAdminGroup = async groupMemberId => {
+
+    if (filterCheckAdminList.length > 1) {
+      const Token = await AsyncStorage.getItem('Token');
+      const socket = io(`${baseUrl}/chat`, {
+        transports: ['websocket'],
+        extraHeaders: {
+          'x-api-key': 'TwillioAPI',
+          accesstoken: `Bearer ${Token}`,
+        },
+      });
+      socket
+        .on('connect')
+        .emit('exitGroup', {
+          groupId: group_id
+        })
+        .emit('getGroupMemberDetails', {
+          group_id: group_id,
+        })
+        .on('getGroupMemberDetails', data => {
+        
+          setGroupDetail(data?.groupDetails);
+          setGroupMember(data?.groupMembers);
+          closeModal();
+  navigation.navigate('Message')
+        });
+
+      // console.log(groupMemberId, 'groupMemberId', "more than one admin");
+    }
+    else{
+      return Alert.alert(
+        "Alert","Please Make Another Admin To Remove Yourself!",
+      )
+    }
+    
+   
       
   };
   const handleMemberClick = member => {
@@ -457,7 +522,13 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
     console.log(x.user_id)
    return x.user_id === GetUserProfileReducer.data.user_id;
   }))
-  console.log(filterAdmin, 'filterAdmin');
+
+  let filterCheckAdminList
+  filterCheckAdminList =  GroupMember && ( GroupMember?.filter(x => {
+    console.log(x.user_id)
+   return x.isAdmin === true;
+  }))
+  console.log(filterCheckAdminList, 'filterCheckAdminList');
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -661,31 +732,18 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
             {/* Add to Favourites */}
 
             {/* Block Ali Medical */}
-            <TouchableOpacity style={styles.actionItem}>
+            <TouchableOpacity style={styles.actionItem} onPress={handleExitGroup}>
               <Icon name="ban" size={20} color="#d9232d" style={styles.icon} />
               <TextC
                 size={ResponsiveSize(16)}
                 style={{color: '#d9232d'}}
                 font={'Montserrat-Medium'}
-                text={`Exit ${GroupDetail?.group_name}`}
+                text={`Leave From ${GroupDetail?.group_name}`}
               />
             </TouchableOpacity>
 
             {/* Report Ali Medical */}
-            <TouchableOpacity style={styles.actionItem}>
-              <Icon
-                name="thumbs-down"
-                size={20}
-                color="#d9232d"
-                style={styles.icon}
-              />
-              <TextC
-                size={ResponsiveSize(16)}
-                style={{color: '#d9232d'}}
-                font={'Montserrat-Medium'}
-                text={`Report ${GroupDetail?.group_name}`}
-              />
-            </TouchableOpacity>
+           
           </View>
         </View>
       </ScrollView>
@@ -710,18 +768,11 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
               //me = admin tap= admin
               <>
               
+           
                 <TouchableOpacity
                   style={styles.actionItem}
                   onPress={() =>
-                    handleRemoveGroupAdmin(selectedMember?.group_member_id)
-                  }>
-                  <Icon name="user" size={20} style={styles.icon} />
-                  <Text style={styles.actionText}>Remove From Group Admin</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.actionItem}
-                  onPress={() =>
-                    handleRemoveUserInGroup(selectedMember?.group_member_id)
+                    handleExitSelfAdminGroup(selectedMember?.group_member_id)
                   }>
                   <Icon name="shield" size={20} style={styles.icon} />
                   <Text style={styles.actionText}>
@@ -851,7 +902,7 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
               <TouchableOpacity
                   style={styles.actionItem}
                   onPress={() =>
-                    handleRemoveUserInGroup(selectedMember?.group_member_id)
+                    handleExitGroup(selectedMember?.group_member_id)
                   }>
                   <Icon name="shield" size={20} style={styles.icon} />
                   <Text style={styles.actionText}>
