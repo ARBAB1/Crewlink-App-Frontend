@@ -16,31 +16,27 @@ import {
   Image,
   Button,
   ActivityIndicator,
-
 } from 'react-native';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useHeaderHeight } from "@react-navigation/elements";
-import { DarkTheme, useNavigation, useIsFocused } from '@react-navigation/native';
-import { global, ResponsiveSize } from '../components/constant';
+import React, {useCallback, useEffect, useState} from 'react';
+import {useHeaderHeight} from '@react-navigation/elements';
+import {DarkTheme, useNavigation, useIsFocused} from '@react-navigation/native';
+import {global, ResponsiveSize} from '../components/constant';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import FastImage from 'react-native-fast-image';
 import TextC from '../components/text/text';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import io from "socket.io-client";
-import { FlashList } from '@shopify/flash-list';
+import io from 'socket.io-client';
+import {FlashList} from '@shopify/flash-list';
 import LinearGradient from 'react-native-linear-gradient';
 import * as UserProfile from '../store/actions/UserProfile/index';
-import { connect } from 'react-redux';
-import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
+import {connect} from 'react-redux';
+import {useBottomSheet} from '../components/bottomSheet/BottomSheet';
 import ButtonC from '../components/button';
-import Modal from 'react-native-modal'
-import { baseUrl, apiKey } from '../store/config.json'
+import Modal from 'react-native-modal';
+import {baseUrl, apiKey} from '../store/config.json';
 
-
-
-
-const SkeletonPlaceholder = ({ style, refreshing }) => {
+const SkeletonPlaceholder = ({style, refreshing}) => {
   const translateX = new Animated.Value(-350);
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -119,11 +115,11 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
     <View style={[styles.container, style]}>
       <View style={styles.ProfileWrapper}>
         <View style={styles.profileImageSkelton}>
-          <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
+          <Animated.View style={[styles.gradient, {transform: [{translateX}]}]}>
             <LinearGradient
               colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
               style={styles.linearGradientLine}
             />
           </Animated.View>
@@ -131,22 +127,21 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
       </View>
       <View style={styles.textWrapper}>
         <View style={styles.descriptionStripe}>
-          <Animated.View
-            style={[styles.gradient, { transform: [{ translateX }] }]}>
+          <Animated.View style={[styles.gradient, {transform: [{translateX}]}]}>
             <LinearGradient
               colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
               style={styles.linearGradientLine}
             />
           </Animated.View>
         </View>
         <View style={styles.imageWrapper}>
-          <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
+          <Animated.View style={[styles.gradient, {transform: [{translateX}]}]}>
             <LinearGradient
               colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
               style={styles.linearGradient}
             />
           </Animated.View>
@@ -156,8 +151,7 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
   );
 };
 
-
-const Announcement = ({ GetUserProfileReducer }) => {
+const Announcement = ({GetUserProfileReducer}) => {
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const scheme = useColorScheme();
@@ -165,7 +159,7 @@ const Announcement = ({ GetUserProfileReducer }) => {
   const [announcement, setAnnouncement] = useState([]);
   const [userName, setUserName] = useState('');
   const [userId, setUserId] = useState();
-  const [caption, setCaption] = useState("");
+  const [caption, setCaption] = useState('');
   const [profilePicture, setProfilePicture] = useState('');
   const [selectedAnnouncement, setSelectedAnnouncement] = useState();
   const [refreshing, setRefreshing] = useState(false);
@@ -189,15 +183,15 @@ const Announcement = ({ GetUserProfileReducer }) => {
       width: windowWidth * 0.2 - ResponsiveSize(15),
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
     },
     SearchHeader: {
-      backgroundColor: "#EEEEEE",
+      backgroundColor: '#EEEEEE',
       paddingHorizontal: ResponsiveSize(15),
       height: ResponsiveSize(40),
       borderRadius: ResponsiveSize(50),
-      fontFamily: "Montserrat-Medium",
-      fontSize: ResponsiveSize(11)
+      fontFamily: 'Montserrat-Medium',
+      fontSize: ResponsiveSize(11),
     },
     container: {
       paddingVertical: ResponsiveSize(10),
@@ -208,7 +202,7 @@ const Announcement = ({ GetUserProfileReducer }) => {
       paddingBottom: ResponsiveSize(10),
       flexDirection: 'row',
       alignItems: 'flex-start',
-      borderBottomColor: "#EEEEEE",
+      borderBottomColor: '#EEEEEE',
       borderBottomWidth: ResponsiveSize(1),
     },
     ProfileSide: {
@@ -241,17 +235,17 @@ const Announcement = ({ GetUserProfileReducer }) => {
     ProfileDetail: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: ResponsiveSize(3)
+      marginBottom: ResponsiveSize(3),
     },
     PostSetting: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingTop: ResponsiveSize(8)
+      paddingTop: ResponsiveSize(8),
     },
     Comment: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingRight: ResponsiveSize(15)
+      paddingRight: ResponsiveSize(15),
     },
     ShareBtn: {
       backgroundColor: global.primaryColor,
@@ -273,7 +267,7 @@ const Announcement = ({ GetUserProfileReducer }) => {
       zIndex: 999,
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
     },
 
     modalTopLayer2: {
@@ -287,7 +281,7 @@ const Announcement = ({ GetUserProfileReducer }) => {
       zIndex: 999,
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
     },
     CancelBtnModal: {
       width: windowWidth * 0.6,
@@ -310,8 +304,8 @@ const Announcement = ({ GetUserProfileReducer }) => {
       borderWidth: ResponsiveSize(1),
       borderColor: global.description,
       borderRadius: ResponsiveSize(50),
-      backgroundColor: global.red
-    }
+      backgroundColor: global.red,
+    },
   });
 
   useEffect(() => {
@@ -324,11 +318,11 @@ const Announcement = ({ GetUserProfileReducer }) => {
       const socket = io(`${baseUrl}/chat`, {
         transports: ['websocket'],
         extraHeaders: {
-          'x-api-key': "TwillioAPI",
-          'accesstoken': `Bearer ${Token}`,
-        }
+          'x-api-key': 'TwillioAPI',
+          accesstoken: `Bearer ${Token}`,
+        },
       });
-      socket.on('announcement', (data) => {
+      socket.on('announcement', data => {
         setAnnouncement(data);
         setRefreshing(false);
       });
@@ -358,7 +352,9 @@ const Announcement = ({ GetUserProfileReducer }) => {
         return {
           ...comment,
           self_liked: !isLiked,
-          likes_count: isLiked ? comment.likes_count - 1 : comment.likes_count + 1,
+          likes_count: isLiked
+            ? comment.likes_count - 1
+            : comment.likes_count + 1,
         };
       }
       return comment;
@@ -368,20 +364,17 @@ const Announcement = ({ GetUserProfileReducer }) => {
     const socket = io(`${baseUrl}/chat`, {
       transports: ['websocket'],
       extraHeaders: {
-        'x-api-key': "TwillioAPI",
-        'accesstoken': `Bearer ${Token}`,
-      }
+        'x-api-key': 'TwillioAPI',
+        accesstoken: `Bearer ${Token}`,
+      },
     });
     socket.emit(isLiked ? 'dislikeAnnouncement' : 'likeAnnouncement', {
-      "announcement_id": Like_id,
+      announcement_id: Like_id,
     });
   };
 
-
-  const [page, setPage] = useState(2)
+  const [page, setPage] = useState(2);
   const [hasMoreContent, setHasMoreContent] = useState(true);
-
-
 
   // const loadMoreAnnouncement = async () => {
   //   try {
@@ -412,46 +405,46 @@ const Announcement = ({ GetUserProfileReducer }) => {
   //   }
   // };
 
-
   // loadMoreAnnouncement()u
 
   useEffect(() => {
     const loadUserId = async () => {
       const user_ID = await AsyncStorage.getItem('U_id');
-      setUserId(user_ID)
-    }
-    loadUserId()
-  }, [])
-
+      setUserId(user_ID);
+    };
+    loadUserId();
+  }, []);
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [editAndDelete, setEditAndDelete] = useState(false);
 
-
-  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const deleteAnnouncement = async () => {
-    setDeleteLoading(true)
+    setDeleteLoading(true);
     const Token = await AsyncStorage.getItem('Token');
     const socket = io(`${baseUrl}/chat`, {
       transports: ['websocket'],
       extraHeaders: {
-        'x-api-key': "TwillioAPI",
-        'accesstoken': `Bearer ${Token}`
-      }
+        'x-api-key': 'TwillioAPI',
+        accesstoken: `Bearer ${Token}`,
+      },
     });
-    socket.on('connect').emit('deleteAnnouncement', {
-      "announcement_id": selectedAnnouncement,
-    }).on('announcement', (data) => {
-      setAnnouncement(data);
-      setDeleteLoading(false)
-      setModalVisible(false)
-      setSelectedAnnouncement()
-    })
-  }
+    socket
+      .on('connect')
+      .emit('deleteAnnouncement', {
+        announcement_id: selectedAnnouncement,
+      })
+      .on('announcement', data => {
+        setAnnouncement(data);
+        setDeleteLoading(false);
+        setModalVisible(false);
+        setSelectedAnnouncement();
+      });
+  };
 
   const requestCameraPermission = async (announcement_id, captions) => {
-    setSelectedAnnouncement(announcement_id)
-    setCaption(captions)
+    setSelectedAnnouncement(announcement_id);
+    setCaption(captions);
     try {
       setEditAndDelete(true);
     } catch (err) {
@@ -459,67 +452,134 @@ const Announcement = ({ GetUserProfileReducer }) => {
     }
   };
 
-  const renderItem = useCallback(({ item }) => {
-    return (
-      <TouchableOpacity onLongPress={() => item?.user_details?.user_id == userId ? requestCameraPermission(item?.announcement_id, item?.message) : undefined} style={styles.SinglePost}>
-        <View style={styles.ProfileSide}>
-          <FastImage
-            source={item?.user_details?.profile_picture_url
-              ? { uri: item?.user_details?.profile_picture_url, priority: FastImage.priority.high }
-              : require('../assets/icons/avatar.png')}
-            style={styles.PostProfileImage2}
-            resizeMode="cover"
-          />
-        </View>
-        <View style={styles.TextSide}>
-          <TouchableOpacity onLongPress={() => item?.user_details?.user_id == userId ? requestCameraPermission(item?.announcement_id, item?.message) : undefined} onPress={() => navigation.navigate("announcementDetail", { announcement_id: item?.announcement_id })}>
-            <View style={styles.ProfileDetail}>
-              <TextC text={`${item?.user_details?.user_name}`} font={'Montserrat-Bold'} size={ResponsiveSize(12)} />
-            </View>
-            <TextC style={{ color: global.placeholderColor }} text={item?.message} font={'Montserrat-Regular'} size={ResponsiveSize(11)} />
+  const renderItem = useCallback(
+    ({item}) => {
+      return (
+        <TouchableOpacity
+          onLongPress={() =>
+            item?.user_details?.user_id == userId
+              ? requestCameraPermission(item?.announcement_id, item?.message)
+              : undefined
+          }
+          style={styles.SinglePost}>
+          <View style={styles.ProfileSide}>
             <FastImage
-              source={item?.user_details?.profile_picture_url
-                ? { uri: item?.user_details?.profile_picture_url, priority: FastImage.priority.high }
-                : require('../assets/icons/avatar.png')}
-              style={styles.AnnouncementMedia}
+              source={
+                item?.user_details?.profile_picture_url
+                  ? {
+                      uri: item?.user_details?.profile_picture_url,
+                      priority: FastImage.priority.high,
+                    }
+                  : require('../assets/icons/avatar.png')
+              }
+              style={styles.PostProfileImage2}
               resizeMode="cover"
             />
-          </TouchableOpacity>
-          <View style={styles.PostSetting}>
-            <TouchableOpacity onPress={() => navigation.navigate('createAnnouncement', { Reply_user_name: item?.user_details?.user_name, user_Profile: profilePicture, isReply: true, announcement_id: item?.announcement_id })} style={styles.Comment}>
-              <Fontisto name='comment' size={ResponsiveSize(13)} />
-              <TextC text={item?.comments_count} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ paddingLeft: ResponsiveSize(3) }} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.Comment} onPress={() => handleLike(item?.announcement_id, item?.self_liked)}>
-              {item?.self_liked ?
-                <AntDesign color={global.red} name='heart' size={ResponsiveSize(14)} /> :
-                <AntDesign name='hearto' size={ResponsiveSize(14)} />}
-              <TextC text={item?.likes_count} font={'Montserrat-Bold'} size={ResponsiveSize(9)} style={{ paddingLeft: ResponsiveSize(3) }} />
-            </TouchableOpacity>
           </View>
-        </View>
-      </TouchableOpacity>
-    );
-  }, [profilePicture, announcement]);
-
-
-
-
-
+          <View style={styles.TextSide}>
+            <TouchableOpacity
+              onLongPress={() =>
+                item?.user_details?.user_id == userId
+                  ? requestCameraPermission(
+                      item?.announcement_id,
+                      item?.message,
+                    )
+                  : undefined
+              }
+              onPress={() =>
+                navigation.navigate('announcementDetail', {
+                  announcement_id: item?.announcement_id,
+                })
+              }>
+              <View style={styles.ProfileDetail}>
+                <TextC
+                  text={`${item?.user_details?.user_name}`}
+                  font={'Montserrat-Bold'}
+                  size={ResponsiveSize(12)}
+                />
+              </View>
+              <TextC
+                style={{color: global.placeholderColor}}
+                text={item?.message}
+                font={'Montserrat-Regular'}
+                size={ResponsiveSize(11)}
+              />
+            </TouchableOpacity>
+            <View style={styles.PostSetting}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('createAnnouncement', {
+                    Reply_user_name: item?.user_details?.user_name,
+                    user_Profile: profilePicture,
+                    isReply: true,
+                    announcement_id: item?.announcement_id,
+                  })
+                }
+                style={styles.Comment}>
+                <Fontisto name="comment" size={ResponsiveSize(13)} />
+                <TextC
+                  text={item?.comments_count}
+                  font={'Montserrat-Bold'}
+                  size={ResponsiveSize(9)}
+                  style={{paddingLeft: ResponsiveSize(3)}}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.Comment}
+                onPress={() =>
+                  handleLike(item?.announcement_id, item?.self_liked)
+                }>
+                {item?.self_liked ? (
+                  <AntDesign
+                    color={global.red}
+                    name="heart"
+                    size={ResponsiveSize(14)}
+                  />
+                ) : (
+                  <AntDesign name="hearto" size={ResponsiveSize(14)} />
+                )}
+                <TextC
+                  text={item?.likes_count}
+                  font={'Montserrat-Bold'}
+                  size={ResponsiveSize(9)}
+                  style={{paddingLeft: ResponsiveSize(3)}}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      );
+    },
+    [profilePicture, announcement],
+  );
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flexGrow: 1 }}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0}
-    >
-      <SafeAreaView style={{ flex: 1 }}>
+      style={{flexGrow: 1}}
+      keyboardVerticalOffset={
+        Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0
+      }>
+      <SafeAreaView style={{flex: 1}}>
         <StatusBar
-          backgroundColor={scheme === 'dark' ? DarkTheme.colors.background : 'white'}
+          backgroundColor={
+            scheme === 'dark' ? DarkTheme.colors.background : 'white'
+          }
           barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
         />
 
-        <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", height: ResponsiveSize(60), width: windowWidth, backgroundColor: "white", paddingHorizontal: ResponsiveSize(15), borderBottomWidth: ResponsiveSize(1), borderBottomColor: "#EEEEEE" }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: ResponsiveSize(60),
+            width: windowWidth,
+            backgroundColor: 'white',
+            paddingHorizontal: ResponsiveSize(15),
+            borderBottomWidth: ResponsiveSize(1),
+            borderBottomColor: '#EEEEEE',
+          }}>
           <View>
             <Image source={require('../assets/icons/Logo.png')} style={{ objectFit: 'contain', width: ResponsiveSize(115), height: ResponsiveSize(22) }} />
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -533,65 +593,105 @@ const Announcement = ({ GetUserProfileReducer }) => {
               />
             </View>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
-            <TouchableOpacity style={styles.ShareBtn} onPress={() => navigation.navigate('createAnnouncement', { user_name: userName, user_Profile: profilePicture })}>
-              <AntDesign name='plus' size={ResponsiveSize(22)} color={global.white} />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+            }}>
+            <TouchableOpacity
+              style={styles.ShareBtn}
+              onPress={() =>
+                navigation.navigate('createAnnouncement', {
+                  user_name: userName,
+                  user_Profile: profilePicture,
+                })
+              }>
+              <AntDesign
+                name="plus"
+                size={ResponsiveSize(22)}
+                color={global.white}
+              />
             </TouchableOpacity>
           </View>
         </View>
 
-
-        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
-          {refreshing ?
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          contentContainerStyle={{flexGrow: 1, backgroundColor: global.white}}>
+          {refreshing ? (
             <>
               <SkeletonPlaceholder />
               <SkeletonPlaceholder />
               <SkeletonPlaceholder />
-            </> :
+            </>
+          ) : (
             <FlashList
               data={announcement}
               renderItem={renderItem}
               keyExtractor={item => item.announcement_id}
             />
-          }
+          )}
         </ScrollView>
       </SafeAreaView>
 
-
-
       <Modal
         isVisible={isModalVisible}
-        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
-        onBackdropPress={() => setModalVisible(false)}
-      >
+        onBackdropPress={() => setModalVisible(false)}>
         <View style={styles.modalTopLayer}>
-          <TextC text={"Are you sure?"} size={ResponsiveSize(13)} font={'Montserrat-Bold'} />
-          <TextC text={"This action cannot be undone."} size={ResponsiveSize(10)} font={'Montserrat-Medium'} />
+          <TextC
+            text={'Are you sure?'}
+            size={ResponsiveSize(13)}
+            font={'Montserrat-Bold'}
+          />
+          <TextC
+            text={'This action cannot be undone.'}
+            size={ResponsiveSize(10)}
+            font={'Montserrat-Medium'}
+          />
 
-          <TouchableOpacity onPress={() => {
-            setModalVisible(false)
-          }} style={styles.CancelBtnModal}><TextC text={'Cancel'} font={"Montserrat-SemiBold"} /></TouchableOpacity>
-          <TouchableOpacity onPress={() => deleteAnnouncement()} style={styles.DeleteBtnModal}>
-            {deleteLoading ?
+          <TouchableOpacity
+            onPress={() => {
+              setModalVisible(false);
+            }}
+            style={styles.CancelBtnModal}>
+            <TextC text={'Cancel'} font={'Montserrat-SemiBold'} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => deleteAnnouncement()}
+            style={styles.DeleteBtnModal}>
+            {deleteLoading ? (
               <ActivityIndicator color={global.white} size={'small'} />
-              :
-              <TextC text={'Delete'} font={"Montserrat-SemiBold"} style={{ color: global.white }} />
-            }
+            ) : (
+              <TextC
+                text={'Delete'}
+                font={'Montserrat-SemiBold'}
+                style={{color: global.white}}
+              />
+            )}
           </TouchableOpacity>
         </View>
       </Modal>
 
-
-
       <Modal
         isVisible={editAndDelete}
-        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
-        onBackdropPress={() => setEditAndDelete(false)}
-      >
+        onBackdropPress={() => setEditAndDelete(false)}>
         <View style={styles.modalTopLayer2}>
           <View
             style={{
@@ -602,25 +702,24 @@ const Announcement = ({ GetUserProfileReducer }) => {
             }}>
             <ButtonC
               onPress={() => {
-                setEditAndDelete(false)
-                setModalVisible(true)
+                setEditAndDelete(false);
+                setModalVisible(true);
               }}
-              BtnStyle={{ width: windowWidth * 0.45 }}
-              TextStyle={{ color: global.white }}
+              BtnStyle={{width: windowWidth * 0.45}}
+              TextStyle={{color: global.white}}
               bgColor={global.red}
-              style={{ borderColor: '#EEEEEE', borderWidth: ResponsiveSize(1) }}
-              title={'Delete'}>
-            </ButtonC>
-            <View style={{ marginTop: ResponsiveSize(10) }}>
+              style={{borderColor: '#EEEEEE', borderWidth: ResponsiveSize(1)}}
+              title={'Delete'}></ButtonC>
+            <View style={{marginTop: ResponsiveSize(10)}}>
               <ButtonC
                 onPress={() => {
                   setEditAndDelete(false)
                   navigation.navigate('UpdateAnnouncement', { user_name: userName, user_Profile: profilePicture, caption: caption, announcement_id: selectedAnnouncement })
                 }}
-                BtnStyle={{ width: windowWidth * 0.45 }}
-                TextStyle={{ color: global.white }}
+                BtnStyle={{width: windowWidth * 0.45}}
+                TextStyle={{color: global.white}}
                 bgColor={global.secondaryColor}
-                style={{ borderColor: '#EEEEEE', borderWidth: ResponsiveSize(1) }}
+                style={{borderColor: '#EEEEEE', borderWidth: ResponsiveSize(1)}}
                 title={'Update'}></ButtonC>
             </View>
           </View>
@@ -630,9 +729,7 @@ const Announcement = ({ GetUserProfileReducer }) => {
   );
 };
 
-
-
-function mapStateToProps({ GetUserProfileReducer }) {
-  return { GetUserProfileReducer };
+function mapStateToProps({GetUserProfileReducer}) {
+  return {GetUserProfileReducer};
 }
 export default connect(mapStateToProps, UserProfile)(Announcement);

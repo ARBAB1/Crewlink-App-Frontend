@@ -10,6 +10,7 @@ import {
   View,
   ActivityIndicator,
   RefreshControl,
+  Pressable
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import TextC from '../components/text/text';
@@ -24,13 +25,16 @@ import * as UserProfile from '../store/actions/UserProfile/index';
 import { connect } from 'react-redux';
 import FastImage from 'react-native-fast-image';
 import baseUrl from '../store/config.json';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 
 const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) => {
+  const { user_id } = route.params;
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const navigation = useNavigation();
   const [loading, setLoading] = useState(null);
+
   const [connectLoading, setConnectLoading] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const styles = StyleSheet.create({
@@ -166,6 +170,7 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
   const LoadProfile = async () => {
     setLoading(true)
     const result = await LoadUserProfile(route?.params?.user_id)
+    console.log(result, 'result')
     setUserProfile(result?.data)
     setLoading(false)
   }
@@ -191,10 +196,15 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       },
     );
     const result = await response.json();
+
+    console.log(result, 'result')
     if (result.statusCode === 200) {
       setConnectLoading(false)
       navigation.navigate('Home')
-    };
+    }else if(result.statusCode === 400){
+      setConnectLoading(false)
+    
+    }
   }
 
   const RemoveConnectUser = async (e) => {
@@ -237,7 +247,11 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         } style={{ flexGrow: 1 }}>
           <View style={styles.ProfileHeader}>
-            <View style={{ width: 25 }}></View>
+          
+            <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
+                        <AntDesign name='left' color={"#05348E"} size={ResponsiveSize(18)} />
+                    </Pressable>
+         
             <View>
               <TextC
                 font={'Montserrat-Bold'}

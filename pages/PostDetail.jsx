@@ -62,6 +62,7 @@ const PostDetail = ({ route, getPostDetail }) => {
         const result = await getPostDetail({
             post_id: params
         })
+        console.log(result, 'result')
         setPost([result?.data])
 
         setLoading(false)
