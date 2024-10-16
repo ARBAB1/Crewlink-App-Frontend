@@ -15,6 +15,7 @@ import {
   View,
   Image,
   Text,
+  Alert,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import {global, ResponsiveSize} from '../components/constant';
@@ -292,8 +293,9 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
         console.log(data, 'data');
         setGroupDetail(data?.groupDetails);
         setGroupMember(data?.groupMembers);
+        closeModal();
       });
-    closeModal();
+   
   };
   const handleRemoveGroupAdmin = async groupMemberId => {
     const Token = await AsyncStorage.getItem('Token');
@@ -331,19 +333,24 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
     });
     socket
       .on('connect')
-      .emit('removeUserInGroup', {
-        groupId: group_id,
-        groupMemberId: groupMemberId,
+      .emit('exitGroup', {
+        groupId: group_id
       })
       .emit('getGroupMemberDetails', {
         group_id: group_id,
       })
       .on('getGroupMemberDetails', data => {
-        console.log(data, 'data');
+      
         setGroupDetail(data?.groupDetails);
         setGroupMember(data?.groupMembers);
         closeModal();
       });
+      if(filterAdmin[0]?.isAdmin){
+        Alert.alert(
+          "Alert","Please Make Admin First To Remove Yourself",
+        )
+      }
+      
   };
   const handleMemberClick = member => {
     setSelectedMember(member);
