@@ -126,7 +126,7 @@ const App = () => {
         <BottomSheetProvider>
           <Provider store={store}>
             <SWRConfig value={{ provider: () => new Map() }}>
-              <ToastProvider style={{borderRadius:ResponsiveSize(30),paddingHorizontal:ResponsiveSize(20)}} textStyle={{fontFamily:'Montserrat-Medium',fontSize:ResponsiveSize(11)}} offset={ResponsiveSize(70)}>
+              <ToastProvider style={{ borderRadius: ResponsiveSize(30), paddingHorizontal: ResponsiveSize(20) }} textStyle={{ fontFamily: 'Montserrat-Medium', fontSize: ResponsiveSize(11) }} offset={ResponsiveSize(70)}>
                 <MainNavigation />
               </ToastProvider>
             </SWRConfig>

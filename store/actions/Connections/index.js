@@ -168,6 +168,32 @@ export const AcceptInvitation = (body) => async () => {
         console.log(error)
     }
 }
+
+
+
+export const RejectInvitation = (body) => async () => {
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+        const response = await fetch(`${baseUrl.baseUrl}/connect/reject-connection-request`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': baseUrl.apiKey,
+                'accesstoken': `Bearer ${Token}`
+            },
+            body: JSON.stringify({
+                user_id: body
+            })
+        });
+        if (response.ok === true) {
+            const res = await response.json()
+            return res
+        }
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
 export const CheckCustomConnections = () => async (dispatch, getState) => {
     const Token = await AsyncStorage.getItem('Token');
     try {
@@ -351,7 +377,6 @@ export const getAllPrivacy  = () => async (dispatch, getState) => {
         console.log(error)
     }
 }
-
 export const getAllClosedConnections = () => async (dispatch, getState) => {
     const Token = await AsyncStorage.getItem('Token');
     try {

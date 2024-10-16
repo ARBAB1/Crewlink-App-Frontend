@@ -26,6 +26,7 @@ import { connect } from 'react-redux';
 import FastImage from 'react-native-fast-image';
 import baseUrl from '../store/config.json';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { useToast } from "react-native-toast-notifications";
 
 
 const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) => {
@@ -34,6 +35,7 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
   const windowHeight = Dimensions.get('window').height;
   const navigation = useNavigation();
   const [loading, setLoading] = useState(null);
+  const toast = useToast();
 
   const [connectLoading, setConnectLoading] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
@@ -114,7 +116,18 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       alignItems: 'center',
       justifyContent: 'center',
       paddingVertical: ResponsiveSize(8),
-      borderRadius: ResponsiveSize(20),
+      borderRadius: ResponsiveSize(50),
+      height: ResponsiveSize(35),
+    },
+    SetttingBtnRed: {
+      backgroundColor: global.red,
+      width: "100%",
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: ResponsiveSize(8),
+      borderRadius: ResponsiveSize(50),
+      height: ResponsiveSize(35),
     },
     SetttingBtn1: {
       backgroundColor: '#05348E',
@@ -123,7 +136,8 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       alignItems: 'center',
       justifyContent: 'center',
       paddingVertical: ResponsiveSize(8),
-      borderRadius: ResponsiveSize(20),
+      borderRadius: ResponsiveSize(50),
+      height: ResponsiveSize(35),
     },
     SetttingBtnDisconnect: {
       backgroundColor: global.red,
@@ -132,7 +146,8 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       alignItems: 'center',
       justifyContent: 'center',
       paddingVertical: ResponsiveSize(8),
-      borderRadius: ResponsiveSize(20),
+      borderRadius: ResponsiveSize(50),
+      height: ResponsiveSize(35),
     },
     SetttingBtnText: {
       color: 'white',
@@ -170,17 +185,47 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
   const LoadProfile = async () => {
     setLoading(true)
     const result = await LoadUserProfile(route?.params?.user_id)
-    console.log(result, 'result')
     setUserProfile(result?.data)
     setLoading(false)
+    setRefreshing(false)
   }
 
   useEffect(() => {
     LoadProfile()
   }, [])
 
+  const [acceptLoader, setAcceptLoader] = useState(false);
+  const AcceptUser = async () => {
+    setAcceptLoader(true)
+    const Token = await AsyncStorage.getItem('Token');
+    const response = await fetch(
+      `${baseUrl.baseUrl}/connect/accept-connection-request`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': baseUrl.apiKey,
+          accesstoken: `Bearer ${Token}`,
+        },
+        body: JSON.stringify({ user_id: route?.params?.user_id }),
+      },
+    );
+    const result = await response.json();
+    console.log(result)
+    if (result.statusCode === 200) {
+      setAcceptLoader(false)
+      setUserProfile((prev) => ({
+        ...prev,
+        status: "Disconnect",
+        myConnection: true
+      }));
+    } else if (result.statusCode === 400) {
+      setAcceptLoader(false)
+      toast.show("Something Went Wrong")
+    }
+  }
 
-  const ConnectUser = async (e) => {
+  const ConnectUser = async () => {
     setConnectLoading(true)
     const Token = await AsyncStorage.getItem('Token');
     const response = await fetch(
@@ -192,21 +237,49 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
           'x-api-key': baseUrl.apiKey,
           accesstoken: `Bearer ${Token}`,
         },
-        body: JSON.stringify({ user_id: e }),
+        body: JSON.stringify({ user_id: route?.params?.user_id }),
       },
     );
     const result = await response.json();
-
-    console.log(result, 'result')
+    console.log(result)
     if (result.statusCode === 200) {
       setConnectLoading(false)
-      navigation.navigate('Home')
-    }else if(result.statusCode === 400){
+      setUserProfile((prev) => ({
+        ...prev,
+        status: "Cancel Request",
+      }));;
+    } else if (result.statusCode === 400) {
       setConnectLoading(false)
-    
+      toast.show("Something Went Wrong")
     }
   }
-
+  const RejectUser = async () => {
+    setConnectLoading(true)
+    const Token = await AsyncStorage.getItem('Token');
+    const response = await fetch(
+      `${baseUrl.baseUrl}/connect/revert-connection-request/${route?.params?.user_id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': baseUrl.apiKey,
+          accesstoken: `Bearer ${Token}`,
+        },
+      },
+    );
+    const result = await response.json();
+    console.log(result)
+    if (result.statusCode === 200) {
+      setConnectLoading(false)
+      setUserProfile((prev) => ({
+        ...prev,
+        status: "Connect",
+      }));;
+    } else if (result.statusCode === 400) {
+      setConnectLoading(false)
+      toast.show("Something Went Wrong")
+    }
+  }
   const RemoveConnectUser = async (e) => {
     setConnectLoading(true)
     const Token = await AsyncStorage.getItem('Token');
@@ -224,12 +297,50 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
     const result = await response.json();
     if (result.statusCode === 200) {
       setConnectLoading(false)
-      navigation.navigate('Home')
-    };
+      console.log(result)
+      setUserProfile((prev) => ({
+        ...prev,
+        status: "Connect",
+        myConnection: false
+      }));
+    } else if (result.statusCode === 400) {
+      setConnectLoading(false)
+      toast.show("Something Went Wrong")
+    }
   }
-
+  const [RejectUserLoading, setrejectUserLoading] = useState(false);
+  const RejectInvitation = async () => {
+    setrejectUserLoading(true)
+    const Token = await AsyncStorage.getItem('Token');
+    const response = await fetch(
+      `${baseUrl.baseUrl}/connect/reject-connection-request`,
+      {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': baseUrl.apiKey,
+          'accesstoken': `Bearer ${Token}`
+        },
+        body: JSON.stringify({
+          user_id: route?.params?.user_id
+        })
+      }
+    );
+    const result = await response.json();
+    if (result.statusCode === 200) {
+      setrejectUserLoading(false)
+      console.log(result)
+      setUserProfile((prev) => ({
+        ...prev,
+        status: "Connect",
+        myConnection: false
+      }));
+    } else if (result.statusCode === 400) {
+      setrejectUserLoading(false)
+      toast.show("Something Went Wrong")
+    }
+  }
   const [refreshing, setRefreshing] = React.useState(false);
-
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     LoadProfile();
@@ -247,11 +358,11 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         } style={{ flexGrow: 1 }}>
           <View style={styles.ProfileHeader}>
-          
+
             <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
-                        <AntDesign name='left' color={"#05348E"} size={ResponsiveSize(18)} />
-                    </Pressable>
-         
+              <AntDesign name='left' color={"#05348E"} size={ResponsiveSize(18)} />
+            </Pressable>
+
             <View>
               <TextC
                 font={'Montserrat-Bold'}
@@ -361,7 +472,7 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
                 {connectLoading ?
                   <ActivityIndicator size="small" color={global.white} />
                   :
-                  <Text style={styles.SetttingBtnText}>Connect</Text>
+                  <Text style={styles.SetttingBtnText}>Disconnect</Text>
                 }
               </TouchableOpacity>
 
@@ -378,15 +489,65 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
             </View>
             :
             <View style={styles.ProfileSettingBtn}>
-              <TouchableOpacity
-                style={styles.SetttingBtn}
-                onPress={() => ConnectUser(route?.params?.user_id)}>
-                {connectLoading ?
-                  <ActivityIndicator size="small" color={global.white} />
+              {userProfile?.status == "Connect" ?
+                <TouchableOpacity
+                  style={styles.SetttingBtn}
+                  onPress={() => ConnectUser(route?.params?.user_id)}>
+                  {connectLoading ?
+                    <ActivityIndicator size="small" color={global.white} />
+                    :
+                    <Text style={styles.SetttingBtnText}>{userProfile?.status}</Text>
+                  }
+                </TouchableOpacity>
+                :
+                userProfile?.status == "Disconnect" ?
+                  <TouchableOpacity
+                    style={styles.SetttingBtn}
+                    onPress={() => ConnectUser(route?.params?.user_id)}
+                  >
+                    {connectLoading ?
+                      <ActivityIndicator size="small" color={global.white} />
+                      :
+                      <Text style={styles.SetttingBtnText}>{userProfile?.status}</Text>
+                    }
+                  </TouchableOpacity>
                   :
-                  <Text style={styles.SetttingBtnText}>Connect</Text>
-                }
-              </TouchableOpacity>
+                  userProfile?.status == "Cancel Request" ?
+                    <TouchableOpacity
+                      style={styles.SetttingBtnRed}
+                      onPress={() => RejectUser(route?.params?.user_id)}>
+                      {connectLoading ?
+                        <ActivityIndicator size="small" color={global.white} />
+                        :
+                        <Text style={styles.SetttingBtnText}>{userProfile?.status}</Text>
+                      }
+                    </TouchableOpacity> :
+                    userProfile?.status == "Reject" ?
+                      <>
+                        <TouchableOpacity
+                          style={styles.SetttingBtnDisconnect}
+                          onPress={() => RejectInvitation(route?.params?.user_id)}
+                        >
+                          {RejectUserLoading ?
+                            <ActivityIndicator size="small" color={global.white} />
+                            :
+                            <Text style={styles.SetttingBtnText}>Reject</Text>
+                          }
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          onPress={() => AcceptUser(route?.params?.user_id)}
+                          style={styles.SetttingBtn1}
+                        >
+                          {acceptLoader ?
+                            <ActivityIndicator size="small" color={global.white} />
+                            :
+                            <Text style={styles.SetttingBtnText}>Accept</Text>
+                          }
+                        </TouchableOpacity>
+                      </>
+                      : ""
+              }
             </View>
           }
 

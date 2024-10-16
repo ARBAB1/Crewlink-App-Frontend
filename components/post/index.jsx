@@ -1282,21 +1282,23 @@ const Post = ({
     <>
       {reportedPostId == postId ?
         <View>
-          <TextC font={"Montserrat-Bold"} size={ResponsiveSize(21)} text={"Post is Reported"}/>
+          <TextC font={"Montserrat-Bold"} size={ResponsiveSize(21)} text={"Post is Reported"} />
         </View>
         :
         <View>
           <View style={style.PostHeader}>
             <View style={{ flexDirection: 'row' }}>
-              <FastImage
-                source={
-                  profileImage == ''
-                    ? require('../../assets/icons/avatar.png')
-                    : { uri: profileImage, priority: FastImage.priority.high }
-                }
-                style={style.PostProfileImage}
-                resizeMode="cover"
-              />
+              <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen', { user_id: user_idIn })}>
+                <FastImage
+                  source={
+                    profileImage == ''
+                      ? require('../../assets/icons/avatar.png')
+                      : { uri: profileImage, priority: FastImage.priority.high }
+                  }
+                  style={style.PostProfileImage}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
               <View style={style.PostProfileImageBox}>
                 <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen', { user_id: user_idIn })}>
                   <TextC
@@ -1752,7 +1754,6 @@ const Post = ({
           </View>
         </View>
       </Modal>
-
       <Modal
         isVisible={isShareModal}
         style={{ margin: 0 }}
@@ -1841,17 +1842,9 @@ const Post = ({
                 </TouchableOpacity>
               ) : ""}
             </ScrollView>
-
-            {/* <View style={{paddingTop:ResponsiveSize(20)}}>
-              <TouchableOpacity style={style.ConnectionSentBtn}>
-                <TextC text={"send"} font={'Montserrat-SemiBold'}
-                  size={ResponsiveSize(14)} style={{ color: global.white }} />
-              </TouchableOpacity>
-            </View> */}
           </View>
         </View>
       </Modal>
-
       <Modal
         isVisible={isReportVisible}
         style={{ margin: 0 }}
@@ -1881,7 +1874,6 @@ const Post = ({
           </View>
         </View>
       </Modal>
-
       <Modal
         isVisible={isReportSecondVisible}
         style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}

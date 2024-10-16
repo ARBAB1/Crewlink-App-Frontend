@@ -8,16 +8,16 @@ import * as AllConnectionsAction from "../../store/actions/Connections/index";
 import { connect } from "react-redux";
 import TimeAgo from '@manu_omg/react-native-timeago';
 import ButtonC from "../button/index";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import FastImage from 'react-native-fast-image'
 import { RefreshControl } from "react-native-gesture-handler";
 import { useSWRConfig } from "swr";
 import { Text } from "react-native-elements";
+import Entypo from 'react-native-vector-icons/Entypo'
 
 
-
-
-const PendingConnections = ({ getPendingConnections, PendingConnectionsReducer, AcceptInvitation }) => {
+const PendingConnections = ({ getPendingConnections, PendingConnectionsReducer, AcceptInvitation, RejectInvitation }) => {
+    const focus = useIsFocused();
     const navigation = useNavigation()
     const [dataList, setDataList] = useState([])
     const { cache } = useSWRConfig()
@@ -35,11 +35,11 @@ const PendingConnections = ({ getPendingConnections, PendingConnectionsReducer, 
             const loadAllevent = await getPendingConnections({ page: page })
             cacheloader(loadAllevent?.connectionRequests)
         }
-
     }
     useEffect(() => {
         allEventDataLoader({ refreshing: false })
-    }, [page]);
+        onRefresh()
+    }, [page,focus]);
     useEffect(() => {
         cache.delete('PendingEvent')
         if (renderLength > threshold) {
@@ -161,8 +161,18 @@ const PendingConnections = ({ getPendingConnections, PendingConnectionsReducer, 
         },
         AcceptBtn: {
             backgroundColor: global.secondaryColor,
-            paddingHorizontal: ResponsiveSize(10),
-            paddingVertical: ResponsiveSize(5),
+            height: ResponsiveSize(30),
+            width: ResponsiveSize(30),
+            borderRadius: ResponsiveSize(30),
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: ResponsiveSize(8)
+        },
+        RejectBtn: {
+            backgroundColor: global.red,
+            height: ResponsiveSize(30),
+            width: ResponsiveSize(30),
             borderRadius: ResponsiveSize(30),
             flexDirection: 'column',
             alignItems: 'center',
@@ -180,6 +190,7 @@ const PendingConnections = ({ getPendingConnections, PendingConnectionsReducer, 
         setRefreshing(false);
     }
     const [acceptLoading, setAcceptLoading] = useState({ id: '', value: false })
+    const [RejectLoading, setRejectLoading] = useState({ id: '', value: false })
     const AcceptInvitationFunc = async (e) => {
         setAcceptLoading({ id: e, value: true })
         const result = await AcceptInvitation(e)
@@ -189,10 +200,19 @@ const PendingConnections = ({ getPendingConnections, PendingConnectionsReducer, 
         );
         allEventDataLoader({ refreshing: false })
     }
+    const RejectInvitationFunc = async (e) => {
+        setRejectLoading({ id: e, value: true })
+        const result = await RejectInvitation(e)
+        setRejectLoading({ id: e, value: false })
+        setDataList(prevItems =>
+            prevItems.filter(item => item.user_id !== e),
+        );
+        allEventDataLoader({ refreshing: false })
+    }
     const renderItem = useCallback((items) => {
         return (
             <>
-                <Pressable onPress={() => navigation.navigate('UserProfileScreen', { user_id: items?.item?.user_id })}  style={styles.Wrapper}>
+                <Pressable onPress={() => navigation.navigate('UserProfileScreen', { user_id: items?.item?.user_id })} style={styles.Wrapper}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ backgroundColor: "#d5d5d5", borderRadius: ResponsiveSize(50) }}>
                             <Image
@@ -207,19 +227,27 @@ const PendingConnections = ({ getPendingConnections, PendingConnectionsReducer, 
                             <TextC text={items?.item?.user_type == "PILOT" ? "Pilot" : items?.item?.user_type == "FLIGHT ATTENDANT" ? "Flight attendent" : items?.item?.user_type == "TECHNICIAN" ? "Technician" : ""} style={{ color: global.placeholderColor, paddingVertical: ResponsiveSize(2) }} font={'Montserrat-Medium'} size={ResponsiveSize(11)} />
                         </View>
                     </View>
-                    <View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <TouchableOpacity onPress={() => AcceptInvitationFunc(items?.item?.user_id)} style={styles.AcceptBtn}>
                             {acceptLoading.value == true && acceptLoading.id == items?.item?.user_id ?
-                                <ActivityIndicator size={'small'} color={global.white} />
+                                <ActivityIndicator size={ResponsiveSize(8)} color={global.white} />
                                 :
-                                <TextC style={{ color: 'white' }} text={"Accept"} font={'Montserrat-Medium'} />
+                                <Entypo name="check" color={global.white} size={ResponsiveSize(15)} />
+                            }
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => RejectInvitationFunc(items?.item?.user_id)} style={styles.RejectBtn}>
+                            {RejectLoading.value == true && RejectLoading.id == items?.item?.user_id ?
+                                <ActivityIndicator size={ResponsiveSize(8)} color={global.white} />
+                                :
+                                <Entypo name="cross" color={global.white} size={ResponsiveSize(15)} />
                             }
                         </TouchableOpacity>
                     </View>
                 </Pressable >
             </>
         );
-    }, [acceptLoading]);
+    }, [acceptLoading, RejectLoading]);
 
     return (
         <>
