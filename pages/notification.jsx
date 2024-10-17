@@ -147,7 +147,7 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
             setPage((prevPage) => prevPage + 1);  // Increment page for pagination
             setTotalFetchLength(totalFetchLength + 100);  // Increase the total fetch length
         }
-    }, [renderLength, dataList, loading]);
+    }, [renderLength, loading]);
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -174,7 +174,9 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
         return (
             <Pressable style={styles.NotificationBox} onPress={() => navigate()}>
                 <Image 
-                    source={{ uri: item?.userDetails?.profile_picture_url }}  // Assuming avatar image exists in assets
+                    source={
+                        item?.userDetails?.profile_picture_url==''? require('../assets/icons/avatar.png'):
+                        { uri: item?.userDetails?.profile_picture_url }  }  // Assuming avatar image exists in assets
                     style={styles.NotificationDp}
                 />
             
@@ -195,7 +197,7 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
                         text={item?.content}
                         numberOfLines={3}  // Limit content to three lines
                         ellipsizeMode="tail"
-                        style={{ maxWidth: '90%', color:'black' }}  // Limit text width for layout
+                        style={{ maxWidth: '100%', color:'black' }}  // Limit text width for layout
                     />
                     </View>
 

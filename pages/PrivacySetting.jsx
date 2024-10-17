@@ -271,6 +271,8 @@ const PrivacySetting = ({
           </View>
           <View style={styles.logoSide3} />
         </View>
+<ScrollView>
+
 
         <View style={styles.SearchCenter}>
           <TextC size={ResponsiveSize(15)} text={'Account'} font={'Montserrat-Bold'} />
@@ -355,6 +357,16 @@ const PrivacySetting = ({
   <>
   <View style={styles.SearchCenter}>
 
+<TextC size={ResponsiveSize(15)} text={'Blocked Connections'} font={'Montserrat-Bold'} />
+<TextC
+  size={ResponsiveSize(11)}
+  text={'Blocked Connections will not able to see your check-In status and account details '}
+  font={'Montserrat-Medium'}
+  style={{ color: global.placeholderColor }}
+/>
+</View>
+  <View style={styles.SearchCenter}>
+
             <TextC size={ResponsiveSize(15)} text={'Connections'} font={'Montserrat-Bold'} />
             <TextC
               size={ResponsiveSize(11)}
@@ -380,6 +392,7 @@ const PrivacySetting = ({
               </View>
             )}
           </>
+          </ScrollView>
         {/* Modal for selecting connections */}
         <Modal
           isVisible={isConnectionVisible}

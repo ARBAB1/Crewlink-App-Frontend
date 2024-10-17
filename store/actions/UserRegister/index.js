@@ -133,14 +133,18 @@ export const DeleteAccountAction = (body) => async (dispatch) => {
 }
 
 export const getAllCountries = (body) => async (dispatch) => {
+    const Token = await AsyncStorage.getItem('Token');
     try {
-        const response = await fetch(`${baseUrl.CountryBaseUrl}/api/v0.1/countries/iso`, {
+        const response = await fetch(`${baseUrl.baseUrl}/check-in/get-all-countries`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
+                'x-api-key': baseUrl.apiKey,
+                'accesstoken': `Bearer ${Token}`
             },
         });
         const res = await response.json()
+        console.log(res, 'res')
         return res?.data
     }
     catch (error) {

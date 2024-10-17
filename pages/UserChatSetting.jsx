@@ -205,6 +205,31 @@ const UserChatSetting = ({route}) => {
     const [groupName, setGroupName] = useState('');
     const [userDetails, setUserDetails] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [blocked, setBlocked] = useState(false);
+
+    const allBlockedUsers = async () => {
+        try {
+            const Token = await AsyncStorage.getItem('Token');
+            const page = 1
+            const limit = 100
+            const response = await fetch(`${baseUrl}/block/get-all-blocked-users/${page}/${limit}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'accesstoken': `Bearer ${Token}`,
+                },
+            });
+            const result = await response.json();
+
+            console.log(result, "allBlockedUsers");
+            if (result.statusCode === 200) {
+                setBlocked(result.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch blocked users:", error);
+        }
+    }
     const fetchUserDetails = async () => {
         try {
             const Token = await AsyncStorage.getItem('Token');
@@ -225,11 +250,32 @@ const UserChatSetting = ({route}) => {
             console.error("Failed to fetch user details:", error);
         }
     };
-  
+    const BlockUser = async () => {
+        try {
+            const Token = await AsyncStorage.getItem('Token');
+            const response = await fetch(`${baseUrl}/block/block-unblock-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'accesstoken': `Bearer ${Token}`,
+                },
+                body: JSON.stringify({ blocked_id: route?.params?.user_id }),
+            });
+            const result = await response.json();
+            console.log(result, "BlockUser");
+            if (result.statusCode === 201) {
+      setBlocked(!blocked)
+            }
+        } catch (error) {
+            console.error("Failed to fetch user details:", error);
+        }
+    };
     useEffect(() => {
         
             fetchUserDetails();
             closeBottomSheet();
+            allBlockedUsers();
         
     }, []);
     const handleOpenSheet = () => {
@@ -338,9 +384,12 @@ const UserChatSetting = ({route}) => {
     
 
       {/* Block Ali Medical */}
-      <TouchableOpacity style={styles.actionItem}>
+      <TouchableOpacity style={styles.actionItem} onPress={() => BlockUser()}>
         <Icon name="ban" size={20} color="#d9232d" style={styles.icon} />
-        <TextC size={ResponsiveSize(16)} style={{color: '#d9232d'}} font={'Montserrat-Medium'} text={`Block ${userDetails?.user_name}`} />
+        {
+            blocked ? <TextC size={ResponsiveSize(16)} style={{color: '#d9232d'}} font={'Montserrat-Medium'} text={`Unblock ${userDetails?.user_name}`} /> :
+            <TextC size={ResponsiveSize(16)} style={{color: '#d9232d'}} font={'Montserrat-Medium'} text={`Block ${userDetails?.user_name}`} />
+        }
       </TouchableOpacity>
 
       {/* Report Ali Medical */}
