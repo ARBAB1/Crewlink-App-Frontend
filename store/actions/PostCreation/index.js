@@ -109,7 +109,7 @@ export const CreatePostFunction = (FormData, path, goHome) => async (dispatch) =
         uploadFiles: path
     });
     try {
-        // goHome()
+        goHome()
         const response = await fetch(`${baseUrl.baseUrl}/posts/createPost`, {
             method: "POST",
             headers: {
@@ -119,9 +119,9 @@ export const CreatePostFunction = (FormData, path, goHome) => async (dispatch) =
             },
             body: FormData
         });
+        const res = await response?.json();
         if (response.ok) {
             const res = await response?.json();
-            console.log(res,'response console after Post')
             dispatch({
                 type: TASK_POST_CREATE_END,
                 uploadLoading: false,

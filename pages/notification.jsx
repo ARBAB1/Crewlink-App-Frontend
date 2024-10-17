@@ -111,17 +111,15 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
 
 const Notification = ({ getAllNotifications, NotificationReducer }) => {
     const navigation = useNavigation();
-    
-    const [page, setPage] = useState(1);  // Track current page for pagination
-    const [totalFetchLength, setTotalFetchLength] = useState(100);  // Total fetch length
-    const [renderLength, setRenderLength] = useState(10);  // Number of items to render
-    const [dataList, setDataList] = useState([]);  // Combined notifications
-    const threshold = 0.5;  // Threshold for loading new items (percentage of the list)
-    const [refreshing, setRefreshing] = useState(false);  // Track refreshing state
+    const [page, setPage] = useState(1);
+    const [totalFetchLength, setTotalFetchLength] = useState(100);
+    const [renderLength, setRenderLength] = useState(10);
+    const [dataList, setDataList] = useState([]);
+    const threshold = 0.5;
+    const [refreshing, setRefreshing] = useState(false);
 
-    const { loading, data: notificationData, unreadCount } = NotificationReducer;  // Extract data from reducer
+    const { loading, data: notificationData, unreadCount } = NotificationReducer;
 
-    // Cache loader to manage the cached notifications
     const cacheloader = (notifications) => {
         setDataList((prevDataList) => {
             const combinedData = [...prevDataList, ...(notifications || [])];  // Combine old and new data
@@ -130,7 +128,6 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
         });
     };
 
-    // Asynchronous function to load notifications
     const allNotificationDataLoader = async ({ refreshing, pageRe }) => {
         const loadedNotifications = await getAllNotifications({ page: pageRe || page });
         if (loadedNotifications) {
@@ -138,7 +135,6 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
         }
     };
 
-    // Effect to load notifications on component mount
     useEffect(() => {
         const loadNotifications = async () => {
             await allNotificationDataLoader({ refreshing: false });
@@ -146,7 +142,6 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
         loadNotifications();
     }, [page]);
 
-    // Effect to trigger pagination and increase render length
     useEffect(() => {
         if (!loading && renderLength >= dataList.length && dataList.length > 0) {
             setPage((prevPage) => prevPage + 1);  // Increment page for pagination
@@ -154,7 +149,6 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
         }
     }, [renderLength, dataList, loading]);
 
-    // Refresh the data on pull to refresh
     const onRefresh = async () => {
         setRefreshing(true);
         setPage(1);  // Reset to page 1
@@ -162,7 +156,6 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
         setRefreshing(false);
     };
 
-    // Render each notification item
     const renderItem = useCallback(({ item }) => {
         const navigate = () => {
 
@@ -263,7 +256,6 @@ const Notification = ({ getAllNotifications, NotificationReducer }) => {
 };
 
 
-// Define styles
 const styles = StyleSheet.create({
     wrapper: {
         flexDirection: 'row',
@@ -317,11 +309,8 @@ const styles = StyleSheet.create({
     },
 });
 
-// Map Redux state to component props
 function mapStateToProps({ NotificationReducer }) {
     return { NotificationReducer };
 }
-
-// Connect component to Redux actions and state
 export default connect(mapStateToProps, NotificationAction)(React.memo(Notification));
 
