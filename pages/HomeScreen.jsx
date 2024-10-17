@@ -173,10 +173,6 @@ const HomeScreen = ({
   const toast = useToast();
 
 
-  // useEffect(() => {
-  //   toast.show("Something went wrong")
-  // }, []);
-
   const handleCitySelect = (city) => {
     console.log(city, 'city')
     setSelectedCity(city);
@@ -316,6 +312,26 @@ const HomeScreen = ({
       setRefreshing(false);
     }, 2000);
   }
+  const { cache } = useSWRConfig()
+  const cacheloader = async (loadAllFeed) => {
+    const preLoad = cache.get('UserFeed')
+    const combinedData = [...preLoad || [], ...(loadAllFeed || [])];
+    const uniqueData = Array.from(
+      combinedData.reduce((map, item) => {
+        map.set(item?.post_id, item);
+        return map;
+      }, new Map()).values()
+    );
+    cache.set("UserFeed", uniqueData)
+    setPost(cache.get('UserFeed'))
+    setLoadingMore(false)
+    setLoading(false)
+  }
+
+
+
+
+
 
 
   const renderItem = useCallback((items) => {
@@ -343,25 +359,6 @@ const HomeScreen = ({
       </>
     );
   }, []);
-
-  const { cache } = useSWRConfig()
-
-  const cacheloader = async (loadAllFeed) => {
-    const preLoad = cache.get('UserFeed')
-    const combinedData = [...preLoad || [], ...(loadAllFeed || [])];
-    const uniqueData = Array.from(
-      combinedData.reduce((map, item) => {
-        map.set(item?.post_id, item);
-        return map;
-      }, new Map()).values()
-    );
-    cache.set("UserFeed", uniqueData)
-    setPost(cache.get('UserFeed'))
-    setLoadingMore(false)
-    setLoading(false)
-  }
-
-
 
   return (
     <KeyboardAvoidingView
