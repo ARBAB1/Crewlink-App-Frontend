@@ -44,7 +44,7 @@ const InappCheckin = ({
     const [allCityData, setAllCityData] = useState();
     const [showError, setShowError] = useState(false);
     const [currentCountry, setCurrentCountry] = useState('United States');
-    const [currentState, setCurrentState] = useState('');
+    const [currentState, setCurrentState] = useState(null);
     const [currentCity, setCurrentCity] = useState(null);
     const [layoverTime, setLayoverTime] = useState(null);
     const [userName, setUserName] = useState();
@@ -280,7 +280,7 @@ const InappCheckin = ({
                                     dropdownOverlayColor="rgba(0, 0, 0,0.7)"
                                     onSelect={selectedItem => {
                                         stateDropdown.current.reset();
-                                        setCurrentCountry(selectedItem.name);
+                                        setCurrentCountry(selectedItem.country_id);
                                     }}
                                     searchInputTxtStyle={{
                                         fontSize: ResponsiveSize(11),
@@ -323,8 +323,8 @@ const InappCheckin = ({
                                                                         ? 'black'
                                                                         : global.placeholderColor,
                                                                 }}>
-                                                                {(selectedItem && selectedItem.name) ||
-                                                                    'United States'}
+                                                                {(selectedItem && selectedItem.country_name) ||
+                                                                    'Select Country'}
                                                             </Text>
                                                             <Icon
                                                                 name={isOpened ? 'chevron-up' : 'chevron-down'}
@@ -345,7 +345,7 @@ const InappCheckin = ({
                                                         ...(isSelected && { backgroundColor: '#D2D9DF' }),
                                                     }}>
                                                     <Text style={styles.dropdownItemTxtStyle}>
-                                                        {item?.name}
+                                                        {item?.country_name}
                                                     </Text>
                                                 </View>
                                             </>
@@ -368,10 +368,12 @@ const InappCheckin = ({
                                     <SelectDropdown
                                         ref={stateDropdown}
                                         disableAutoScroll={true}
+                                 
                                         data={allStateData}
                                         dropdownOverlayColor="rgba(0, 0, 0,0.7)"
                                         onSelect={selectedItem => {
-                                            setCurrentState(selectedItem.name);
+                                            
+                                            setCurrentState(selectedItem.state_id);
                                         }}
                                         searchInputTxtStyle={{
                                             fontSize: ResponsiveSize(11),
@@ -401,6 +403,7 @@ const InappCheckin = ({
                                                                     ? 'white'
                                                                     : 'red',
                                                         }}>
+                                                           
                                                         {allStateData?.length < 0 ||
                                                             allStateData == undefined ||
                                                             allStateData == null ? (
@@ -414,7 +417,7 @@ const InappCheckin = ({
                                                                             ? 'black'
                                                                             : global.placeholderColor,
                                                                     }}>
-                                                                    {(selectedItem && selectedItem.name) ||
+                                                                    {(selectedItem && selectedItem.state_name) ||
                                                                         'Select State'}
                                                                 </Text>
                                                                 <Icon
@@ -438,7 +441,7 @@ const InappCheckin = ({
                                                             ...(isSelected && { backgroundColor: '#D2D9DF' }),
                                                         }}>
                                                         <Text style={styles.dropdownItemTxtStyle}>
-                                                            {item?.name}
+                                                            {item?.state_name}
                                                         </Text>
                                                     </View>
                                                 </>
@@ -482,7 +485,7 @@ const InappCheckin = ({
                                             data={allCityData}
                                             dropdownOverlayColor="rgba(0, 0, 0,0.7)"
                                             onSelect={selectedItem => {
-                                                setCurrentCity(selectedItem);
+                                                setCurrentCity(selectedItem?.city_name);
                                             }}
                                             disabled={
                                                 allCityData?.length < 0 ||
@@ -525,7 +528,7 @@ const InappCheckin = ({
                                                                                 ? 'black'
                                                                                 : global.placeholderColor,
                                                                         }}>
-                                                                        {selectedItem || 'Select City'}
+                                                                        {selectedItem?.city_name || 'Select City'}
                                                                     </Text>
                                                                     <Icon
                                                                         name={
@@ -548,7 +551,7 @@ const InappCheckin = ({
                                                                 ...(isSelected && { backgroundColor: '#D2D9DF' }),
                                                             }}>
                                                             <Text style={styles.dropdownItemTxtStyle}>
-                                                                {item}
+                                                                {item?.city_name}
                                                             </Text>
                                                         </View>
                                                     </>

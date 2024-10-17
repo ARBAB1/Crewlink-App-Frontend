@@ -68,12 +68,12 @@ const CityScroll = ({ getAllCities, onCitySelect }) => {
                         cityList !== undefined && cityList !== null && cityList !== "" && cityList.length > 0 ? cityList?.map((item, index) => {
                             return (
                                 <TouchableOpacity key={index} style={styles.ScrollCardWrapper}
-                                    onPress={() => onCitySelect(item.city)} // Call onCitySelect when city is clicked
+                                    onPress={() => onCitySelect(item.city_name)} // Call onCitySelect when city is clicked
                                 >
                                     <View style={styles.ScrollCard}>
                                         <Image source={{ uri: item.city_image_url }} style={styles.cityContentImage} />
                                     </View>
-                                    <TextC text={item.city} font={'Montserrat-Medium'} size={12} style={{ width: 60 }} ellipsizeMode={"tail"} numberOfLines={1} />
+                                    <TextC text={item.city_name} font={'Montserrat-Medium'} size={12} style={{ width: 60 }} ellipsizeMode={"tail"} numberOfLines={1} />
                                 </TouchableOpacity>
                             )
                         }) :

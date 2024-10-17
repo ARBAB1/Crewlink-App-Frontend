@@ -1,22 +1,57 @@
 {
-    "isImage": false,
-    "profile_picture_url": "https://uploadimagenest.s3.eu-north-1.amazonaws.com/b4e541d8-6d6e-4c8b-9e18-001ef4e381ac_CALIFORNIA.png",
-    "uri": {
-        "created_at": "2024-10-08T13:56:09.914Z",
-        "group_id": null,
-        "isShared": "N",
-        "is_media": "Y",
-        "media_url": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/f0e8cc4e-f53d-4513-a35e-0c4c1c656eeb_photo.mp4",
-        "message": "Bhahsh",
-        "message_id": 171,
-        "post_id": null,
-        "read_status": "N",
-        "receiverDeleted": "N",
-        "receiverUserId": 1,
-        "repliedMessage": null,
-        "repliedMessageId": null,
-        "senderDeleted": "N",
-        "senderUserId": 7
-    },
+    "airline": "Air Canada",
+    "airlineLogo": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/WhatsApp+Image+2024-10-11+at+11.03.47+PM+(1).jpeg",
+    "bio": "",
+    "connection_count": 2,
+    "country_code": "AF",
+    "date_of_birth": "Sun May 18 2003 16:40:00 GMT+0400",
+    "gender": "Male",
+    "last_checkin": "1",
+    "phone_number": "3168880417",
+    "post_count": 22,
+    "posts": [
+        {
+            "attachment_thumbnail_url": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/thumbnail_11b74b44-7fef-4370-8b39-f1a3a17e6968_photo.jpg",
+            "multiple_attachment": true,
+            "parent_id": 110
+        },
+        {
+            "attachment_thumbnail_url": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/thumbnail_ccf81916-9fe3-4385-96d3-aead63abaf70_photo_1728575355775.jpg",
+            "multiple_attachment": false,
+            "parent_id": 111
+        },
+        {
+            "attachment_thumbnail_url": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/thumbnail_e6431568-ff38-4f06-9ae2-cc9a5d0117a4_photo_1728577400337.jpg",
+            "multiple_attachment": false,
+            "parent_id": 112
+        },
+        {
+            "attachment_thumbnail_url": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/thumbnail_d433b87b-4e6a-4d82-842e-6baa2447ada9_photo_1728577704337.jpg",
+            "multiple_attachment": false,
+            "parent_id": 113
+        },
+        {
+            "attachment_thumbnail_url": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/thumbnail_1bc2cd3d-bcbb-4b6b-94e1-f7ad2de0e1da_photo_1728578346938.jpg",
+            "multiple_attachment": false,
+            "parent_id": 114
+        },
+        {
+            "attachment_thumbnail_url": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/thumbnail_439acc5e-44b8-4284-b42b-2f5e1fcd4073_photo_1728580073132.jpg",
+            "multiple_attachment": false,
+            "parent_id": 115
+        },
+        {
+            "attachment_thumbnail_url": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/thumbnail_20afaea4-5ef6-4dd2-8287-450a07398f07_photo_1728580552837.jpg",
+            "multiple_attachment": false,
+            "parent_id": 116
+        },
+        {
+            "attachment_thumbnail_url": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/thumbnail_46219bea-2dcc-47ff-bdbb-ec71069af922_photo_1729082229658.jpg",
+            "multiple_attachment": false,
+            "parent_id": 127
+        }
+    ],
+    "profile_picture_url": "https://crewlinkimagesbucket.s3.eu-north-1.amazonaws.com/efb47d19-b3ba-479c-a216-b5fa38794385_photo.jpg",
+    "user_id": 1,
     "user_name": "Martin test"
 }
