@@ -359,6 +359,8 @@ const HomeScreen = ({
     );
   }, []);
 
+
+  console.log(post[0],'p-opopopppopo')
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}

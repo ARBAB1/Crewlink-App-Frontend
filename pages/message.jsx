@@ -1,13 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
-    DarkTheme,
     Dimensions,
-    Easing,
     Image,
     ImageBackground,
     Keyboard,
     KeyboardAvoidingView,
+    Platform,
     Pressable,
     SafeAreaView,
     ScrollView,
@@ -22,10 +21,8 @@ import {
 import { global, ResponsiveSize } from "../components/constant";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
-
 import TextC from "../components/text/text";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import Feather from 'react-native-vector-icons/Feather';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { TextInput } from "react-native";
@@ -38,13 +35,16 @@ import FastImage from "react-native-fast-image";
 import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
 import ButtonC from "../components/button";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
-import { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import { PanGestureHandler, State } from 'react-native-gesture-handler';
-import Modal from "react-native-modal";
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import GetLocation from 'react-native-get-location'
+import { PERMISSIONS, request } from "react-native-permissions";
+import Modal from 'react-native-modal';
+
 
 
 const Message = ({ route }) => {
-    console.log(route?.params, "route");
+    const [isLocationModal, setIsLocationModal] = useState(false);
     const focus = useIsFocused();
     const scheme = useColorScheme();
     const windowWidth = Dimensions.get('window').width;
@@ -52,7 +52,6 @@ const Message = ({ route }) => {
     const navigation = useNavigation();
     const headerHeight = useHeaderHeight();
     const [imageRatio, setImageRatio] = useState("")
-
     const [newMessage, setNewMessage] = useState("")
     const [recentChats, setRecentChats] = useState([])
     const [user_id, setUserId] = useState()
@@ -65,9 +64,8 @@ const Message = ({ route }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [userDetails, setUserDetails] = useState(null);
     const scrollViewRef = useRef();
-
     const { openBottomSheet, closeBottomSheet } = useBottomSheet();
-  
+
 
     useEffect(() => {
         navigation.getParent()?.setOptions({
@@ -324,9 +322,6 @@ const Message = ({ route }) => {
             padding: ResponsiveSize(10),
             width: windowWidth * 0.7
         },
-
-
-
         MessageInputWrapper: {
             width: windowWidth,
             position: 'absolute',
@@ -341,8 +336,11 @@ const Message = ({ route }) => {
         CameraBtnWrapper: {
             width: windowWidth * 0.12 - ResponsiveSize(10),
         },
+        LocationBtnWrapper: {
+            width: windowWidth * 0.12 - ResponsiveSize(10),
+        },
         InputWrapper: {
-            width: windowWidth * 0.73 - ResponsiveSize(10),
+            width: windowWidth * 0.61 - ResponsiveSize(10),
         },
         SentBtnWrapper: {
             width: windowWidth * 0.15 - ResponsiveSize(10),
@@ -387,7 +385,7 @@ const Message = ({ route }) => {
             alignItems: 'center',
             justifyContent: 'center'
         },
-        logoSide:{
+        logoSide: {
             flexDirection: 'row',
         },
         EmptyMessage: {
@@ -396,8 +394,8 @@ const Message = ({ route }) => {
             justifyContent: 'center',
             alignItems: 'center',
         },
-        containerWrapper:{
-           
+        containerWrapper: {
+
             flexDirection: 'row',
 
         },
@@ -434,9 +432,6 @@ const Message = ({ route }) => {
             flexDirection: 'row',
             alignItems: 'center'
         },
-
-
-
         ResharePostBodyHeader1: {
             width: windowWidth * 0.55,
             height: ResponsiveSize(40),
@@ -459,6 +454,18 @@ const Message = ({ route }) => {
             borderRadius: ResponsiveSize(30),
             overflow: 'hidden',
             backgroundColor: global.primaryColor
+        },
+        modalTopLayer: {
+            height: windowHeight * 0.3,
+            width: windowWidth,
+            paddingTop: 10,
+            position: 'absolute',
+            backgroundColor: 'white',
+            bottom: ResponsiveSize(0),
+            borderTopLeftRadius: ResponsiveSize(15),
+            borderTopRightRadius: ResponsiveSize(15),
+            overflow: 'hidden',
+            zIndex: 999,
         }
     });
     const openPhotoLibrary = async () => {
@@ -589,10 +596,10 @@ const Message = ({ route }) => {
         });
         fetchUserDetails();
         loadRecentChats()
-        
+
         return () => {
             closeBottomSheet();
-       
+
         }
     }, []);
 
@@ -693,7 +700,7 @@ const Message = ({ route }) => {
             <>
                 <View style={styles.messageWrapper}>
                     {items?.item?.senderUserId == user_id ?
-                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer2} onPress={() => items?.item?.isShared == "Y" ?navigation.navigate('PostDetail',  items?.item?.post_id ): null}>
+                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer2} onPress={() => items?.item?.isShared == "Y" ? navigation.navigate('PostDetail', items?.item?.post_id) : null}>
                             <View style={styles.empty}></View>
                             {items?.item?.isShared == "Y" ?
                                 <View style={{ flexDirection: 'column' }}>
@@ -938,7 +945,7 @@ const Message = ({ route }) => {
 
                         </Pressable>
                         :
-                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer1} onPress={() => items?.item?.isShared == "Y" ?navigation.navigate('PostDetail',  items?.item?.post_id ): null}>
+                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer1} onPress={() => items?.item?.isShared == "Y" ? navigation.navigate('PostDetail', items?.item?.post_id) : null}>
                             {items?.item?.isShared == "Y" ?
                                 <>
                                     <ImageBackground
@@ -1137,11 +1144,6 @@ const Message = ({ route }) => {
             </>
         );
     }, [recentChats]);
-
-
-
-
-
     const GetChatHistory = async () => {
         setLoadMoreLoader(true)
         const Token = await AsyncStorage.getItem('Token');
@@ -1176,6 +1178,37 @@ const Message = ({ route }) => {
     }
 
 
+    const OpenLocationShareModal = ()=>{
+        setIsLocationModal(true)
+    }
+
+    // const requestCameraPermission = async () => {
+    //     try {
+    //         const granted =
+    //             Platform.OS === 'android'
+    //                 ? await request(PERMISSIONS.ANDROID.CAMERA)
+    //                 : await request(PERMISSIONS.IOS.CAMERA);
+    //     } catch (err) {
+    //         console.warn(err);
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     GetLocation?.getCurrentPosition({
+    //         enableHighAccuracy: true,
+    //         timeout: 60000,
+    //     })
+    //         .then(location => {
+    //             console.log(location, 'lllocataiojn');
+    //         })
+    //         .catch(error => {
+    //             const { code, message } = error;
+    //             console.warn(code, message);
+    //         })
+    // }, [])
+
+
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -1190,44 +1223,44 @@ const Message = ({ route }) => {
                 />
                 <View style={styles.wrapper}>
                     <View style={styles.logoSide}>
-                    <Pressable onPress={() => {
-                        navigation.navigate('Home', { screen: 'MessageList' })
-                       return navigation.getParent()?.setOptions({
-                            tabBarStyle: {
-                              display: 'flex',
-                              backgroundColor: '#69BE25',
-                              borderTopLeftRadius: ResponsiveSize(20),
-                              borderTopRightRadius: ResponsiveSize(20),
-                            },
-                          });
+                        <Pressable onPress={() => {
+                            navigation.navigate('Home', { screen: 'MessageList' })
+                            return navigation.getParent()?.setOptions({
+                                tabBarStyle: {
+                                    display: 'flex',
+                                    backgroundColor: '#69BE25',
+                                    borderTopLeftRadius: ResponsiveSize(20),
+                                    borderTopRightRadius: ResponsiveSize(20),
+                                },
+                            });
                         }} style={styles.logoSide1}>
-                        <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
-                    </Pressable>
-                    <View style={styles.logoSide2}>
-                        <ImageBackground
-                            source={
-                                userDetails?.profile_picture_url == ''
-                                    ? require('../assets/icons/avatar.png')
-                                    : { uri: userDetails?.profile_picture_url }
-                            }
-                            style={styles.PostProfileImage}
-                            resizeMode="cover"></ImageBackground>
-                        <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={userDetails?.user_name} />
-                    </View>
-                   
-                    </View>
-                    <Pressable onPress={() => {
-                        navigation.navigate('UserChatSetting',{user_id: route?.params?.receiverUserId})
-                       return navigation.getParent()?.setOptions({
-                            tabBarStyle: {
-                              display: 'flex',
-                              backgroundColor: '#69BE25',
-                              borderTopLeftRadius: ResponsiveSize(20),
-                              borderTopRightRadius: ResponsiveSize(20),
-                            },
-                          });
+                            <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
+                        </Pressable>
+                        <View style={styles.logoSide2}>
+                            <ImageBackground
+                                source={
+                                    userDetails?.profile_picture_url == ''
+                                        ? require('../assets/icons/avatar.png')
+                                        : { uri: userDetails?.profile_picture_url }
+                                }
+                                style={styles.PostProfileImage}
+                                resizeMode="cover"></ImageBackground>
+                            <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={userDetails?.user_name} />
+                        </View>
 
-                        }} style={styles.logoSide1}>
+                    </View>
+                    <Pressable onPress={() => {
+                        navigation.navigate('UserChatSetting', { user_id: route?.params?.receiverUserId })
+                        return navigation.getParent()?.setOptions({
+                            tabBarStyle: {
+                                display: 'flex',
+                                backgroundColor: '#69BE25',
+                                borderTopLeftRadius: ResponsiveSize(20),
+                                borderTopRightRadius: ResponsiveSize(20),
+                            },
+                        });
+
+                    }} style={styles.logoSide1}>
                         <Entypo name='dots-three-vertical' color={global.primaryColor} size={ResponsiveSize(22)} />
                     </Pressable>
                 </View>
@@ -1315,7 +1348,12 @@ const Message = ({ route }) => {
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                         <View style={styles.CameraBtnWrapper}>
                             <TouchableOpacity onPress={handleOpenSheet} style={styles.CameraBtn}>
-                                <Feather name="plus" color={global.black} size={ResponsiveSize(20)} />
+                                <FontAwesome name="image" color={global.black} size={ResponsiveSize(20)} />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.LocationBtnWrapper}>
+                            <TouchableOpacity onPress={OpenLocationShareModal} style={styles.CameraBtn}>
+                                <Ionicons name="location-outline" color={global.black} size={ResponsiveSize(20)} />
                             </TouchableOpacity>
                         </View>
                         <View style={styles.InputWrapper}>
@@ -1331,6 +1369,15 @@ const Message = ({ route }) => {
                     </View>
                 </View>
             </SafeAreaView>
+            <Modal
+                isVisible={isLocationModal}
+                style={{ margin: 0 }}
+                animationIn={'bounceInUp'}
+                avoidKeyboard={true}
+                onBackdropPress={() => setIsLocationModal(false)}
+                statusBarTranslucent={false}>
+                <View style={styles.modalTopLayer}></View>
+            </Modal>
         </KeyboardAvoidingView>
     )
 }

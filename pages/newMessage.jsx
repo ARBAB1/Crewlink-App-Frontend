@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     DarkTheme,
@@ -16,7 +16,7 @@ import {
 import { global, ResponsiveSize } from "../components/constant";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import TextC from "../components/text/text";
-import { TextInput } from "react-native-gesture-handler";
+import { FlatList, TextInput } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import io from "socket.io-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -73,11 +73,13 @@ const NewMessage = ({ getAllConnections, AllConnectionsReducer }) => {
             borderColor: global.description,
             borderWidth: ResponsiveSize(1),
             position: "relative",
-            paddingLeft: ResponsiveSize(40)
+            paddingLeft: ResponsiveSize(40),
+            width: windowWidth - ResponsiveSize(30),
+            height: ResponsiveSize(40)
         },
         SearchIcon: {
             position: 'absolute',
-            top: ResponsiveSize(8),
+            top: ResponsiveSize(10),
             left: ResponsiveSize(10)
         },
         PostHeader: {
@@ -121,77 +123,124 @@ const NewMessage = ({ getAllConnections, AllConnectionsReducer }) => {
         setLoader(true)
         allEventDataLoader({ refreshing: false })
     }, []);
+
+    const renderItem = useCallback(({ item }) => {
+        return (
+            <TouchableOpacity onPress={() => navigation.navigate('Message', {
+                receiverUserId: item?.user_id,
+                profile_picture_url: item?.profile_picture_url,
+                user_name: item?.user_name
+            })} style={styles.PostHeader}>
+                <View style={{ flexDirection: 'row' }}>
+                    <ImageBackground
+                        source={
+                            item?.userDetails?.profile_picture_url == ''
+                                ? require('../assets/icons/avatar.png')
+                                : { uri: item?.profile_picture_url }
+                        }
+                        style={styles.PostProfileImage}
+                        resizeMode="cover"></ImageBackground>
+                    <View style={styles.PostProfileImageBox}>
+                        <TextC
+                            size={ResponsiveSize(12)}
+                            text={item?.user_name}
+                            font={'Montserrat-Bold'}
+                        />
+                        <TextC
+                            size={ResponsiveSize(10)}
+                            text={item.user_type == "PILOT" ? "Pilot" : item.user_type == "FLIGHT ATTENDANT" ? "Flight attendent" : item.user_type == "TECHNICIAN" ? "Technician" : ""}
+                            font={'Montserrat-Medium'}
+                            style={{ color: global.placeholderColor }}
+                        />
+                    </View>
+                </View>
+            </TouchableOpacity>
+        );
+    }, []);
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
             <StatusBar
                 backgroundColor={
                     scheme === 'dark' ? DarkTheme.colors.background : 'white'
                 }
                 barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
             />
-            <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
-                <StatusBar backgroundColor={global.white} />
-                <View style={styles.wrapper}>
-                    <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
-                        <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
-                    </Pressable>
-                    <View style={styles.logoSide2}>
-                        <TextC size={ResponsiveSize(14)} font={'Montserrat-Bold'} text={"Connections"} />
-                    </View>
-                    <TouchableOpacity style={styles.logoSide3}>
-                    </TouchableOpacity>
+            <View style={styles.wrapper}>
+                <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
+                    <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
+                </Pressable>
+                <View style={styles.logoSide2}>
+                    <TextC size={ResponsiveSize(14)} font={'Montserrat-Bold'} text={"Connections"} />
                 </View>
-                <View style={styles.bodyWrapper}>
-                    <View style={styles.SearchInputWrapper}>
-                        <AntDesign style={styles.SearchIcon} name='search1' color={global.primaryColor} size={ResponsiveSize(18)} />
-                        <TextInput style={styles.SearchInput} placeholder="Search Your Connections" />
-                    </View>
-                    {loader ?
-                        <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
-                            <ActivityIndicator size={'large'} color={global.primaryColor} />
-                        </View>
+                <TouchableOpacity style={styles.logoSide3}>
+                </TouchableOpacity>
+            </View>
+            <View style={styles.wrapper}>
+                <View style={styles.SearchInputWrapper}>
+                    <AntDesign style={styles.SearchIcon} name='search1' color={global.primaryColor} size={ResponsiveSize(20)} />
+                    <TextInput style={styles.SearchInput} placeholder="Search Your Connections" />
+                </View>
+            </View>
+
+            {loader ?
+                <View
+                    style={{
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingTop: ResponsiveSize(50),
+                        flex: 1,
+                        paddingHorizontal: ResponsiveSize(40)
+                    }}>
+                    <ActivityIndicator size={"large"} />
+                </View>
+                :
+                <>
+                    {recentChats !== undefined && recentChats !== "" && recentChats !== null && recentChats.length > 0 ?
+                        <FlatList
+                            showsVerticalScrollIndicator={false}
+                            initialNumToRender={10}
+                            data={recentChats}
+                            keyExtractor={(items, index) => index?.toString()}
+                            maxToRenderPerBatch={10}
+                            windowSize={10}
+                            renderItem={renderItem}
+                            contentContainerStyle={{paddingHorizontal:ResponsiveSize(15)}}
+                        />
                         :
-                        <View>
-                            {recentChats !== undefined && recentChats !== "" && recentChats !== null && recentChats.length > 0 ? recentChats?.map(recentChats =>
-                                <TouchableOpacity onPress={() => navigation.navigate('Message', {
-                                    receiverUserId: recentChats?.user_id,
-                                    profile_picture_url: recentChats?.profile_picture_url,
-                                    user_name: recentChats?.user_name
-                                })} style={styles.PostHeader}>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <ImageBackground
-                                            source={
-                                                recentChats?.userDetails?.profile_picture_url == ''
-                                                    ? require('../assets/icons/avatar.png')
-                                                    : { uri: recentChats?.profile_picture_url }
-                                            }
-                                            style={styles.PostProfileImage}
-                                            resizeMode="cover"></ImageBackground>
-                                        <View style={styles.PostProfileImageBox}>
-                                            <TextC
-                                                size={ResponsiveSize(12)}
-                                                text={recentChats?.user_name}
-                                                font={'Montserrat-Bold'}
-                                            />
-                                            <TextC
-                                                size={ResponsiveSize(10)}
-                                                text={recentChats.user_type == "PILOT" ? "Pilot" : recentChats.user_type == "FLIGHT ATTENDANT" ? "Flight attendent" : recentChats.user_type == "TECHNICIAN" ? "Technician" : ""}
-                                                font={'Montserrat-Medium'}
-                                                style={{ color: global.placeholderColor }}
-                                            />
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            ) :
-                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
-                                    <TextC text={'No Connections found'} font={'Montserrat-Medium'} size={ResponsiveSize(11)} />
-                                </View>
-                            }
+                        <View
+                            style={{
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingTop: ResponsiveSize(50),
+                                flex: 1,
+                                paddingHorizontal: ResponsiveSize(40)
+                            }}>
+                            <TextC
+                                text={'No connections found'}
+                                font={'Montserrat-Bold'}
+                                size={ResponsiveSize(13)}
+                            />
+                            <TextC
+                                text={'It seems there are no connections available at the moment.'}
+                                font={'Montserrat-Medium'}
+                                size={ResponsiveSize(11)}
+                                style={{ marginTop: ResponsiveSize(2), color: global.placeholderColor, textAlign: 'center' }}
+                            />
+                            <TouchableOpacity onPress={() => navigation.navigate('NewMessage')} style={{ backgroundColor: global.secondaryColor, paddingVertical: ResponsiveSize(6), paddingHorizontal: ResponsiveSize(15), marginTop: ResponsiveSize(10), borderRadius: ResponsiveSize(50) }}>
+                                <TextC
+                                    text={'Find people'}
+                                    font={'Montserrat-Medium'}
+                                    size={ResponsiveSize(11)}
+                                    style={{ color: global.primaryColor }}
+                                />
+                            </TouchableOpacity>
                         </View>
                     }
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+                </>
+            }
+        </SafeAreaView >
     )
 }
 function mapStateToProps({ AllConnectionsReducer }) {
