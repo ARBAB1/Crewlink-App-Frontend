@@ -18,7 +18,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { global, ResponsiveSize } from '../components/constant';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import * as UserProfile from '../store/actions/UserProfile/index';
@@ -31,6 +31,7 @@ import { useToast } from "react-native-toast-notifications";
 
 const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) => {
   const { user_id } = route.params;
+  const focus = useIsFocused();
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const navigation = useNavigation();
@@ -192,7 +193,7 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
 
   useEffect(() => {
     LoadProfile()
-  }, [])
+  }, [focus])
 
   const [acceptLoader, setAcceptLoader] = useState(false);
   const AcceptUser = async () => {

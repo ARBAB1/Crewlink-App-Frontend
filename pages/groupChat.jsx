@@ -48,6 +48,7 @@ const GroupMessage = ({ route }) => {
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
     const navigation = useNavigation();
+
     const headerHeight = useHeaderHeight();
     const [imageRatio, setImageRatio] = useState("")
     const [groupDetails, setGroupDetails] = useState(null);
@@ -520,7 +521,7 @@ const GroupMessage = ({ route }) => {
                 },
             });
         }
-    }, []);
+    }, [focus]);
 
     const [queue, setQueue] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
