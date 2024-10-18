@@ -15,8 +15,6 @@ import {
     View,
     Image,
     Text,
-  
-
 } from "react-native";
 import Modal from "react-native-modal";
 import { global, ResponsiveSize } from "../components/constant";
@@ -34,12 +32,16 @@ import { useBottomSheet } from "../components/bottomSheet/BottomSheet";
 import ButtonC from "../components/button";
 import { PERMISSIONS, request } from "react-native-permissions";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
-import Icon from 'react-native-vector-icons/FontAwesome'; 
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { useToast } from "react-native-toast-notifications";
 
-const UserChatSetting = ({route}) => {
-     console.log(route.params,"iop")
+
+
+
+const UserChatSetting = ({ route }) => {
     const scheme = useColorScheme();
     const focus = useIsFocused();
+    const windowHeight = Dimensions.get('window').height;
     const [isVisible, setIsVisible] = useState(false);
     const windowWidth = Dimensions.get('window').width;
     const [inputText, setInputText] = useState('');
@@ -47,23 +49,23 @@ const UserChatSetting = ({route}) => {
         BoxWrapper1: {
             padding: 20,
             backgroundColor: '#fff',  // White background for the box
-          },
-          actionItem: {
+        },
+        actionItem: {
             flexDirection: 'row',
             alignItems: 'center',
             marginBottom: 15,  // Space between each action item
-          },
-          icon: {
+        },
+        icon: {
             marginRight: 15,  // Space between the icon and the text
-          },
-          text: {
+        },
+        text: {
             fontSize: 16,
             color: '#000',  // Black text for "Add to Favourites"
-          },
-          textRed: {
+        },
+        textRed: {
             fontSize: 16,
             color: '#d9232d',  // Red text for "Block" and "Report"
-          },
+        },
         wrapper: {
             flexDirection: 'row',
             alignItems: 'center',
@@ -72,20 +74,20 @@ const UserChatSetting = ({route}) => {
             paddingHorizontal: ResponsiveSize(15),
             paddingVertical: ResponsiveSize(15),
             backgroundColor: global.white,
-         
+
         },
         modalContent: {
             backgroundColor: 'white',
             padding: 20,
             borderRadius: 10,
             alignItems: 'center',
-          },
-          modalTitle: {
+        },
+        modalTitle: {
             fontSize: 18,
             fontWeight: 'bold',
             marginBottom: 15,
-          },
-          textInput: {
+        },
+        textInput: {
             width: '100%',
             height: 40,
             borderColor: '#ccc',
@@ -93,34 +95,34 @@ const UserChatSetting = ({route}) => {
             borderRadius: 5,
             paddingHorizontal: 10,
             marginBottom: 20,
-          },
-          attachmentButton: {
+        },
+        attachmentButton: {
             flexDirection: 'row',
             alignItems: 'center',
             marginBottom: 20,
-          },
-          attachmentText: {
+        },
+        attachmentText: {
             fontSize: 16,
             marginLeft: 10,
-          },
-          closeButton: {
+        },
+        closeButton: {
             backgroundColor: '#d9232d',
             paddingVertical: 10,
             paddingHorizontal: 20,
             borderRadius: 5,
-            marginRight:10
-          },
-          closeButtonText: {
+            marginRight: 10
+        },
+        closeButtonText: {
             color: 'white',
             fontSize: 16,
-         
-          },
+
+        },
         logoSide1: {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'flex-start',
             width: '33.33%',
-          
+
         },
         logoSide2: {
             flexDirection: 'row',
@@ -197,40 +199,63 @@ const UserChatSetting = ({route}) => {
             justifyContent: 'flex-start',
             alignItems: 'center',
             position: 'relative',
-        }
+        },
+        modalTopLayerReportSecond: {
+            height: windowHeight * 0.35,
+            width: windowWidth * 0.8,
+            paddingTop: 10,
+            backgroundColor: 'white',
+            borderRadius: ResponsiveSize(15),
+            overflow: 'hidden',
+            zIndex: 999,
+            flexDirection: 'column',
+            alignItems: 'center'
+        },
+        modalTopLayer2: {
+            height: windowHeight * 0.20,
+            width: windowWidth * 0.8,
+            backgroundColor: 'white',
+            borderRadius: ResponsiveSize(15),
+            overflow: 'hidden',
+            zIndex: 999,
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
+        },
+        BlockDone: {
+            width: ResponsiveSize(80),
+            height: ResponsiveSize(38),
+            backgroundColor: global.primaryColor,
+            borderRadius: ResponsiveSize(10),
+            justifyContent: 'center',
+            marginLeft: ResponsiveSize(5),
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
+        },
+        NotBlock: {
+            width: ResponsiveSize(80),
+            height: ResponsiveSize(38),
+            backgroundColor: global.primaryColor,
+            borderRadius: ResponsiveSize(10),
+            justifyContent: 'center',
+            marginRight: ResponsiveSize(5),
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
+        },
     });
     const navigation = useNavigation();
     const { openBottomSheet, closeBottomSheet } = useBottomSheet();
     const [documentImage, setDocumentImage] = useState('');
     const [document, setDocument] = useState('');
-    const [groupName, setGroupName] = useState('');
     const [userDetails, setUserDetails] = useState(null);
-    const [loading, setLoading] = useState(false);
     const [blocked, setBlocked] = useState(false);
+    const [storedId, setStoredId] = useState();
+    const toast = useToast();
 
-    const allBlockedUsers = async () => {
-        try {
-            const Token = await AsyncStorage.getItem('Token');
-            const page = 1
-            const limit = 100
-            const response = await fetch(`${baseUrl}/block/get-all-blocked-users/${page}/${limit}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey,
-                    'accesstoken': `Bearer ${Token}`,
-                },
-            });
-            const result = await response.json();
 
-            console.log(result, "allBlockedUsers");
-            if (result.statusCode === 200) {
-                setBlocked(result.data);
-            }
-        } catch (error) {
-            console.error("Failed to fetch blocked users:", error);
-        }
-    }
+
     const fetchUserDetails = async () => {
         try {
             const Token = await AsyncStorage.getItem('Token');
@@ -246,9 +271,9 @@ const UserChatSetting = ({route}) => {
             if (result.statusCode === 200) {
                 console.log(result.data, "userDetails");
                 setUserDetails(result.data);
-                if(result.data?.blocked_by_me==="true"){
-                setBlocked(true)
-                }else{
+                if (result.data?.blocked_by_me === "true") {
+                    setBlocked(true)
+                } else {
                     setBlocked(false)
                 }
             }
@@ -256,33 +281,15 @@ const UserChatSetting = ({route}) => {
             console.error("Failed to fetch user details:", error);
         }
     };
-    const BlockUser = async () => {
-        try {
-            const Token = await AsyncStorage.getItem('Token');
-            const response = await fetch(`${baseUrl}/block/block-unblock-user`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey,
-                    'accesstoken': `Bearer ${Token}`,
-                },
-                body: JSON.stringify({ blocked_id: route?.params?.user_id }),
-            });
-            const result = await response.json();
-            console.log(result, "BlockUser");
-            if (result.statusCode === 201) {
-      setBlocked(!blocked)
-            }
-        } catch (error) {
-            console.error("Failed to fetch user details:", error);
-        }
-    };
+
+    const LoadUserId = async () => {
+        const userId = await AsyncStorage.getItem('U_id');
+        setStoredId(userId);
+    }
     useEffect(() => {
-        
-            fetchUserDetails();
-            closeBottomSheet();
-            // allBlockedUsers();
-        
+        fetchUserDetails();
+        closeBottomSheet();
+        LoadUserId()
     }, [focus]);
     const handleOpenSheet = () => {
         openBottomSheet(
@@ -341,6 +348,92 @@ const UserChatSetting = ({route}) => {
         }
     };
 
+
+
+
+
+    const [reportLoading, setReportLoading] = useState(false)
+    const [isReportSecondVisible, setIsReportSecondVisible] = useState(false);
+    const [reportPostDescription, setReportPostDescription] = useState("")
+
+    const addReportPost = async () => {
+        setReportLoading(true)
+        const Token = await AsyncStorage.getItem('Token');
+        const response = await fetch(`${baseUrl}/report/report-user`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'accesstoken': `Bearer ${Token}`
+            },
+            body: JSON.stringify({
+                parent_id: route.params?.user_id,
+                report_reason: reportPostDescription
+            })
+
+        });
+        const res = await response?.json();
+        console.log(res);
+        if (res?.statusCode == 200) {
+            toast.show("User report submitted successfully.")
+            setReportLoading(false)
+            setIsReportSecondVisible(false)
+        }
+        else if (res?.statusCode == 400) {
+            toast.show("You have already reported this user.")
+            setReportLoading(false)
+            setIsReportSecondVisible(false)
+        }
+        else {
+            toast.show("Something went wrong")
+            setReportLoading(false)
+            setIsReportSecondVisible(false)
+        }
+    }
+
+    const OpenReportConfirm = () => {
+        setIsReportSecondVisible(true)
+    }
+    const [isBlockModalConfirm, setIsBlockModalConfirm] = useState(false);
+
+
+    const OpenBlockModal = () => {
+        setIsBlockModalConfirm(true)
+    }
+
+
+
+    const [blockUserLoader, setBlockUserLoader] = useState(false);
+    const BlockUser = async () => {
+        setBlockUserLoader(true)
+        const Token = await AsyncStorage.getItem('Token');
+        const response = await fetch(
+            `${baseUrl}/block/block-unblock-user`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    accesstoken: `Bearer ${Token}`,
+                },
+                body: JSON.stringify({ blocked_id: route?.params?.user_id }),
+            },
+        );
+        const result = await response.json();
+        if (result.statusCode === 201) {
+            if (result.message == "User blocked") {
+                setBlocked(true)
+            }
+            else if (result.message == "User Unblocked") {
+                setBlocked(false)
+            }
+            setBlockUserLoader(false)
+            setIsBlockModalConfirm(false)
+        }
+    }
+
+
+    console.log(storedId, route?.params?.user_id)
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <StatusBar
@@ -353,19 +446,19 @@ const UserChatSetting = ({route}) => {
                 <StatusBar backgroundColor={global.white} />
                 <View style={styles.wrapper}>
                     <Pressable onPress={() => {
-                         navigation.getParent()?.setOptions({
-                            tabBarStyle: {display: 'none'},
-                          });
+                        navigation.getParent()?.setOptions({
+                            tabBarStyle: { display: 'none' },
+                        });
                         return navigation.goBack()
-                        }} style={styles.logoSide1}>
+                    }} style={styles.logoSide1}>
                         <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
                     </Pressable>
                     <View style={styles.logoSide2}>
                         {/* <TextC size={ResponsiveSize(16)} font={'Montserrat-Bold'} text={"New Group"} /> */}
                     </View>
-                 <View  style={styles.logoSide2}>
-                    
-                 </View>
+                    <View style={styles.logoSide2}>
+
+                    </View>
                 </View>
                 <View style={styles.bodyWrapper}>
                     <View style={styles.GroupName}>
@@ -374,7 +467,7 @@ const UserChatSetting = ({route}) => {
                                 <Image style={styles.ProfileImage} src={userDetails?.profile_picture_url} />
                             </View>
                         ) : (
-                            <TouchableOpacity onPress={requestCameraPermission}>
+                            <TouchableOpacity onPress={storedId == route?.params?.user_id ? requestCameraPermission : undefined}>
                                 <Image
                                     style={styles.ProfileImage}
                                     source={require('../assets/icons/avatar.png')}
@@ -386,55 +479,83 @@ const UserChatSetting = ({route}) => {
                     </View>
                 </View>
                 <View style={styles.BoxWrapper1}>
-      {/* Add to Favourites */}
-    
+                    {/* Add to Favourites */}
+                    {/* Block Ali Medical */}
+                    <TouchableOpacity style={styles.actionItem} onPress={OpenBlockModal}>
+                        <Icon name="ban" size={20} color="#d9232d" style={styles.icon} />
+                        {
+                            blocked ? <TextC size={ResponsiveSize(16)} style={{ color: '#d9232d' }} font={'Montserrat-Medium'} text={`Unblock ${userDetails?.user_name}`} /> :
+                                <TextC size={ResponsiveSize(16)} style={{ color: '#d9232d' }} font={'Montserrat-Medium'} text={`Block ${userDetails?.user_name}`} />
+                        }
+                    </TouchableOpacity>
 
-      {/* Block Ali Medical */}
-      <TouchableOpacity style={styles.actionItem} onPress={() => BlockUser()}>
-        <Icon name="ban" size={20} color="#d9232d" style={styles.icon} />
-        {
-            blocked ? <TextC size={ResponsiveSize(16)} style={{color: '#d9232d'}} font={'Montserrat-Medium'} text={`Unblock ${userDetails?.user_name}`} /> :
-            <TextC size={ResponsiveSize(16)} style={{color: '#d9232d'}} font={'Montserrat-Medium'} text={`Block ${userDetails?.user_name}`} />
-        }
-      </TouchableOpacity>
+                    {/* Report Ali Medical */}
+                    <TouchableOpacity style={styles.actionItem} onPress={OpenReportConfirm}>
+                        <Icon name="thumbs-down" size={20} color="#d9232d" style={styles.icon} />
+                        <TextC size={ResponsiveSize(16)} style={{ color: '#d9232d' }} font={'Montserrat-Medium'} text={`Report ${userDetails?.user_name}`} />
+                    </TouchableOpacity>
+                </View>
 
-      {/* Report Ali Medical */}
-      <TouchableOpacity style={styles.actionItem} onPress={() => setIsVisible(!isVisible)}>
-        <Icon name="thumbs-down" size={20} color="#d9232d" style={styles.icon} />
-        <TextC size={ResponsiveSize(16)} style={{color: '#d9232d'}} font={'Montserrat-Medium'} text={`Report ${userDetails?.user_name}`} />
-      </TouchableOpacity>
-    </View>
+
             </ScrollView>
-            <Modal isVisible={isVisible}>
-            <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Report User</Text>
-          <TouchableOpacity style={styles.attachmentButton} onPress={() => requestCameraPermission()}>
-            <Icon name="paperclip" size={20} color="#000" />
-            <Text style={styles.attachmentText}>Attach File</Text>
-          </TouchableOpacity>
-          {/* Text Input Field */}
-          <TextInput
-            placeholder="Enter your message..."
-            style={styles.textInput}
-            value={inputText}
-            onChangeText={(text) => setInputText(text)}
-          />
+            <Modal
+                isVisible={isReportSecondVisible}
+                style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    margin: 0,
+                }}
+                animationIn={'bounceInUp'}
+                avoidKeyboard={true}
+                onBackdropPress={() => setIsReportSecondVisible(false)}
+                statusBarTranslucent={false}>
+                <View style={styles.modalTopLayerReportSecond}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                        <TextC text={"Report"} font={"Montserrat-Bold"} />
+                    </View>
+                    <View style={{ paddingTop: ResponsiveSize(20) }}>
+                        <TextInput onChangeText={(e) => setReportPostDescription(e)} placeholder='Enter some description about post' style={{ fontSize: ResponsiveSize(11), fontFamily: "Montserrat-Medium", borderWidth: ResponsiveSize(1), borderColor: "#EEEEEE", padding: ResponsiveSize(10), width: windowWidth * 0.7, height: ResponsiveSize(100), borderRadius: ResponsiveSize(10) }} />
+                    </View>
+                    <View style={{ paddingTop: ResponsiveSize(20) }}>
+                        <TouchableOpacity disabled={reportLoading} onPress={addReportPost} style={{ backgroundColor: global.primaryColor, padding: ResponsiveSize(10), borderRadius: ResponsiveSize(10), width: windowWidth * 0.7, justifyContent: 'center', alignItems: 'center' }}>
+                            {reportLoading ?
+                                <ActivityIndicator size={'small'} color={global.white} />
+                                :
+                                <TextC text={"Submit"} font={"Montserrat-Bold"} size={ResponsiveSize(11)} style={{ color: global.white }} />
+                            }
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
 
-          {/* Attachment Button */}
-       
-<View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-<TouchableOpacity onPress={()=> setIsVisible(false)} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=> setIsVisible(false)} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Report User</Text>
-          </TouchableOpacity>
-</View>
-          {/* Close Button */}
-      
-        </View>
-      </Modal>
+            <Modal
+                isVisible={isBlockModalConfirm}
+                style={{ margin: 0, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+                animationIn={'bounceInUp'}
+                avoidKeyboard={true}
+                onBackdropPress={() => setIsBlockModalConfirm(false)}
+                statusBarTranslucent={false}>
+                <View style={styles.modalTopLayer2}>
+                    <TextC text={'Are you sure'} font={"Montserrat-Bold"} style={{}} />
+                    <TextC size={ResponsiveSize(10)} font={"Montserrat-Medium"} text={`are you sure you want to ${blocked ? "Unblock" : "block"} this user?`} style={{ color: global.placeholderColor }} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: ResponsiveSize(15) }}>
+                        <TouchableOpacity onPress={() => setIsBlockModalConfirm(false)} style={styles.NotBlock}>
+                            <TextC text={'No'} font={"Montserrat-Bold"} style={{ color: global.white }} />
+                        </TouchableOpacity>
+                        <TouchableOpacity disabled={blockUserLoader} style={styles.BlockDone} onPress={BlockUser}>
+                            {blockUserLoader ?
+                                <ActivityIndicator size={ResponsiveSize(15)} color={global.white} />
+                                :
+                                <TextC text={'Yes'} font={"Montserrat-Bold"} style={{ color: global.white }} />
+                            }
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
+
+
+
     )
 }
 // function mapStateToProps({ AllConnectionsReducer }) {
