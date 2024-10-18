@@ -18,7 +18,8 @@ import {
   Image
 } from 'react-native';
 import CityScroll from '../components/citiesScroll';
-import Post from '../components/post';
+import Post from '../components/post/index';
+import PostReshare from '../components/postReshare/index';
 import * as UserProfile from '../store/actions/UserProfile/index';
 import { connect } from 'react-redux';
 import { global, ResponsiveSize } from '../components/constant';
@@ -335,33 +336,54 @@ const HomeScreen = ({
 
 
   const renderItem = useCallback((items) => {
+    console.log(items.item)
     return (
       <>
-        <Post
-          key={items?.item?.post_id}
-          selfLiked={items?.item?.selfLiked}
-          postId={items?.item?.post_id}
-          timeAgo={items?.item?.created_at}
-          post_city={`${items?.item?.post_city}`}
-          userName={items?.item?.userDetails?.user_name}
-          profileImage={items?.item?.userDetails?.profile_picture_url}
-          likeCount={items?.item?.likes_count}
-          commnetCount={items?.item?.comments_count}
-          description={items?.item?.caption}
-          content={items?.item?.attachments}
-          comments_show_flag={items?.item?.comments_show_flag}
-          allow_comments_flag={items?.item?.allow_comments_flag}
-          likes_show_flag={items?.item?.likes_show_flag}
-          content_type={items?.item?.content_type}
-          reshareUserDetails={items?.item?.reshareUserDetails}
-          user_idIn={items?.item?.user_id}
-        />
+        {items?.item?.content_type == "POST_RESHARE" ?
+          <PostReshare
+            key={items?.item?.post_id}
+            selfLiked={items?.item?.selfLiked}
+            postId={items?.item?.post_id}
+            timeAgo={items?.item?.created_at}
+            post_city={`${items?.item?.post_city}`}
+            userName={items?.item?.userDetails?.user_name}
+            profileImage={items?.item?.userDetails?.profile_picture_url}
+            likeCount={items?.item?.likes_count}
+            commnetCount={items?.item?.comments_count}
+            description={items?.item?.caption}
+            content={items?.item?.attachments}
+            comments_show_flag={items?.item?.comments_show_flag}
+            allow_comments_flag={items?.item?.allow_comments_flag}
+            likes_show_flag={items?.item?.likes_show_flag}
+            content_type={items?.item?.content_type}
+            reshareUserDetails={items?.item?.reshareUserDetails}
+            user_idIn={items?.item?.user_id}
+          />
+          :
+          <Post
+            key={items?.item?.post_id}
+            selfLiked={items?.item?.selfLiked}
+            postId={items?.item?.post_id}
+            timeAgo={items?.item?.created_at}
+            post_city={`${items?.item?.post_city}`}
+            userName={items?.item?.userDetails?.user_name}
+            profileImage={items?.item?.userDetails?.profile_picture_url}
+            likeCount={items?.item?.likes_count}
+            commnetCount={items?.item?.comments_count}
+            description={items?.item?.caption}
+            content={items?.item?.attachments}
+            comments_show_flag={items?.item?.comments_show_flag}
+            allow_comments_flag={items?.item?.allow_comments_flag}
+            likes_show_flag={items?.item?.likes_show_flag}
+            content_type={items?.item?.content_type}
+            user_idIn={items?.item?.user_id}
+          />
+        }
       </>
     );
   }, []);
 
 
-  console.log(post[0],'p-opopopppopo')
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}

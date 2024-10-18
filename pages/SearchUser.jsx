@@ -1210,7 +1210,7 @@ searchedPost?.map(data => (
 
           <TextInput value={SearchCountry} onChangeText={(e) => setSearchCountry(e)} placeholder='Search Country' style={styles.ModalSearchBar} />
           <ScrollView style={styles.AirlineBoundries} showsVerticalScrollIndicator={false}>
-            {allCountriesData?.filter(item => item?.name.toLowerCase().includes(SearchCountry.toLowerCase())).map(AirLine =>
+            {allCountriesData?.filter(item => item?.name?.toLowerCase().includes(SearchCountry.toLowerCase())).map(AirLine =>
               <TouchableOpacity onPress={() => AddCountry(AirLine?.name)} style={styles.SelectOptions}>
                 <TextC
                   key={AirLine?.name}
