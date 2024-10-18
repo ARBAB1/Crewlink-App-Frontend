@@ -32,7 +32,7 @@ const SuggestionHeader = ({ backgroundColor }) => {
                     <Feather name='search' color={global.primaryColor} size={ResponsiveSize(18)} />
                 </TouchableOpacity> */}
 
-                <TouchableOpacity onPress={() => console.log('add event')}>
+                <TouchableOpacity onPress={() => navigation.navigate('AddSuggestion')}>
                     <Image source={require('../../assets/icons/addEventIcon.png')} style={{ objectFit: 'contain', width: 19, height: 21 }} />
                 </TouchableOpacity>
             </View>

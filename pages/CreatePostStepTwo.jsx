@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Dimensions,
   ImageBackground,
@@ -10,8 +10,9 @@ import {
   ActivityIndicator,
   Pressable,
   KeyboardAvoidingView,
+  Alert,
 } from 'react-native';
-import { global, ResponsiveSize } from '../components/constant';
+import {global, ResponsiveSize} from '../components/constant';
 import {
   ScrollView,
   TextInput,
@@ -20,15 +21,17 @@ import {
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import TextC from '../components/text/text';
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import {useNavigation, CommonActions} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ModalSelector from 'react-native-modal-selector';
 import Carousel from 'react-native-reanimated-carousel';
 import * as PostCreationAction from '../store/actions/PostCreation/index';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import Video from 'react-native-video';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useHeaderHeight } from '@react-navigation/elements';
+import {useHeaderHeight} from '@react-navigation/elements';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {baseUrl,apiKey} from '../store/config.json';
 
 const CreatePostTwo = ({
   route,
@@ -38,21 +41,21 @@ const CreatePostTwo = ({
   CommentSwitch,
   CommentCountSwitch,
   LikeCountSwitch,
-  EmptyConnection
+  EmptyConnection,
 }) => {
   const headerHeight = useHeaderHeight();
   const CurrentIndex = useRef(null);
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const ScreenHeight = Dimensions.get('screen').height;
-  const [videoLink, setVideoLink] = useState(
-    route?.params?.post?.originalPath,
-  );
+  const [videoLink, setVideoLink] = useState(route?.params?.post?.originalPath);
   const navigation = useNavigation();
   const ref = React.useRef(null);
   const [privacy, setPrivacy] = useState('Public');
   const [caption, setCaption] = useState('');
   const [postLoading, setPostLoading] = useState(false);
+  const [canPost, setCanPost] = useState(true);
+
   const styles = StyleSheet.create({
     wrapper: {
       flexDirection: 'row',
@@ -105,7 +108,7 @@ const CreatePostTwo = ({
       borderRadius: ResponsiveSize(10),
       overflow: 'hidden',
       shadowColor: 'black',
-      shadowOffset: { width: 0, height: 3 },
+      shadowOffset: {width: 0, height: 3},
       borderWidth: 1,
       borderColor: global.description,
       backgroundColor: 'white',
@@ -115,7 +118,7 @@ const CreatePostTwo = ({
     },
     CarouselShadow: {
       shadowColor: 'black',
-      shadowOffset: { width: 0, height: 3 },
+      shadowOffset: {width: 0, height: 3},
       borderWidth: 0,
       shadowOpacity: 0.7,
       shadowRadius: 9,
@@ -147,16 +150,16 @@ const CreatePostTwo = ({
       minHeight: windowHeight * 0.07,
       paddingTop: ResponsiveSize(15),
     },
-    TextFeidContainerRightOnlyText:{
+    TextFeidContainerRightOnlyText: {
       paddingHorizontal: ResponsiveSize(15),
       fontFamily: 'Montserrat-Medium',
       color: global.placeholderColor,
       fontSize: ResponsiveSize(12),
       minHeight: windowHeight * 0.07,
       paddingTop: ResponsiveSize(15),
-      borderWidth:ResponsiveSize(1),
-      borderColor:'#EEEEEE',
-      borderRadius:ResponsiveSize(10),
+      borderWidth: ResponsiveSize(1),
+      borderColor: '#EEEEEE',
+      borderRadius: ResponsiveSize(10),
     },
     SettingList: {
       flexDirection: 'row',
@@ -227,17 +230,42 @@ const CreatePostTwo = ({
     },
   });
   const data = [
-    { key: 'PUBLIC', label: 'Public' },
-    { key: 'PRIVATE', label: 'Private' },
-    { key: 'FOLLOWERS', label: 'Connections only' },
+    {key: 'PUBLIC', label: 'Public'},
+    {key: 'PRIVATE', label: 'Private'},
+    {key: 'FOLLOWERS', label: 'Connections only'},
   ];
+
+  const getDetailUser = async () => {
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+      const response = await fetch(`${baseUrl}/users/user-details`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          accesstoken: `Bearer ${Token}`,
+        },
+      });
+      const res = await response.json();
+      setCanPost(
+        res?.data?.last_checkin == 'No last check-in available' ? true : false,
+      );
+      console.log(res?.data?.last_checkin)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getDetailUser();
+  }, []);
 
   const goHome = async () => {
     await CommentSwitch(false);
     await CommentCountSwitch(false);
     await LikeCountSwitch(false);
-    await EmptyConnection()
-    navigation.navigate("Home");
+    await EmptyConnection();
+    navigation.navigate('Home');
   };
 
   const CreatePostFinalStep = async () => {
@@ -318,16 +346,14 @@ const CreatePostTwo = ({
     ExludeConnection(r);
   };
 
-
   const videoRef1 = useRef(null);
   const videoRef2 = useRef(null);
-
 
   return (
     <>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flexGrow: 1 }}
+        style={{flexGrow: 1}}
         keyboardVerticalOffset={
           Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0
         }>
@@ -359,10 +385,11 @@ const CreatePostTwo = ({
               <View style={styles.logoSide2}>
                 <TextC font={'Montserrat-SemiBold'} text={'Post'} />
               </View>
+
               <View style={styles.logoSide3}>
                 <TouchableOpacity
-                  disabled={postLoading}
-                  onPress={() => CreatePostFinalStep()}
+                  // disabled={canPost}
+                  onPress={() => canPost ? (Alert.alert('Alert','Please check-in before posting')) : CreatePostFinalStep()}
                   style={styles.NextBtn}>
                   <TextC
                     size={ResponsiveSize(11)}
@@ -372,7 +399,7 @@ const CreatePostTwo = ({
                 </TouchableOpacity>
               </View>
             </View>
-            {route.params?.isTextOnly == false &&
+            {route.params?.isTextOnly == false && (
               <View style={styles.singlePostContainer}>
                 {route?.params?.isMultiple == true ? (
                   <Carousel
@@ -406,7 +433,7 @@ const CreatePostTwo = ({
                               ref={CurrentIndex}
                               key={'1'}
                               style={styles.singlePostInnerCarousel}
-                              source={{ uri: 'file://' + items?.item?.content }}
+                              source={{uri: 'file://' + items?.item?.content}}
                             />
                           )}
                         </>
@@ -434,18 +461,24 @@ const CreatePostTwo = ({
                           ref={CurrentIndex}
                           key={'1'}
                           style={styles.singlePostInner}
-                          source={{ uri: 'file://' + route?.params?.post?.content }}
+                          source={{
+                            uri: 'file://' + route?.params?.post?.content,
+                          }}
                         />
                       </>
                     )}
                   </>
                 )}
               </View>
-            }
+            )}
             <View style={styles.descriptionCenter}>
               <TextInput
                 placeholder="Write a caption"
-                style={route.params?.isTextOnly == true ? styles.TextFeidContainerRightOnlyText : styles.TextFeidContainerRight1}
+                style={
+                  route.params?.isTextOnly == true
+                    ? styles.TextFeidContainerRightOnlyText
+                    : styles.TextFeidContainerRight1
+                }
                 multiline={true}
                 numberOfLines={route.params?.isTextOnly == true ? 6 : 2}
                 textAlignVertical="top"
@@ -458,11 +491,11 @@ const CreatePostTwo = ({
                       text={date?.user_name}
                       font={'Montserrat-Medium'}
                       size={ResponsiveSize(11)}
-                      style={{ color: global.black }}
+                      style={{color: global.black}}
                     />
                     <TouchableOpacity
                       onPress={() => excludeConections(date)}
-                      style={{ marginLeft: ResponsiveSize(5) }}>
+                      style={{marginLeft: ResponsiveSize(5)}}>
                       <Entypo
                         name="cross"
                         color={global.black}
@@ -476,7 +509,7 @@ const CreatePostTwo = ({
             <TouchableOpacity
               onPress={() => navigation.navigate('TagPeople')}
               style={styles.SettingList}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <AntDesign
                   name="adduser"
                   color={global.primaryColor}
@@ -506,7 +539,7 @@ const CreatePostTwo = ({
               onChange={option => {
                 setPrivacy(option?.label);
               }}
-              selectTextStyle={{ color: global.placeholderColor }}>
+              selectTextStyle={{color: global.placeholderColor}}>
               <View
                 style={{
                   flexDirection: 'row',
@@ -514,7 +547,7 @@ const CreatePostTwo = ({
                   justifyContent: 'space-between',
                   width: '100%',
                 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <AntDesign
                     name="user"
                     color={global.primaryColor}
@@ -551,7 +584,7 @@ const CreatePostTwo = ({
             <TouchableOpacity
               onPress={() => navigation.navigate('PostSetting')}
               style={styles.SettingList}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Ionicons
                   name="settings-outline"
                   color={global.primaryColor}
@@ -582,7 +615,7 @@ const CreatePostTwo = ({
   );
 };
 
-function mapStateToProps({ PostCreationReducer }) {
-  return { PostCreationReducer };
+function mapStateToProps({PostCreationReducer}) {
+  return {PostCreationReducer};
 }
 export default connect(mapStateToProps, PostCreationAction)(CreatePostTwo);

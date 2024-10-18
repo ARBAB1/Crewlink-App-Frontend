@@ -8,6 +8,7 @@ import * as CityAction from "../../store/actions/Cities/index";
 import CityReducer from "../../store/reducers/Cities";
 import { connect } from "react-redux";
 import { global } from "../constant";
+import { color } from "@rneui/base";
 const CityScroll = ({ getAllCities, onCitySelect }) => {
     const navigation = useNavigation();
     const scheme = useColorScheme();
@@ -23,8 +24,10 @@ const CityScroll = ({ getAllCities, onCitySelect }) => {
         ScrollCard: {
             height: 100,
             width: 70,
-            backgroundColor: "#EEEEEE",
+            backgroundColor: global.primaryColor,
             borderRadius: 20,
+            alignItems: 'center',
+            justifyContent: 'center',
             marginHorizontal: 5,
             overflow: 'hidden',
             marginBottom: 5
@@ -49,6 +52,12 @@ const CityScroll = ({ getAllCities, onCitySelect }) => {
         cityContentImage: {
             width: 70,
             height: 100
+        },
+        cityContentImages: {
+           
+            width: 60,
+            resizeMode: 'contain',
+            height: 100
         }
     })
 
@@ -64,7 +73,18 @@ const CityScroll = ({ getAllCities, onCitySelect }) => {
         <>
             <View style={styles.container}>
                 <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                <TouchableOpacity style={styles.ScrollCardWrapper}
+                           onPress={() => onCitySelect("")} // Call onCitySelect when city is clicked
+                       >
+                           <View style={styles.ScrollCard}>
+                               <Image source={require('../../assets/icons/splashLoader.png')} style={styles.cityContentImages} />
+                           </View>
+                           <TextC text={"All Cities"} font={'Montserrat-Medium'} size={12} style={{ width: 60, textAlign: 'center' }} ellipsizeMode={"tail"} numberOfLines={1} />
+                       </TouchableOpacity>
                     {
+                        
+                      
+                        
                         cityList !== undefined && cityList !== null && cityList !== "" && cityList.length > 0 ? cityList?.map((item, index) => {
                             return (
                                 <TouchableOpacity key={index} style={styles.ScrollCardWrapper}
@@ -95,7 +115,7 @@ const CityScroll = ({ getAllCities, onCitySelect }) => {
                                     </View>
                                 </TouchableOpacity>
                             </View>
-
+                            
                     }
                 </ScrollView>
             </View>

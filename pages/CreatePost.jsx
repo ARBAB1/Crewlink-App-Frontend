@@ -36,11 +36,13 @@ import FastImage from 'react-native-fast-image';
 import { FlashList } from '@shopify/flash-list';
 import { ImageZoom } from '@likashefqet/react-native-image-zoom';
 import { useNavigation } from '@react-navigation/native';
+import * as UserProfile from '../store/actions/UserProfile/index';
+import { connect } from 'react-redux';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-const CreatePost = () => {
+const CreatePost = ({GetUserProfileReducer}) => {
   const videoRef1 = useRef(null);
   const videoRef2 = useRef(null);
   const CurrentIndex = useRef(null);
@@ -968,4 +970,7 @@ const CreatePost = () => {
   );
 };
 
-export default CreatePost;
+function mapStateToProps({ GetUserProfileReducer }) {
+  return { GetUserProfileReducer };
+}
+export default connect(mapStateToProps, UserProfile)(CreatePost);
