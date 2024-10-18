@@ -416,12 +416,12 @@ const filteredBlockedConnections = blockedConnections?.filter(connection =>
               size={ResponsiveSize(11)}
               text={'Custom Approved Connections will able to see your check-In status and account details '}
               font={'Montserrat-Medium'}
-              style={{ color: global.placeholderColor }}
+              style={{ color: global.placeholderColor, paddingTop: ResponsiveSize(10)  }}
             />
   </View>
 
             {!customSetting ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15) }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15), marginBottom: ResponsiveSize(15) }}>
                 <TextC size={ResponsiveSize(12)} text={'Add approved followers'} font={'Montserrat-SemiBold'} />
                 <TouchableOpacity onPress={() => setConnectionVisible(true)}>
                   <Octicons name="diff-added" color={global.secondaryColor} size={ResponsiveSize(18)} />
