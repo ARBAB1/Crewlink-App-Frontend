@@ -690,7 +690,6 @@ const Message = ({ route }) => {
     }
 
 
-
     const sendLocation = async ({ longi, leti }) => {
         const Token = await AsyncStorage.getItem('Token');
         const socket = io(`${baseUrl}/chat`, {
@@ -740,9 +739,6 @@ const Message = ({ route }) => {
         }).start();
     };
     let lastElement = recentChats[recentChats.length - 1]
-
-
-
     const GetChatHistory = async () => {
         setLoadMoreLoader(true)
         const Token = await AsyncStorage.getItem('Token');

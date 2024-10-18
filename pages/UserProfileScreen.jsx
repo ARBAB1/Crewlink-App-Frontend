@@ -10,7 +10,8 @@ import {
   View,
   ActivityIndicator,
   RefreshControl,
-  Pressable
+  Pressable,
+  TextInput
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import TextC from '../components/text/text';
@@ -28,6 +29,13 @@ import baseUrl from '../store/config.json';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { useToast } from "react-native-toast-notifications";
 import Modal from 'react-native-modal';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+
+
+
+
+
+
 
 
 const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) => {
@@ -42,14 +50,14 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
   const [userProfile, setUserProfile] = useState(null);
   const [isBlockModal, setIsBlockModal] = useState(false);
   const [isBlockModalConfirm, setIsBlockModalConfirm] = useState(false);
-
-
   const OpenBlockModal = () => {
     setIsBlockModal(true)
   }
 
   const OpenBlockModalConfirm = () => {
-    setIsBlockModalConfirm(true)
+    setTimeout(() => {
+      setIsBlockModalConfirm(true)
+    }, 500)
     setIsBlockModal(false)
   }
 
@@ -204,7 +212,7 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       marginLeft: ResponsiveSize(5),
     },
     modalTopLayer: {
-      height: windowHeight * 0.15,
+      height: windowHeight * 0.20,
       width: windowWidth,
       paddingTop: 10,
       position: 'absolute',
@@ -221,7 +229,12 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
     BlockBtn: {
       width: windowWidth - ResponsiveSize(30),
       flexDirection: 'row',
-      alignItems: 'centere'
+      alignItems: 'centere',
+      paddingVertical: ResponsiveSize(8),
+      borderWidth: ResponsiveSize(1),
+      borderColor: '#EEEEEE',
+      borderRadius: ResponsiveSize(10),
+      paddingHorizontal: ResponsiveSize(10)
     },
     modalTopLayer2: {
       height: windowHeight * 0.20,
@@ -255,7 +268,20 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center'
-    }
+    },
+
+
+    modalTopLayerReportSecond: {
+      height: windowHeight * 0.35,
+      width: windowWidth * 0.8,
+      paddingTop: 10,
+      backgroundColor: 'white',
+      borderRadius: ResponsiveSize(15),
+      overflow: 'hidden',
+      zIndex: 999,
+      flexDirection: 'column',
+      alignItems: 'center'
+    },
   });
 
   const LoadProfile = async () => {
@@ -456,7 +482,52 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
     }
   }
 
+  const [reportLoading, setReportLoading] = useState(false)
+  const [isReportSecondVisible, setIsReportSecondVisible] = useState(false);
+  const [reportPostDescription, setReportPostDescription] = useState("")
 
+
+  const addReportPost = async () => {
+    setReportLoading(true)
+    console.log(user_id,reportPostDescription)
+    const Token = await AsyncStorage.getItem('Token');
+    const response = await fetch(`${baseUrl.baseUrl}/report/report-user`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': baseUrl.apiKey,
+        'accesstoken': `Bearer ${Token}`
+      },
+      body: JSON.stringify({
+        parent_id: user_id,
+        report_reason: reportPostDescription
+      })
+
+    });
+    const res = await response?.json();
+    if (res?.statusCode == 201) {
+      toast.show("User report submitted successfully.")
+      setReportLoading(false)
+      setIsReportSecondVisible(false)
+    }
+    else if(res?.statusCode == 400){
+      toast.show("You have already reported this user.")
+      setReportLoading(false)
+      setIsReportSecondVisible(false)
+  }
+    else{
+      toast.show("Something went wrong")
+      setReportLoading(false)
+      setIsReportSecondVisible(false)
+    }
+  }
+
+  const OpenReportConfirm = () => {
+    setTimeout(() => {
+      setIsReportSecondVisible(true)
+    }, 500)
+    setIsBlockModal(false)
+  }
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={'white'} barStyle={'dark-content'} />
@@ -810,7 +881,12 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
         onBackdropPress={() => setIsBlockModal(false)}
         statusBarTranslucent={false}>
         <View style={styles.modalTopLayer}>
-          <TouchableOpacity onPress={OpenBlockModalConfirm} style={styles.BlockBtn}>
+          <TouchableOpacity onPress={OpenReportConfirm} style={styles.BlockBtn}>
+            <MaterialIcons name="report-gmailerrorred" size={ResponsiveSize(24)} color={global.red} />
+            <TextC text={'Report this user'} font={"Montserrat-Bold"} style={{ marginLeft: ResponsiveSize(5), marginTop: ResponsiveSize(5), color: global.red }} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={OpenBlockModalConfirm} style={{ ...styles.BlockBtn, marginTop: ResponsiveSize(8) }}>
             <Entypo name="block" size={ResponsiveSize(20)} color={global.red} />
             <TextC text={'Block this user'} font={"Montserrat-Bold"} style={{ marginLeft: ResponsiveSize(5), marginTop: ResponsiveSize(2), color: global.red }} />
           </TouchableOpacity>
@@ -839,6 +915,39 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
                 <ActivityIndicator size={ResponsiveSize(15)} color={global.white} />
                 :
                 <TextC text={'Yes'} font={"Montserrat-Bold"} style={{ color: global.white }} />
+              }
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+
+
+
+      <Modal
+        isVisible={isReportSecondVisible}
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          margin: 0,
+        }}
+        animationIn={'bounceInUp'}
+        avoidKeyboard={true}
+        onBackdropPress={() => setIsReportSecondVisible(false)}
+        statusBarTranslucent={false}>
+        <View style={styles.modalTopLayerReportSecond}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <TextC text={"Report"} font={"Montserrat-Bold"} />
+          </View>
+          <View style={{ paddingTop: ResponsiveSize(20) }}>
+            <TextInput onChangeText={(e) => setReportPostDescription(e)} placeholder='Enter some description about post' style={{ fontSize: ResponsiveSize(11), fontFamily: "Montserrat-Medium", borderWidth: ResponsiveSize(1), borderColor: "#EEEEEE", padding: ResponsiveSize(10), width: windowWidth * 0.7, height: ResponsiveSize(100), borderRadius: ResponsiveSize(10) }} />
+          </View>
+          <View style={{ paddingTop: ResponsiveSize(20) }}>
+            <TouchableOpacity disabled={reportLoading} onPress={addReportPost} style={{ backgroundColor: global.primaryColor, padding: ResponsiveSize(10), borderRadius: ResponsiveSize(10), width: windowWidth * 0.7, justifyContent: 'center', alignItems: 'center' }}>
+              {reportLoading ?
+                <ActivityIndicator size={'small'} color={global.white} />
+                :
+                <TextC text={"Submit"} font={"Montserrat-Bold"} size={ResponsiveSize(11)} style={{ color: global.white }} />
               }
             </TouchableOpacity>
           </View>
