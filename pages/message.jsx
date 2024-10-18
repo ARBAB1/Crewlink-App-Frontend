@@ -991,7 +991,7 @@ const Message = ({ route }) => {
                                                         Linking.openURL(`google.navigation:q=${items?.item?.latitude}+${items?.item?.longitude}`)
                                                     }
                                                     else {
-                                                        Linking.openURL(`maps://app?saddr=${items?.item?.latitude}+${items?.item?.longitude}&daddr=${items?.item?.latitude}+${items?.item?.longitude}`)
+                                                        Linking.openURL(`maps://app?saddr=${items?.item?.latitude}+${items?.item?.longitude}`)
                                                     }
                                                 }} style={styles.otherUserText} >
                                                     <View style={{ paddingHorizontal: ResponsiveSize(10), paddingVertical: ResponsiveSize(1) }}>
@@ -1280,7 +1280,7 @@ const Message = ({ route }) => {
                                                         Linking.openURL(`google.navigation:q=${items?.item?.latitude}+${items?.item?.longitude}`)
                                                     }
                                                     else {
-                                                        Linking.openURL(`maps://app?saddr=${items?.item?.latitude}+${items?.item?.longitude}&daddr=${items?.item?.latitude}+${items?.item?.longitude}`)
+                                                        Linking.openURL(`maps://app?saddr=${items?.item?.latitude}+${items?.item?.longitude}`)
                                                     }
                                                 }} style={styles.thisUserText}>
                                                     <View style={{ paddingHorizontal: ResponsiveSize(10) }}>

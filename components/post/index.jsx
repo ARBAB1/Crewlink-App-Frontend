@@ -1,7 +1,7 @@
 import ReadMore from '@fawazahmed/react-native-read-more';
 import TimeAgo from '@manu_omg/react-native-timeago';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -16,27 +16,29 @@ import {
   View,
   Text,
   TouchableWithoutFeedback,
+  Alert,
 } from 'react-native';
 import Modal from 'react-native-modal';
+import * as UserProfile from '../../store/actions/UserProfile/index';
 import Carousel from 'react-native-reanimated-carousel';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Feather from 'react-native-vector-icons/Feather';
 import Video from 'react-native-video';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import CommnetLight from '../../assets/icons/Comment.png';
 import ShareLight from '../../assets/icons/Share.png';
 import * as PostCreationAction from '../../store/actions/PostCreation/index';
-import { ResponsiveSize, global, notificationTypes } from '../constant';
+import {ResponsiveSize, global, notificationTypes} from '../constant';
 import TextC from '../text/text';
 import Comments from './comment';
 import Reply from './Reply';
 import FastImage from 'react-native-fast-image';
-import { useNavigation } from '@react-navigation/native';
-import baseUrl from '../../store/config.json'
-import io from "socket.io-client";
-import { launchImageLibrary } from 'react-native-image-picker';
+import {useNavigation} from '@react-navigation/native';
+import {baseUrl, apiKey} from '../../store/config.json';
 
+import {launchImageLibrary} from 'react-native-image-picker';
+import {useToast} from 'react-native-toast-notifications';
 
 const Post = ({
   userName,
@@ -64,9 +66,10 @@ const Post = ({
   userLocation,
   getAllConnections,
   content_type,
+  GetUserProfileReducer,
   user_idIn,
+  getNewPost,
 }) => {
-  const navigation = useNavigation();
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const [liked, setLike] = useState(selfLiked);
@@ -98,18 +101,19 @@ const Post = ({
   const [likeLoader, setLikeLoader] = useState(false);
   const [isShareModal, setIsShareModal] = useState(false);
 
-
+  const toast = useToast();
   const [isReportVisible, setIsReportVisible] = useState(false);
   const [isReportSecondVisible, setIsReportSecondVisible] = useState(false);
-
-
-
+  const [isDeleteSecondVisible, setIsDeleteSecondVisible] = useState(false);
+  const [canDeleteComment, setCanDeleteComment] = useState(false);
 
   useEffect(() => {
-    if (type === notificationTypes.POST_COMMENT || type === notificationTypes.POST_COMMENT_REPLY) {
-      toggleModal()
+    if (
+      type === notificationTypes.POST_COMMENT ||
+      type === notificationTypes.POST_COMMENT_REPLY
+    ) {
+      toggleModal();
     }
-
   }, [type]);
 
   const [getLatestConnection, setGetLatestConnection] = useState([]);
@@ -117,29 +121,52 @@ const Post = ({
   const getAllConnectionsFunc = async () => {
     const Token = await AsyncStorage.getItem('Token');
     try {
-      const response = await fetch(`${baseUrl.baseUrl}/connect/get-my-connections-list/1/10`, {
-        method: "GET",
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': baseUrl.apiKey,
-          'accesstoken': `Bearer ${Token}`
+      const response = await fetch(
+        `${baseUrl.baseUrl}/connect/get-my-connections-list/1/10`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': baseUrl.apiKey,
+            accesstoken: `Bearer ${Token}`,
+          },
         },
-      });
+      );
       if (response.ok === true) {
-        const res = await response.json()
+        const res = await response.json();
         setGetLatestConnection(res?.data?.connections);
       }
+    } catch (error) {
+      console.log(error);
     }
-    catch (error) {
-      console.log(error)
-    }
-  }
+  };
 
+  const getDetailUser = async () => {
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+      const response = await fetch(`${baseUrl}/users/user-details`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          accesstoken: `Bearer ${Token}`,
+        },
+      });
+      const res = await response.json();
+      setCanDeleteComment(res?.data?.user_id == user_idIn ? true : false);
+      // console.log(res?.data?.last_checkin)
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    getAllConnectionsFunc()
-  }, [])
+    getDetailUser();
+  }, [commentList, isReportVisible]);
 
+  useEffect(() => {
+    getAllConnectionsFunc();
+  }, []);
 
   useEffect(() => {
     if (commentPage !== 1) {
@@ -157,6 +184,7 @@ const Post = ({
       page: 1,
       limit: 10,
     });
+    console.log(result, 'resultComment');
 
     if (result?.comments) {
       setCommentList(result?.comments);
@@ -178,6 +206,7 @@ const Post = ({
       page: commentPage,
       limit: 10,
     });
+    console.log(result, 'resultComment');
     if (result?.comments) {
       setCommentList(prev => [...prev, ...result?.comments]);
       if (result.comments.length < 10) {
@@ -194,7 +223,7 @@ const Post = ({
     try {
       setLike(true);
       setLikeCountPre(prev => prev + 1);
-      await LikeFunc({ post_id: postId });
+      await LikeFunc({post_id: postId});
     } catch (error) {
       console.error('Error liking the post:', error);
     }
@@ -203,7 +232,7 @@ const Post = ({
     try {
       setLike(false);
       setLikeCountPre(prev => prev - 1);
-      await DisLikeFunc({ post_id: postId });
+      await DisLikeFunc({post_id: postId});
     } catch (error) {
       console.error('Error disliking the post:', error);
     }
@@ -803,6 +832,7 @@ const Post = ({
       data,
       commentRetry,
       setReplyComment,
+      delCommentPostOwner,
     }) => {
       return (
         <Comments
@@ -818,6 +848,7 @@ const Post = ({
           data={data}
           commentRetry={commentRetry}
           setReplyComment={setReplyComment}
+          delCommentPostOwner={delCommentPostOwner}
         />
       );
     },
@@ -848,7 +879,6 @@ const Post = ({
     },
   );
 
-
   const toggleShare = () => {
     setIsShareModal(!isShareModal);
   };
@@ -860,7 +890,6 @@ const Post = ({
       setHeight(prevHeight => (prevHeight * naturalRatio) / videoRatio);
     }
   }, []);
-
 
   const style = StyleSheet.create({
     PostHeader: {
@@ -1012,7 +1041,7 @@ const Post = ({
       zIndex: 999,
     },
     modalTopLayerReport: {
-      height: windowHeight * 0.15,
+      height: windowHeight * 0.2,
       width: windowWidth,
       paddingTop: 10,
       position: 'absolute',
@@ -1033,7 +1062,7 @@ const Post = ({
       overflow: 'hidden',
       zIndex: 999,
       flexDirection: 'column',
-      alignItems: 'center'
+      alignItems: 'center',
     },
     TopIndicator: {
       width: windowWidth,
@@ -1066,7 +1095,7 @@ const Post = ({
       paddingHorizontal: ResponsiveSize(15),
       elevation: 5,
       shadowColor: 'black',
-      shadowOffset: { width: -2, height: 4 },
+      shadowOffset: {width: -2, height: 4},
       shadowOpacity: 0.2,
       shadowRadius: 3,
       flexDirection: 'row',
@@ -1124,19 +1153,19 @@ const Post = ({
     SharePostBackground: {
       paddingHorizontal: ResponsiveSize(10),
       fontFamily: 'Montserrat-Medium',
-      paddingTop: ResponsiveSize(10)
+      paddingTop: ResponsiveSize(10),
     },
     ConnectionList: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingTop: ResponsiveSize(15)
+      paddingTop: ResponsiveSize(15),
     },
     ConnectionListIcon: {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       width: ResponsiveSize(60),
-      textAlign: 'center'
+      textAlign: 'center',
     },
     ConnectionIconDp: {
       height: ResponsiveSize(45),
@@ -1148,7 +1177,7 @@ const Post = ({
       marginBottom: ResponsiveSize(3),
     },
     ConnectionIconDpAbdolute: {
-      position: 'relative'
+      position: 'relative',
     },
     ConnectionSentBtn: {
       backgroundColor: global.secondaryColor,
@@ -1187,120 +1216,161 @@ const Post = ({
       backgroundColor: 'gray',
       borderRadius: ResponsiveSize(50),
       overflow: 'hidden',
-    }
+    },
   });
 
-
-  const [reShareLoader, setReshareLoader] = useState(false)
-  const [MsgReShareLoader, setMsgReshareLoader] = useState()
-  const [reShareCaption, setReShareCaption] = useState("")
-  const [reportPostDescription, setReportPostDescription] = useState("")
-  const [reportLoading, setReportLoading] = useState(false)
+  const [reShareLoader, setReshareLoader] = useState(false);
+  const [MsgReShareLoader, setMsgReshareLoader] = useState();
+  const [reShareCaption, setReShareCaption] = useState('');
+  const [reportPostDescription, setReportPostDescription] = useState('');
+  const [reportLoading, setReportLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const ResharePost = async () => {
-    setReshareLoader(true)
-    console.log('step1')
+    setReshareLoader(true);
     const Token = await AsyncStorage.getItem('Token');
     const formData = new FormData();
     formData.append('caption', reShareCaption);
     formData.append('privacy_setting', 'PUBLIC');
     formData.append('reshared_post_id', postId);
     const response = await fetch(`${baseUrl.baseUrl}/posts/createPost`, {
-      method: "POST",
+      method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
         'x-api-key': baseUrl.apiKey,
-        'accesstoken': `Bearer ${Token}`
+        accesstoken: `Bearer ${Token}`,
       },
-      body: formData
+      body: formData,
     });
     const jsonResponse = await response.json();
-    setReshareLoader(false)
-    setIsShareModal(false)
-  }
+    setReshareLoader(false);
+    setIsShareModal(false);
+  };
   const sendMessage = async (message_Props, user_Id) => {
-    setMsgReshareLoader({ user_Id: user_Id, value: true })
+    setMsgReshareLoader({user_Id: user_Id, value: true});
     const Token = await AsyncStorage.getItem('Token');
     const socket = io(`${baseUrl.baseUrl}/chat`, {
       transports: ['websocket'],
       extraHeaders: {
-        'x-api-key': "TwillioAPI",
-        'accesstoken': `Bearer ${Token}`
-      }
+        'x-api-key': 'TwillioAPI',
+        accesstoken: `Bearer ${Token}`,
+      },
     });
     socket.on('connect').emit('createDirectMessage', {
-      "message": "Post shared",
-      "receiverUserId": user_Id,
-      "post_id": message_Props
-    })
+      message: 'Post shared',
+      receiverUserId: user_Id,
+      post_id: message_Props,
+    });
     setTimeout(() => {
-      setMsgReshareLoader({ user_Id: user_Id, value: false })
+      setMsgReshareLoader({user_Id: user_Id, value: false});
     }, 2000);
-  }
-
+  };
 
   const OpenRepostModal = () => {
     setIsReportVisible(false);
     setTimeout(() => {
       setIsReportSecondVisible(true);
     }, 500); // A slight delay to ensure the first modal is fully closed
-  }
+  };
+  const OpenDeleteModal = () => {
+    setIsReportVisible(false);
+    setTimeout(() => {
+      setIsDeleteSecondVisible(true);
+    }, 500); // A slight delay to ensure the first modal is fully closed
+  };
 
-
-
-  const [reportedPostId, setReportedPostId] = useState()
+  const [reportedPostId, setReportedPostId] = useState();
   const addReportPost = async () => {
-    setReportLoading(true)
+    setReportLoading(true);
     const Token = await AsyncStorage.getItem('Token');
     const response = await fetch(`${baseUrl.baseUrl}/report/report-post`, {
-      method: "POST",
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': baseUrl.apiKey,
-        'accesstoken': `Bearer ${Token}`
+        accesstoken: `Bearer ${Token}`,
       },
       body: JSON.stringify({
         parent_id: postId,
-        report_reason: reportPostDescription
-      })
-
+        report_reason: reportPostDescription,
+      }),
     });
     const res = await response?.json();
     if (res?.statusCode) {
-      setReportLoading(false)
-      setIsReportSecondVisible(false)
-      setReportedPostId(postId)
+      setReportLoading(false);
+      setIsReportSecondVisible(false);
+      setIsDeleteSecondVisible(false);
+      setReportedPostId(postId);
       setTimeout(() => {
-        setReportedPostId("")
+        setReportedPostId('');
       }, 5000);
     }
-  }
+  };
+  const addDeletePost = async () => {
+    setDeleteLoading(true);
+    const Token = await AsyncStorage.getItem('Token');
+    const response = await fetch(`${baseUrl.baseUrl}/posts/deletePost`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': baseUrl.apiKey,
+        accesstoken: `Bearer ${Token}`,
+      },
+      body: JSON.stringify({
+        post_id: postId,
+      }),
+    });
+    const res = await response?.json();
 
+    if (res?.statusCode) {
+      setDeleteLoading(false);
+
+      setIsDeleteSecondVisible(false);
+      setTimeout(() => {
+        toast.show('Post Deleted Successfully');
+        getNewPost();
+      }, 1000);
+    }
+  };
   // console.log(timeAgo)
   return (
     <>
-      {reportedPostId == postId ?
+      {reportedPostId == postId ? (
         <View>
-          <TextC font={"Montserrat-Bold"} size={ResponsiveSize(21)} text={"Post is Reported"} />
+          <TextC
+            font={'Montserrat-Bold'}
+            size={ResponsiveSize(21)}
+            text={'Post is Reported'}
+          />
         </View>
-        :
+      ) : (
         <>
           <View>
             <View style={style.PostHeader}>
-              <View style={{ flexDirection: 'row' }}>
-                <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen', { user_id: user_idIn })}>
+              <View style={{flexDirection: 'row'}}>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('UserProfileScreen', {
+                      user_id: user_idIn,
+                    })
+                  }>
                   <FastImage
                     source={
                       profileImage == ''
                         ? require('../../assets/icons/avatar.png')
-                        : { uri: profileImage, priority: FastImage.priority.high }
+                        : {uri: profileImage, priority: FastImage.priority.high}
                     }
                     style={style.PostProfileImage}
                     resizeMode="cover"
                   />
                 </TouchableOpacity>
                 <View style={style.PostProfileImageBox}>
-                  <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen', { user_id: user_idIn })}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('UserProfileScreen', {
+                        user_id: user_idIn,
+                      })
+                    }>
                     <TextC
                       size={ResponsiveSize(12)}
                       text={userName}
@@ -1308,18 +1378,26 @@ const Post = ({
                     />
                   </TouchableOpacity>
                   <TimeAgo
-                    style={{ fontFamily: "Montserrat-Medium", fontSize: ResponsiveSize(8),color:global.description}}
+                    style={{
+                      fontFamily: 'Montserrat-Medium',
+                      fontSize: ResponsiveSize(8),
+                      color: global.description,
+                    }}
                     time={timeAgo}
                   />
                 </View>
               </View>
               <View>
                 <TouchableOpacity onPress={() => setIsReportVisible(true)}>
-                  <Entypo color={global.primaryColor} size={ResponsiveSize(17)} name='dots-three-vertical' />
+                  <Entypo
+                    color={global.primaryColor}
+                    size={ResponsiveSize(17)}
+                    name="dots-three-vertical"
+                  />
                 </TouchableOpacity>
               </View>
             </View>
-            {content?.length > 0 ?
+            {content?.length > 0 ? (
               <>
                 {content?.length > 1 ? (
                   <Carousel
@@ -1342,7 +1420,7 @@ const Post = ({
                               }}>
                               <Pressable
                                 onPress={() => setPause(!paused)}
-                                style={{ position: 'relative' }}>
+                                style={{position: 'relative'}}>
                                 <Video
                                   repeat={true}
                                   source={{
@@ -1350,7 +1428,10 @@ const Post = ({
                                   }}
                                   ref={videoRef}
                                   paused={paused}
-                                  style={{ height: windowHeight * 0.4, width: windowWidth }}
+                                  style={{
+                                    height: windowHeight * 0.4,
+                                    width: windowWidth,
+                                  }}
                                 />
                                 {paused && (
                                   <View style={style.playPaused}>
@@ -1369,7 +1450,7 @@ const Post = ({
                                 uri: items.item?.attachment_thumbnail_url,
                                 priority: FastImage.priority.high,
                               }}
-                              resizeMode='cover'
+                              resizeMode="cover"
                               style={style.ActuallPost}
                             />
                           )}
@@ -1394,17 +1475,17 @@ const Post = ({
                           }}
                           ref={videoRef}
                           paused={false}
-                          style={{ height: Winheight, width: windowWidth }}
+                          style={{height: Winheight, width: windowWidth}}
                         />
                       </View>
                     ) : (
-                      <View style={{ position: 'relative' }}>
+                      <View style={{position: 'relative'}}>
                         <FastImage
                           source={{
                             uri: content[0]?.attachment_thumbnail_url,
                             priority: FastImage.priority.high,
                           }}
-                          resizeMode='cover'
+                          resizeMode="cover"
                           style={style.ActuallPost}
                         />
                       </View>
@@ -1412,16 +1493,23 @@ const Post = ({
                   </>
                 )}
               </>
-              :
-              <View style={{ paddingVertical: ResponsiveSize(5), paddingHorizontal: ResponsiveSize(15) }}>
+            ) : (
+              <View
+                style={{
+                  paddingVertical: ResponsiveSize(5),
+                  paddingHorizontal: ResponsiveSize(15),
+                }}>
                 <TextC
                   size={ResponsiveSize(13)}
                   text={description}
                   font={'Montserrat-SemiBold'}
-                  style={{ color: global.placeholderColor, width: windowWidth - ResponsiveSize(30) }}
+                  style={{
+                    color: global.placeholderColor,
+                    width: windowWidth - ResponsiveSize(30),
+                  }}
                 />
               </View>
-            }
+            )}
             <View style={style.postActionSection}>
               <Pressable
                 onPress={liked ? handleDislike : handleLike}
@@ -1433,10 +1521,15 @@ const Post = ({
                 />
               </Pressable>
               {allow_comments_flag == 'Y' && (
-                <Pressable onPress={() => toggleModal()} style={style.PostIcons}>
+                <Pressable
+                  onPress={() => toggleModal()}
+                  style={style.PostIcons}>
                   <Image
                     source={CommnetLight}
-                    style={{ height: ResponsiveSize(20), width: ResponsiveSize(20) }}
+                    style={{
+                      height: ResponsiveSize(20),
+                      width: ResponsiveSize(20),
+                    }}
                   />
                 </Pressable>
               )}
@@ -1460,7 +1553,7 @@ const Post = ({
                 />
               )}
               {description !== '' ? (
-                <View style={{ paddingVertical: ResponsiveSize(3) }}>
+                <View style={{paddingVertical: ResponsiveSize(3)}}>
                   <ReadMore
                     seeLessStyle={{
                       fontFamily: 'Montserrat-Bold',
@@ -1479,10 +1572,9 @@ const Post = ({
                 ''
               )}
               {allow_comments_flag == 'Y' ? (
-                <>
-                </>
+                <></>
               ) : (
-                <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
+                <TouchableOpacity style={{paddingTop: ResponsiveSize(3)}}>
                   <TextC
                     size={ResponsiveSize(10)}
                     text={'Comments are turned off'}
@@ -1491,14 +1583,13 @@ const Post = ({
                 </TouchableOpacity>
               )}
             </View>
-            <View style={style.PostDate}>
-            </View>
+            <View style={style.PostDate}></View>
           </View>
         </>
-      }
+      )}
       <Modal
         isVisible={isModalVisible}
-        style={{ margin: 0 }}
+        style={{margin: 0}}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
         onBackdropPress={() => closeCommentFunction()}
@@ -1508,7 +1599,7 @@ const Post = ({
             <View style={style.modalIndicator}></View>
             <TextC
               text={'Comments'}
-              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
+              style={{color: global.black, paddingTop: ResponsiveSize(3)}}
               font={'Montserrat-Bold'}
               size={ResponsiveSize(12)}
             />
@@ -1563,6 +1654,7 @@ const Post = ({
                           data={items.item}
                           commentRetry={commentRetry}
                           setReplyComment={setReplyComment}
+                          delCommentPostOwner={canDeleteComment}
                         />
                         <FlatList
                           showsVerticalScrollIndicator={false}
@@ -1684,7 +1776,7 @@ const Post = ({
                 <View style={style.ProfileReplyBox}>
                   <Image
                     style={style.ProfileReplyBoxProfile}
-                    source={{ uri: replyComment?.user?.profile_picture_url }}
+                    source={{uri: replyComment?.user?.profile_picture_url}}
                   />
                   <TextC
                     font={'Montserrat-Medium'}
@@ -1703,7 +1795,7 @@ const Post = ({
             )}
             <View
               keyboardShouldPersistTaps="handled"
-              style={{ width: windowWidth, position: 'relative' }}>
+              style={{width: windowWidth, position: 'relative'}}>
               <TextInput
                 editable={!commentAddLoading && !replyAddLoader}
                 value={commentInfo}
@@ -1739,7 +1831,7 @@ const Post = ({
       </Modal>
       <Modal
         isVisible={isShareModal}
-        style={{ margin: 0 }}
+        style={{margin: 0}}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
         onBackdropPress={() => setIsShareModal(!isShareModal)}
@@ -1749,81 +1841,148 @@ const Post = ({
             <View style={style.modalIndicator}></View>
             <TextC
               text={'Share Post'}
-              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
+              style={{color: global.black, paddingTop: ResponsiveSize(3)}}
               font={'Montserrat-Bold'}
               size={ResponsiveSize(12)}
             />
           </View>
 
-          <View style={{ paddingHorizontal: ResponsiveSize(15), paddingTop: ResponsiveSize(15) }}>
+          <View
+            style={{
+              paddingHorizontal: ResponsiveSize(15),
+              paddingTop: ResponsiveSize(15),
+            }}>
             <TextC
               text={'Share in community'}
-              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
+              style={{color: global.black, paddingTop: ResponsiveSize(3)}}
               font={'Montserrat-Bold'}
               size={ResponsiveSize(12)}
             />
 
             <View style={style.TextInputBackground}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: ResponsiveSize(10), paddingTop: ResponsiveSize(10) }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: ResponsiveSize(10),
+                  paddingTop: ResponsiveSize(10),
+                }}>
                 <FastImage
                   source={
                     profileImage == ''
                       ? require('../../assets/icons/avatar.png')
-                      : { uri: profileImage, priority: FastImage.priority.high }
+                      : {uri: profileImage, priority: FastImage.priority.high}
                   }
                   style={style.PostProfileImage}
                   resizeMode="cover"
                 />
-                <TextC text={userName} font={'Montserrat-Bold'}
-                  size={ResponsiveSize(14)} style={{ color: global.black }} />
+                <TextC
+                  text={userName}
+                  font={'Montserrat-Bold'}
+                  size={ResponsiveSize(14)}
+                  style={{color: global.black}}
+                />
               </View>
-              <TextInput style={style.SharePostBackground} placeholder='Write something about this..' onChangeText={(e) => setReShareCaption(e)} />
-              <View style={{ paddingHorizontal: ResponsiveSize(15), flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', height: ResponsiveSize(120) }}>
-                <TouchableOpacity style={{ backgroundColor: global.secondaryColor, paddingHorizontal: ResponsiveSize(15), paddingVertical: ResponsiveSize(5), borderRadius: ResponsiveSize(20), width: ResponsiveSize(100) }} disabled={reShareLoader} onPress={() => ResharePost()}>
-                  {reShareLoader ?
-                    <ActivityIndicator color={global.white} size={ResponsiveSize(12)} />
-                    :
+              <TextInput
+                style={style.SharePostBackground}
+                placeholder="Write something about this.."
+                onChangeText={e => setReShareCaption(e)}
+              />
+              <View
+                style={{
+                  paddingHorizontal: ResponsiveSize(15),
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  height: ResponsiveSize(120),
+                }}>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: global.secondaryColor,
+                    paddingHorizontal: ResponsiveSize(15),
+                    paddingVertical: ResponsiveSize(5),
+                    borderRadius: ResponsiveSize(20),
+                    width: ResponsiveSize(100),
+                  }}
+                  disabled={reShareLoader}
+                  onPress={() => ResharePost()}>
+                  {reShareLoader ? (
+                    <ActivityIndicator
+                      color={global.white}
+                      size={ResponsiveSize(12)}
+                    />
+                  ) : (
                     <TextC
                       text={'Share now'}
-                      style={{ color: global.white }}
+                      style={{color: global.white}}
                       font={'Montserrat-Medium'}
                       size={ResponsiveSize(12)}
                     />
-                  }
-
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
 
-            <View style={{ paddingTop: ResponsiveSize(15) }}>
+            <View style={{paddingTop: ResponsiveSize(15)}}>
               <TextC
                 text={'Share in message'}
-                style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
+                style={{color: global.black, paddingTop: ResponsiveSize(3)}}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
               />
             </View>
-            <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} contentContainerStyle={style.ConnectionList}>
-              {getLatestConnection !== undefined && getLatestConnection !== null && getLatestConnection !== "" && getLatestConnection?.length > 0 ? getLatestConnection?.map(data =>
-                <TouchableOpacity disabled={MsgReShareLoader?.value} style={style.ConnectionListIcon} onPress={() => sendMessage(postId, data?.user_id)}>
-                  <View style={style.ConnectionIconDpAbdolute}>
-                    <FastImage
-                      source={
-                        data?.profile_picture_url == ''
-                          ? require('../../assets/icons/avatar.png')
-                          : { uri: data?.profile_picture_url, priority: FastImage.priority.high }
-                      }
-                      style={style.ConnectionIconDp}
-                      resizeMode="cover"
-                    />
-                    {MsgReShareLoader?.user_Id == data?.user_id && MsgReShareLoader?.value == true ?
-                      <ActivityIndicator size={ResponsiveSize(40)} color={global.white} style={{ position: 'absolute', top: ResponsiveSize(3), left: ResponsiveSize(7) }} />
-                      : ""
-                    }
-                  </View>
-                  <TextC text={data?.user_name} font={'Montserrat-Bold'} size={ResponsiveSize(11)} style={{ width: ResponsiveSize(50), textAlign: 'center' }} ellipsizeMode={"tail"} numberOfLines={1} />
-                </TouchableOpacity>
-              ) : ""}
+            <ScrollView
+              showsHorizontalScrollIndicator={false}
+              horizontal={true}
+              contentContainerStyle={style.ConnectionList}>
+              {getLatestConnection !== undefined &&
+              getLatestConnection !== null &&
+              getLatestConnection !== '' &&
+              getLatestConnection?.length > 0
+                ? getLatestConnection?.map(data => (
+                    <TouchableOpacity
+                      disabled={MsgReShareLoader?.value}
+                      style={style.ConnectionListIcon}
+                      onPress={() => sendMessage(postId, data?.user_id)}>
+                      <View style={style.ConnectionIconDpAbdolute}>
+                        <FastImage
+                          source={
+                            data?.profile_picture_url == ''
+                              ? require('../../assets/icons/avatar.png')
+                              : {
+                                  uri: data?.profile_picture_url,
+                                  priority: FastImage.priority.high,
+                                }
+                          }
+                          style={style.ConnectionIconDp}
+                          resizeMode="cover"
+                        />
+                        {MsgReShareLoader?.user_Id == data?.user_id &&
+                        MsgReShareLoader?.value == true ? (
+                          <ActivityIndicator
+                            size={ResponsiveSize(40)}
+                            color={global.white}
+                            style={{
+                              position: 'absolute',
+                              top: ResponsiveSize(3),
+                              left: ResponsiveSize(7),
+                            }}
+                          />
+                        ) : (
+                          ''
+                        )}
+                      </View>
+                      <TextC
+                        text={data?.user_name}
+                        font={'Montserrat-Bold'}
+                        size={ResponsiveSize(11)}
+                        style={{width: ResponsiveSize(50), textAlign: 'center'}}
+                        ellipsizeMode={'tail'}
+                        numberOfLines={1}
+                      />
+                    </TouchableOpacity>
+                  ))
+                : ''}
             </ScrollView>
           </View>
         </View>
@@ -1833,60 +1992,224 @@ const Post = ({
         style={{
           justifyContent: 'center',
           alignItems: 'center',
-          margin: 0,  // Ensure full-screen modal
+          margin: 0, // Ensure full-screen modal
         }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
         onBackdropPress={() => setIsReportVisible(false)}
         statusBarTranslucent={false}>
         <View style={style.modalTopLayerReport}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-            <TextC
-              text={'Report Post'}
-              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
-              font={'Montserrat-Bold'}
-              size={ResponsiveSize(12)}
-            />
-          </View>
-
-          <View style={{ paddingHorizontal: ResponsiveSize(15), paddingTop: ResponsiveSize(20), flexDirection: "row", alignItems: 'center', justifyContent: 'center' }}>
-            <TouchableOpacity onPress={OpenRepostModal}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            {canDeleteComment ? (
               <TextC
-                text={'Report this post for inappropriate content'}
-                style={{ color: global.red, paddingTop: ResponsiveSize(3) }}
-                font={'Montserrat-Medium'}
+                text={'Delete Post'}
+                style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+                font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
               />
+            ) : (
+              <TextC
+                text={'Report Post'}
+                style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+                font={'Montserrat-Bold'}
+                size={ResponsiveSize(12)}
+              />
+            )}
+          </View>
+
+          <View
+            style={{
+              padding: ResponsiveSize(15),
+              paddingTop: ResponsiveSize(20),
+              flexDirection: 'column',
+            }}>
+            {canDeleteComment ? (
+              <TouchableOpacity
+                onPress={OpenDeleteModal}
+                style={{flexDirection: 'row', paddingTop: ResponsiveSize(10)}}>
+                <AntDesign
+                  name="delete"
+                  size={ResponsiveSize(20)}
+                  color={global.red}
+                />
+                <TextC
+                  text={'Delete your Post'}
+                  style={{color: global.red, padding: ResponsiveSize(3)}}
+                  font={'Montserrat-Medium'}
+                  size={ResponsiveSize(12)}
+                />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                onPress={OpenRepostModal}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <AntDesign
+                  name="exclamationcircleo"
+                  size={ResponsiveSize(20)}
+                  color={global.red}
+                />
+                <TextC
+                  text={'Report this post for inappropriate content'}
+                  style={{color: global.red, padding: ResponsiveSize(3)}}
+                  font={'Montserrat-Medium'}
+                  size={ResponsiveSize(12)}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        isVisible={isReportSecondVisible}
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          margin: 0, // Ensure full-screen modal
+        }}
+        animationIn={'bounceInUp'}
+        avoidKeyboard={true}
+        onBackdropPress={() => setIsReportSecondVisible(false)}
+        statusBarTranslucent={false}>
+        <View style={style.modalTopLayerReportSecond}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <TextC text={'Report'} font={'Montserrat-Bold'} />
+          </View>
+          <View style={{paddingTop: ResponsiveSize(20)}}>
+            <TextInput
+              onChangeText={e => setReportPostDescription(e)}
+              placeholder="Enter some description about post"
+              style={{
+                fontSize: ResponsiveSize(11),
+                fontFamily: 'Montserrat-Medium',
+                borderWidth: ResponsiveSize(1),
+                borderColor: '#EEEEEE',
+                padding: ResponsiveSize(10),
+                width: windowWidth * 0.7,
+                height: ResponsiveSize(100),
+                borderRadius: ResponsiveSize(10),
+              }}
+            />
+          </View>
+          <View style={{paddingTop: ResponsiveSize(20)}}>
+            <TouchableOpacity
+              onPress={addReportPost}
+              style={{
+                backgroundColor: global.primaryColor,
+                padding: ResponsiveSize(10),
+                borderRadius: ResponsiveSize(10),
+                width: windowWidth * 0.7,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              {reportLoading ? (
+                <ActivityIndicator size={'small'} color={global.white} />
+              ) : (
+                <TextC
+                  text={'Submit'}
+                  font={'Montserrat-Bold'}
+                  size={ResponsiveSize(11)}
+                  style={{color: global.white}}
+                />
+              )}
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
       <Modal
-        isVisible={isReportSecondVisible}
- style={{
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 0,  // Ensure full-screen modal
-  }}
+        isVisible={isDeleteSecondVisible}
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          margin: 0, // Ensure full-screen modal
+        }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
-
-        onBackdropPress={() => setIsReportSecondVisible(false)}
+        onBackdropPress={() => isDeleteSecondVisible(false)}
         statusBarTranslucent={false}>
         <View style={style.modalTopLayerReportSecond}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-            <TextC text={"Report"} font={"Montserrat-Bold"} />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <TextC text={'Delete Post'} font={'Montserrat-Bold'} />
           </View>
-          <View style={{ paddingTop: ResponsiveSize(20) }}>
-            <TextInput onChangeText={(e) => setReportPostDescription(e)} placeholder='Enter some description about post' style={{ fontSize: ResponsiveSize(11), fontFamily: "Montserrat-Medium", borderWidth: ResponsiveSize(1), borderColor: "#EEEEEE", padding: ResponsiveSize(10), width: windowWidth * 0.7, height: ResponsiveSize(100), borderRadius: ResponsiveSize(10) }} />
+          <View
+            style={{
+              paddingTop: ResponsiveSize(20),
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: windowWidth * 0.7,
+              height: ResponsiveSize(100),
+            }}>
+            <TextC
+              text={'Are you sure you want to delete this post?'}
+              font={'Montserrat-Bold'}
+            />
           </View>
-          <View style={{ paddingTop: ResponsiveSize(20) }}>
-            <TouchableOpacity onPress={addReportPost} style={{ backgroundColor: global.primaryColor, padding: ResponsiveSize(10), borderRadius: ResponsiveSize(10), width: windowWidth * 0.7, justifyContent: 'center', alignItems: 'center' }}>
-              {reportLoading ?
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-around',
+              paddingTop: ResponsiveSize(20),
+              width: windowWidth * 0.7,
+              height: ResponsiveSize(70),
+            }}>
+            <TouchableOpacity
+              onPress={addDeletePost}
+              style={{
+                backgroundColor: global.primaryColor,
+                padding: ResponsiveSize(10),
+                borderRadius: ResponsiveSize(10),
+                width: windowWidth * 0.25,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              {deleteLoading ? (
                 <ActivityIndicator size={'small'} color={global.white} />
-                :
-                <TextC text={"Submit"} font={"Montserrat-Bold"} size={ResponsiveSize(11)} style={{ color: global.white }} />
-              }
+              ) : (
+                <TextC
+                  text={'Delete'}
+                  font={'Montserrat-Bold'}
+                  size={ResponsiveSize(11)}
+                  style={{color: global.white}}
+                />
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setIsDeleteSecondVisible(false)}
+              style={{
+                backgroundColor: global.primaryColor,
+                padding: ResponsiveSize(10),
+                borderRadius: ResponsiveSize(10),
+                width: windowWidth * 0.25,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <TextC
+                text={'Cancel'}
+                font={'Montserrat-Bold'}
+                size={ResponsiveSize(11)}
+                style={{color: global.white}}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -1895,7 +2218,7 @@ const Post = ({
   );
 };
 
-function mapStateToProps({ PostCreationReducer }) {
-  return { PostCreationReducer };
+function mapStateToProps({PostCreationReducer}) {
+  return {PostCreationReducer};
 }
 export default connect(mapStateToProps, PostCreationAction)(Post);

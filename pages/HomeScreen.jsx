@@ -339,7 +339,6 @@ const HomeScreen = ({
 
 
   const renderItem = useCallback((items) => {
-    console.log(items.item)
     return (
       <>
         {items?.item?.content_type == "POST_RESHARE" ?
@@ -364,6 +363,9 @@ const HomeScreen = ({
           />
           :
           <Post
+
+            
+            getNewPost={onRefresh}
             key={items?.item?.post_id}
             selfLiked={items?.item?.selfLiked}
             postId={items?.item?.post_id}
