@@ -1243,10 +1243,11 @@ const Post = ({
 
 
   const OpenRepostModal = () => {
-    setIsReportVisible(false)
-    setIsReportSecondVisible(true)
+    setIsReportVisible(false);
+    setTimeout(() => {
+      setIsReportSecondVisible(true);
+    }, 500); // A slight delay to ensure the first modal is fully closed
   }
-
 
 
 
@@ -1956,7 +1957,11 @@ const Post = ({
       </Modal>
       <Modal
         isVisible={isReportVisible}
-        style={{ margin: 0 }}
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          margin: 0,  // Ensure full-screen modal
+        }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
         onBackdropPress={() => setIsReportVisible(false)}
@@ -1985,9 +1990,14 @@ const Post = ({
       </Modal>
       <Modal
         isVisible={isReportSecondVisible}
-        style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+ style={{
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 0,  // Ensure full-screen modal
+  }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
+
         onBackdropPress={() => setIsReportSecondVisible(false)}
         statusBarTranslucent={false}>
         <View style={style.modalTopLayerReportSecond}>

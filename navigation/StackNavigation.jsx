@@ -45,6 +45,7 @@ import GroupChatSetting from '../pages/GroupChatSetting.jsx';
 import UpdateAnnouncement from '../pages/UpdateAnnouncement.jsx';
 import GroupChatMember from '../pages/GroupChatMember.jsx';
 import Suggestion from '../pages/Suggestion.jsx';
+import AddSuggestion from '../pages/AddSuggestion.jsx';
 
 
 
@@ -81,7 +82,7 @@ const ProfileStackNavigation = ({ onLogin }) => {
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="MyPost" component={MyPost} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Connection" component={Connections} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="Suggestion" component={Suggestion} />
-   
+      <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="AddSuggestion" component={AddSuggestion} />
       <Stack.Screen options={{ headerShown: false, navigationBarHidden: true }} name="UserProfileScreen" component={UserProfileScreen} />
       <Stack.Screen
         options={{ headerShown: false, navigationBarHidden: true }}
