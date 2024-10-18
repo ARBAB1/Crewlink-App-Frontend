@@ -383,6 +383,31 @@ export const AddCheckInPrivacy = (body) => async () => {
         console.log(error)
     }
 }
+export const AddGroupPrivacy = (body) => async () => {
+    console.log(body, 'body')
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+        const response = await fetch(`${baseUrl.baseUrl}/privacy-setting/profile_privacy`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': baseUrl.apiKey,
+                'accesstoken': `Bearer ${Token}`
+            },
+            body: JSON.stringify({
+              "group_privacy":body,
+            })
+        });
+        if (response.ok === true) {
+            const res = await response.json()
+            return res
+        }
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+
 export const getAllPrivacy  = () => async (dispatch, getState) => {
     const Token = await AsyncStorage.getItem('Token');
     try {

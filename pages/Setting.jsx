@@ -132,7 +132,7 @@ const Setting = ({ onLogin }) => {
                             <TextC text={"Account Privacy"} font={'Montserrat-Medium'} />
                             <AntDesign name='right' size={ResponsiveSize(15)} color={global.primaryColor} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.ListWrapper} onPress={() => navigation.navigate('PrivacySetting')}>
+                        <TouchableOpacity style={styles.ListWrapper} onPress={() => navigation.navigate('BlockPrivacy')}>
                             <TextC text={"Blocked Accounts"} font={'Montserrat-Medium'} />
                             <AntDesign name='right' size={ResponsiveSize(15)} color={global.primaryColor} />
                         </TouchableOpacity>

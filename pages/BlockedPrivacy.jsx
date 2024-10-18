@@ -24,7 +24,7 @@ import { Image } from 'react-native-elements';
 import { set } from 'react-hook-form';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const PrivacySetting = ({
+const BlockedPrivacy = ({
   getAllConnections,
   AddGroupPrivacy,
   getAllBlockedConnections,
@@ -67,19 +67,19 @@ const PrivacySetting = ({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      width: '33.33%',
+      width: '30%',
     },
     logoSide2: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      width: '33.33%',
+      width: '40%',
     },
     logoSide3: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-end',
-      width: '33.33%',
+      width: '30%',
     },
     NextBtn: {
       backgroundColor: '#69BE25',
@@ -90,16 +90,6 @@ const PrivacySetting = ({
       justifyContent: 'center',
     },
     SearchCenter: {
-  
-      borderColor: '#EEEEEE',
-      borderTopWidth: 1,
-      width: '100%',
-      padding: ResponsiveSize(15),
-    },
-    SearchCenters: {
-  
-   
-  
       padding: ResponsiveSize(15),
     },
     SelectOptions: {
@@ -271,10 +261,9 @@ const LoadBlockedConnections = async () => {
   // };
 
   useEffect(() => {
-    LoadPrivacy();
+  
     LoadConnections();
-    LoadClosedConnections();
-    CheckCustomSettings();
+ 
     LoadBlockedConnections();
   }, []);
   const BlockUser = async (user_id) => {
@@ -306,9 +295,7 @@ const filteredBlockedConnections = blockedConnections?.filter(connection =>
   connection.user_name.toLowerCase().includes(searchText.toLowerCase())
 );
 
-  const isUserInClosedConnections = user_id =>
-    closedConnections.some(connection => connection.added_user_id === user_id);
-
+ 
   return (
     <>
       <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
@@ -318,123 +305,34 @@ const filteredBlockedConnections = blockedConnections?.filter(connection =>
             <AntDesign name="left" color={'#05348E'} size={ResponsiveSize(18)} />
           </Pressable>
           <View style={styles.logoSide2}>
-            <TextC size={ResponsiveSize(13)} font={'Montserrat-Bold'} text={'Privacy'} />
+            <TextC size={ResponsiveSize(13)} font={'Montserrat-Bold'} text={'Blocked Settings'} />
           </View>
           <View style={styles.logoSide3} />
         </View>
 <ScrollView>
 
 
-        <View style={styles.SearchCenters}>
-          <TextC size={ResponsiveSize(15)} text={'Account Privacy'} font={'Montserrat-Bold'} />
-          <View style={{ paddingTop: ResponsiveSize(10) }}>
-            <TextC
-              size={ResponsiveSize(11)}
-              text={'Restricts access to your profile...'}
-              font={'Montserrat-Medium'}
-              style={{ color: global.placeholderColor }}
-            />
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: ResponsiveSize(10) }}>
-            <TextC size={ResponsiveSize(12)} text={'Set Your Account Privacy'} font={'Montserrat-SemiBold'} />
-            <ModalSelector
-              selectStyle={styles.TextFeidContainerRight}
-              data={[
-                { key: 1, label: 'PUBLIC' },
-                { key: 2, label: 'PRIVATE' },
-                { key: 3, label: 'FOLLOWERS' },
-                { key: 4, label: 'CUSTOM' },
-              ]}
-              initValue={AccountPrivacy}
-              onChange={value => AccountPrivacyHandler(value.label)}
-            />
-          </View>
-        
-        </View>
-
-        <View style={styles.SearchCenter}>
-          <TextC size={ResponsiveSize(15)} text={'Check-In Privacy'} font={'Montserrat-Bold'} />
-          <TextC
-              size={ResponsiveSize(11)}
-              text={'Others can see your checkin...'}
-              font={'Montserrat-Medium'}
-              style={{ color: global.placeholderColor, paddingTop: ResponsiveSize(10) }}
-            />
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: ResponsiveSize(10) }}>
-            <TextC size={ResponsiveSize(12)} text={'Set Privacy for Check-In'} font={'Montserrat-SemiBold'} />
-            <ModalSelector
-              selectStyle={styles.TextFeidContainerRight}
-              data={[
-                { key: 1, label: 'PUBLIC' },
-                { key: 2, label: 'PRIVATE' },
-                { key: 3, label: 'FOLLOWERS' },
-                { key: 4, label: 'CUSTOM' },
-              ]}
-              initValue={CheckInPrivacy}
-              onChange={e => CheckInPrivacyHandler(e.label)}
-            />
-          </View>
-          <View style={{ paddingTop: ResponsiveSize(10) }}>
-           
-          </View>
-        </View>
-
-
-        <View style={styles.SearchCenter}>
-          <TextC size={ResponsiveSize(15)} text={'Group Privacy'} font={'Montserrat-Bold'} />
-           <TextC
-              size={ResponsiveSize(11)}
-              text={'Others can add you to groups...'}
-              font={'Montserrat-Medium'}
-              style={{ color: global.placeholderColor, paddingTop: ResponsiveSize(10) }}
-            />
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: ResponsiveSize(10) }}>
-            <TextC size={ResponsiveSize(12)} text={'Set Group Privacy'} font={'Montserrat-SemiBold'} />
-            <ModalSelector
-              selectStyle={styles.TextFeidContainerRight}
-              data={[
-                { key: 1, label: 'NO ONE' ,label2: 'NO_ONE' },
-                { key: 2, label: 'EVERYONE' ,label2: 'EVERYONE' },
-             
-              ]}
-              initValue={GroupPrivacy==="NO_ONE" ? "NO ONE" : "EVERYONE" }
-              onChange={e => GroupPrivacyHandler(e.label2)}
-            />
-          </View>
-          <View style={{ paddingTop: ResponsiveSize(10) }}>
-           
-          </View>
-        </View>
-
+       
      
   <>
-
   <View style={styles.SearchCenter}>
 
-            <TextC size={ResponsiveSize(15)} text={'Connections'} font={'Montserrat-Bold'} />
-            <TextC
-              size={ResponsiveSize(11)}
-              text={'Custom Approved Connections will able to see your check-In status and account details '}
-              font={'Montserrat-Medium'}
-              style={{ color: global.placeholderColor }}
-            />
-  </View>
+<TextC size={ResponsiveSize(15)} text={'Blocked Connections'} font={'Montserrat-Bold'} />
+<TextC
+  size={ResponsiveSize(11)}
+  text={'Blocked Connections will not able to see your check-In status and account details '}
+  font={'Montserrat-Medium'}
+  style={{ color: global.placeholderColor }}
+/>
+</View>
+<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15) }}>
+                <TextC size={ResponsiveSize(12)} text={'Blocked Connections List'} font={'Montserrat-SemiBold'} />
+                <TouchableOpacity onPress={() => setBlockVisible(true)}>
+                  <Octicons name="diff-added" color={"red"} size={ResponsiveSize(18)} />
+                </TouchableOpacity>
+              </View>
+ 
 
-            {!customSetting ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15) }}>
-                <TextC size={ResponsiveSize(12)} text={'Add approved followers'} font={'Montserrat-SemiBold'} />
-                <TouchableOpacity onPress={() => setConnectionVisible(true)}>
-                  <Octicons name="diff-added" color={global.secondaryColor} size={ResponsiveSize(18)} />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15) }}>
-                <TextC size={ResponsiveSize(12)} text={'Approved Connections List'} font={'Montserrat-SemiBold'} />
-                <TouchableOpacity onPress={() => setConnectionVisible(true)}>
-                  <Octicons name="diff-added" color={global.secondaryColor} size={ResponsiveSize(18)} />
-                </TouchableOpacity>
-              </View>
-            )}
           </>
           </ScrollView>
         {/* Modal for selecting connections */}
@@ -461,7 +359,7 @@ const filteredBlockedConnections = blockedConnections?.filter(connection =>
             />
 
             <ScrollView style={styles.AirlineBoundries} showsVerticalScrollIndicator={false}>
-              {filteredConnections? filteredConnections?.map(connection => (
+              {filteredConnections?.map(connection => (
                 <TouchableOpacity
                   key={connection.user_id}
                   onPress={() => AddOrRemoveConnection(connection.user_id)}
@@ -484,14 +382,7 @@ const filteredBlockedConnections = blockedConnections?.filter(connection =>
                     )
                   )}
                 </TouchableOpacity>
-              )):(
-                <View style={{alignItems:'center', justifyContent:'center', marginTop:ResponsiveSize(20)}}>
-
-                <TextC text={'No custom connections found'} font={'Montserrat-Medium'} size={ResponsiveSize(12)} style={{color: global.placeholderColor}}/>
-            </View>
-              )
-              
-              }
+              ))}
             </ScrollView>
 
             {/* Add/Edit/Delete Custom Connection Button */}
@@ -534,7 +425,7 @@ const filteredBlockedConnections = blockedConnections?.filter(connection =>
             />
 
             <ScrollView style={styles.AirlineBoundries} showsVerticalScrollIndicator={false}>
-              {filteredBlockedConnections?.map(connection => (
+              {filteredBlockedConnections?.length > 0 ?filteredBlockedConnections?.map(connection => (
                 <View
                   key={connection.user_id}
                 
@@ -553,7 +444,12 @@ const filteredBlockedConnections = blockedConnections?.filter(connection =>
                   <TextC text="Unblock" font="Montserrat-Bold" size={ResponsiveSize(12)} style={{ color: global.white }} />
                 </TouchableOpacity>
                 </View>
-              ))}
+              )): 
+              <View style={{alignItems:'center', justifyContent:'center', marginTop:ResponsiveSize(20)}}>
+
+                  <TextC text={'No blocked connections found'} font={'Montserrat-Medium'} size={ResponsiveSize(12)} style={{color: global.placeholderColor}}/>
+              </View>
+              }
             </ScrollView>
 
             {/* Add/Edit/Delete Custom Connection Button */}
@@ -574,23 +470,15 @@ const filteredBlockedConnections = blockedConnections?.filter(connection =>
 
 function mapStateToProps({
   AllConnectionsReducer,
-  CustomConnectionsReducer,
-  AllPrivacyReducer,
+
   AllBlockedConnectionsReducer,
 }) {
-  return { AllConnectionsReducer, CustomConnectionsReducer, AllPrivacyReducer, AllBlockedConnectionsReducer };
+  return { AllConnectionsReducer, AllBlockedConnectionsReducer };
 }
 
 export default connect(mapStateToProps, {
   getAllConnections: AllConnectionsAction.getAllConnections,
-  getAllPrivacy: AllConnectionsAction.getAllPrivacy,
-  CheckCustomConnections: AllConnectionsAction.CheckCustomConnections,
-  AddCustomConnections: AllConnectionsAction.AddCustomConnections,
-  AddAccountPrivacy: AllConnectionsAction.AddAccountPrivacy,
-  AddCheckInPrivacy: AllConnectionsAction.AddCheckInPrivacy,
-  AddGroupPrivacy: AllConnectionsAction.AddGroupPrivacy,
+
   getAllBlockedConnections: AllConnectionsAction.getAllBlockedConnections,
-  getAllClosedConnections: AllConnectionsAction.getAllClosedConnections,
-  DeleteCustomConnections: AllConnectionsAction.DeleteCustomConnections,
-  UpdateCustomConnections: AllConnectionsAction.UpdateCustomConnections,
-})(React.memo(PrivacySetting));
+
+})(React.memo(BlockedPrivacy));
