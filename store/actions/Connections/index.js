@@ -16,10 +16,75 @@ import {
     TASK_CHECK_CUSTOMCONNECTIONS_START,
     TASK_CHECK_CUSTOMCONNECTIONS_END,
     TASK_CHECK_CUSTOMCONNECTIONS_END_ERROR,
+    TASK_GET_ALLBLOCKEDCONNECTIONS_START,
+    TASK_GET_ALLBLOCKEDCONNECTIONS_END,
+    TASK_GET_ALLBLOCKEDCONNECTIONS_END_ERROR
 } from '../types'
 
 
-
+export const getAllBlockedConnections = ({ page }) => async (dispatch, getState) => {
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+        if (page == 1) {
+            dispatch({
+                type: TASK_GET_ALLBLOCKEDCONNECTIONS_START,
+                loading: true,
+            });
+        }
+        dispatch({
+            type: TASK_GET_ALLBLOCKEDCONNECTIONS_END_ERROR,
+            networkError: false,
+        });
+        const response = await fetch(`${baseUrl.baseUrl}/block/get-all-blocked-users/${page}/100`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': baseUrl.apiKey,
+                'accesstoken': `Bearer ${Token}`
+            },
+        });
+       
+        if (response.ok === true) {
+            const res = await response.json()
+        
+            if (res?.blockedUsers) {
+                dispatch({
+                    type: TASK_GET_ALLBLOCKEDCONNECTIONS_END,
+                    loading: false,
+                });
+                return res?.blockedUsers
+            }
+            else if (res.message == 'No Blocked Connections Data Found') {
+                dispatch({
+                    type: TASK_GET_ALLBLOCKEDCONNECTIONS_END,
+                    payload: [],
+                    loading: false,
+                });
+            }
+        }
+        else {
+            dispatch({
+                type: TASK_GET_ALLCONNECTIONS_END_ERROR,
+                networkError: true,
+            });
+            dispatch({
+                type: TASK_GET_ALLCONNECTIONS_END,
+                loading: false,
+            });
+        }
+    }
+    catch (error) {
+        dispatch({
+            type: TASK_GET_ALLCONNECTIONS_END_ERROR,
+            networkError: true,
+        });
+        dispatch({
+            type: TASK_GET_ALLCONNECTIONS_END,
+            loading: false,
+        });
+        console.log(error)
+    }
+}
 export const getAllConnections = ({ page }) => async (dispatch, getState) => {
     const Token = await AsyncStorage.getItem('Token');
     try {

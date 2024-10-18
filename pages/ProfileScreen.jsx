@@ -323,8 +323,8 @@ const ProfileScreen = ({GetUserProfileReducer, GetProfileData}) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.SetttingBtn}
-                onPress={() => navigation.navigate('SearchUser')}>
-                <Text style={styles.SetttingBtnText}>Search</Text>
+                onPress={() => navigation.navigate('Suggestion')}>
+                <Text style={styles.SetttingBtnText}>Suggestions</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => navigation.navigate('Setting')}
