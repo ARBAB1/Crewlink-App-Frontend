@@ -27,7 +27,11 @@ import { useNavigation, useIsFocused } from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import * as UserProfile from '../store/actions/UserProfile/index';
+
+
+
 const MessageList = ({ GetProfileData }) => {
   const focus = useIsFocused();
   const scheme = useColorScheme();
@@ -227,19 +231,42 @@ const MessageList = ({ GetProfileData }) => {
                   numberOfLines={1}
                 />
               </View>
-            ) : (
-              <TextC
-                size={ResponsiveSize(10)}
-                text={item?.message}
-                font={'Montserrat-Medium'}
+            ) : item?.is_location ?
+              <View
                 style={{
-                  color: global.placeholderColor,
-                  width: ResponsiveSize(140),
-                }}
-                ellipsizeMode={'tail'}
-                numberOfLines={1}
-              />
-            )}
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <Ionicons
+                  name="location-outline"
+                  size={ResponsiveSize(12)}
+                  style={{ marginRight: ResponsiveSize(2) }}
+                />
+                <TextC
+                  size={ResponsiveSize(10)}
+                  text={'Location'}
+                  font={'Montserrat-Medium'}
+                  style={{
+                    color: global.placeholderColor,
+                    width: ResponsiveSize(140),
+                  }}
+                  ellipsizeMode={'tail'}
+                  numberOfLines={1}
+                />
+              </View>
+              : (
+                <TextC
+                  size={ResponsiveSize(10)}
+                  text={item?.message}
+                  font={'Montserrat-Medium'}
+                  style={{
+                    color: global.placeholderColor,
+                    width: ResponsiveSize(140),
+                  }}
+                  ellipsizeMode={'tail'}
+                  numberOfLines={1}
+                />
+              )}
           </View>
         </View>
         <View
@@ -380,6 +407,8 @@ const MessageList = ({ GetProfileData }) => {
       </TouchableOpacity>
     );
   }, []);
+
+  console.log(recentChats[0], 'recentChatsNulll')
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
       <StatusBar

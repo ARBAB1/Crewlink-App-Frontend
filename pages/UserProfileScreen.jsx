@@ -27,6 +27,7 @@ import FastImage from 'react-native-fast-image';
 import baseUrl from '../store/config.json';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { useToast } from "react-native-toast-notifications";
+import Modal from 'react-native-modal';
 
 
 const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) => {
@@ -37,9 +38,21 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
   const navigation = useNavigation();
   const [loading, setLoading] = useState(null);
   const toast = useToast();
-
   const [connectLoading, setConnectLoading] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
+  const [isBlockModal, setIsBlockModal] = useState(false);
+  const [isBlockModalConfirm, setIsBlockModalConfirm] = useState(false);
+
+
+  const OpenBlockModal = () => {
+    setIsBlockModal(true)
+  }
+
+  const OpenBlockModalConfirm = () => {
+    setIsBlockModalConfirm(true)
+    setIsBlockModal(false)
+  }
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -190,6 +203,59 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       paddingVertical: ResponsiveSize(5),
       marginLeft: ResponsiveSize(5),
     },
+    modalTopLayer: {
+      height: windowHeight * 0.15,
+      width: windowWidth,
+      paddingTop: 10,
+      position: 'absolute',
+      backgroundColor: 'white',
+      bottom: ResponsiveSize(0),
+      borderTopLeftRadius: ResponsiveSize(15),
+      borderTopRightRadius: ResponsiveSize(15),
+      overflow: 'hidden',
+      zIndex: 999,
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    BlockBtn: {
+      width: windowWidth - ResponsiveSize(30),
+      flexDirection: 'row',
+      alignItems: 'centere'
+    },
+    modalTopLayer2: {
+      height: windowHeight * 0.20,
+      width: windowWidth * 0.8,
+      backgroundColor: 'white',
+      borderRadius: ResponsiveSize(15),
+      overflow: 'hidden',
+      zIndex: 999,
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    BlockDone: {
+      width: ResponsiveSize(80),
+      height: ResponsiveSize(38),
+      backgroundColor: global.primaryColor,
+      borderRadius: ResponsiveSize(10),
+      justifyContent: 'center',
+      marginLeft: ResponsiveSize(5),
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    NotBlock: {
+      width: ResponsiveSize(80),
+      height: ResponsiveSize(38),
+      backgroundColor: global.primaryColor,
+      borderRadius: ResponsiveSize(10),
+      justifyContent: 'center',
+      marginRight: ResponsiveSize(5),
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }
   });
 
   const LoadProfile = async () => {
@@ -284,7 +350,7 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       setUserProfile((prev) => ({
         ...prev,
         status: "Connect",
-      }));;
+      }));
     } else if (result.statusCode === 400) {
       setConnectLoading(false)
       toast.show("Something Went Wrong")
@@ -356,6 +422,41 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
     LoadProfile();
   }, []);
 
+
+  const [blockUserLoader, setBlockUserLoader] = useState(false);
+  const BlockUser = async () => {
+    setBlockUserLoader(true)
+    const Token = await AsyncStorage.getItem('Token');
+    const response = await fetch(
+      `${baseUrl.baseUrl}/block/block-unblock-user`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': baseUrl.apiKey,
+          accesstoken: `Bearer ${Token}`,
+        },
+        body: JSON.stringify({ blocked_id: user_id }),
+      },
+    );
+    const result = await response.json();
+    if (result.statusCode === 201) {
+      if (result.message == "User blocked") {
+        setUserProfile((prev) => ({
+          ...prev,
+          status: "Connect",
+          blocked_by_me: "true"
+        }));
+      }
+      else if (result.message == "User Unblocked") {
+        LoadProfile()
+      }
+      setBlockUserLoader(false)
+      setIsBlockModalConfirm(false)
+    }
+  }
+
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={'white'} barStyle={'dark-content'} />
@@ -368,11 +469,9 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         } style={{ flexGrow: 1 }}>
           <View style={styles.ProfileHeader}>
-
             <Pressable onPress={() => navigation.goBack()} style={styles.logoSide1}>
               <AntDesign name='left' color={"#05348E"} size={ResponsiveSize(18)} />
             </Pressable>
-
             <View>
               <TextC
                 font={'Montserrat-Bold'}
@@ -380,7 +479,7 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
                 size={ResponsiveSize(14)}
               />
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={OpenBlockModal}>
               <Entypo name="dots-three-vertical" size={ResponsiveSize(20)} color={'#05348E'} />
             </TouchableOpacity>
           </View>
@@ -388,24 +487,41 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
           <View style={styles.ProfileInfo}>
             <View style={styles.profileImageWrapper}>
               <View style={styles.ProfileImage}>
-                <FastImage
-                  style={styles.ProfileImageMain}
-                  source={
-                    userProfile?.profile_picture_url == ''
-                      ? require('../assets/icons/avatar.png')
-                      : { uri: userProfile?.profile_picture_url, priority: FastImage.priority.high }
-                  }
-                />
+                {userProfile?.blocked_by_me == "false" ?
+                  <FastImage
+                    style={styles.ProfileImageMain}
+                    source={require('../assets/icons/avatar.png')}
+                  />
+                  :
+                  <>
+                    <FastImage
+                      style={styles.ProfileImageMain}
+                      source={
+                        userProfile?.profile_picture_url == ''
+                          ? require('../assets/icons/avatar.png')
+                          : { uri: userProfile?.profile_picture_url, priority: FastImage.priority.high }
+                      }
+                    />
+                  </>
+                }
               </View>
             </View>
             <View style={styles.ProfilePostInfo}>
               <View style={styles.ProfilePostInfoInnerCard1}>
-                <TextC
-                  text={userProfile?.post_count || 0}
-                  font={'Montserrat-SemiBold'}
-                  size={ResponsiveSize(20)}
-                  style={{ color: '#69BE25' }}
-                />
+                {userProfile?.blocked_by_me == "false" ?
+                  <TextC
+                    text={0}
+                    font={'Montserrat-SemiBold'}
+                    size={ResponsiveSize(20)}
+                    style={{ color: '#69BE25' }}
+                  /> :
+                  <TextC
+                    text={userProfile?.post_count || 0}
+                    font={'Montserrat-SemiBold'}
+                    size={ResponsiveSize(20)}
+                    style={{ color: '#69BE25' }}
+                  />
+                }
                 <TextC
                   text={'Posts'}
                   font={'Montserrat-SemiBold'}
@@ -415,12 +531,20 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
 
               <View style={styles.ProfilePostInfoInnerCard}>
                 {/* <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigation.navigate('Connection')}> */}
-                <TextC
-                  text={userProfile?.connection_count || 0}
-                  font={'Montserrat-SemiBold'}
-                  size={ResponsiveSize(20)}
-                  style={{ color: '#69BE25' }}
-                />
+                {userProfile?.blocked_by_me == "false" ?
+                  <TextC
+                    text={0}
+                    font={'Montserrat-SemiBold'}
+                    size={ResponsiveSize(20)}
+                    style={{ color: '#69BE25' }}
+                  /> :
+                  <TextC
+                    text={userProfile?.connection_count || 0}
+                    font={'Montserrat-SemiBold'}
+                    size={ResponsiveSize(20)}
+                    style={{ color: '#69BE25' }}
+                  />
+                }
                 <TextC
                   text={'Connects'}
                   font={'Montserrat-SemiBold'}
@@ -435,165 +559,189 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
                   size={ResponsiveSize(20)}
                   color={'#69BE25'}
                 />
-                <TextC
-                  text={
-                    userProfile?.last_checkin ==
-                      'No last check-in available'
-                      ? 'No Check-in'
-                      : userProfile?.last_checkin
-                  }
-                  font={'Montserrat-SemiBold'}
-                  size={ResponsiveSize(12)}
-                  style={{ width: '100%', textAlign: 'center' }}
-                  ellipsizeMode={'tail'}
-                  numberOfLines={1}
-                />
+
+
+                {userProfile?.blocked_by_me == "false" ?
+                  <TextC
+                    text={'No Check-in'}
+                    font={'Montserrat-SemiBold'}
+                    size={ResponsiveSize(12)}
+                    style={{ width: '100%', textAlign: 'center' }}
+                    ellipsizeMode={'tail'}
+                    numberOfLines={1}
+                  /> :
+                  <TextC
+                    text={
+                      userProfile?.last_checkin ==
+                        'No last check-in available'
+                        ? 'No Check-in'
+                        : userProfile?.last_checkin
+                    }
+                    font={'Montserrat-SemiBold'}
+                    size={ResponsiveSize(12)}
+                    style={{ width: '100%', textAlign: 'center' }}
+                    ellipsizeMode={'tail'}
+                    numberOfLines={1}
+                  />
+                }
+
               </View>
             </View>
           </View>
 
           <View style={styles.ProfileTitleDescription}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <TextC
-                  font={'Montserrat-SemiBold'}
-                  text={userProfile?.user_name}
-                  size={ResponsiveSize(15)}
-                />
-                {userProfile?.airline && (
-                  <View style={styles.AirlineTag}>
-                    <TextC
-                      font={'Montserrat-SemiBold'}
-                      text={userProfile?.airline}
-                      size={ResponsiveSize(10)}
-                      style={{color: global.primaryColor}}
-                    />
-                  </View>
-                )}
-              </View>
-            {userProfile?.bio && (
-              <ReadMore
-                seeLessStyle={{
-                  fontFamily: 'Montserrat-Bold',
-                  color: global.primaryColor,
-                }}
-                seeMoreStyle={{
-                  fontFamily: 'Montserrat-Bold',
-                  color: global.primaryColor,
-                }}
-                numberOfLines={3}
-                style={styles.DescriptionStyle}>
-                {userProfile?.bio}
-              </ReadMore>
-            )}
-          </View>
-          {userProfile?.myConnection ?
-            <View style={styles.ProfileSettingBtn}>
-              <TouchableOpacity
-                onPress={() => RemoveConnectUser(route?.params?.user_id)}
-                style={styles.SetttingBtnDisconnect}>
-                {connectLoading ?
-                  <ActivityIndicator size="small" color={global.white} />
-                  :
-                  <Text style={styles.SetttingBtnText}>Disconnect</Text>
-                }
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.SetttingBtn1}
-                onPress={() => navigation.navigate('Message', {
-                  receiverUserId: route?.params?.user_id,
-                  profile_picture_url: userProfile?.profile_picture_url,
-                  user_name: userProfile?.user_name
-                })}
-              >
-                <Text style={styles.SetttingBtnText}>Message</Text>
-              </TouchableOpacity>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TextC
+                font={'Montserrat-SemiBold'}
+                text={userProfile?.user_name}
+                size={ResponsiveSize(15)}
+              />
+              {userProfile?.blocked_by_me == "false" ?
+                "" :
+                <>
+                  {userProfile?.airline && (
+                    <View style={styles.AirlineTag}>
+                      <TextC
+                        font={'Montserrat-SemiBold'}
+                        text={userProfile?.airline}
+                        size={ResponsiveSize(10)}
+                        style={{ color: global.primaryColor }}
+                      />
+                    </View>
+                  )}
+                </>}
             </View>
-            :
-            <View style={styles.ProfileSettingBtn}>
-              {userProfile?.status == "Connect" ?
-                <TouchableOpacity
-                  style={styles.SetttingBtn}
-                  onPress={() => ConnectUser(route?.params?.user_id)}>
-                  {connectLoading ?
-                    <ActivityIndicator size="small" color={global.white} />
-                    :
-                    <Text style={styles.SetttingBtnText}>{userProfile?.status}</Text>
-                  }
-                </TouchableOpacity>
-                :
-                userProfile?.status == "Disconnect" ?
+            {userProfile?.blocked_by_me == "false" ?
+              "" :
+              <>
+                {userProfile?.bio && (
+                  <ReadMore
+                    seeLessStyle={{
+                      fontFamily: 'Montserrat-Bold',
+                      color: global.primaryColor,
+                    }}
+                    seeMoreStyle={{
+                      fontFamily: 'Montserrat-Bold',
+                      color: global.primaryColor,
+                    }}
+                    numberOfLines={3}
+                    style={styles.DescriptionStyle}>
+                    {userProfile?.bio}
+                  </ReadMore>
+                )}
+              </>}
+          </View>
+          {userProfile?.blocked_by_me == "false" ?
+            "" :
+            <>
+              {userProfile?.blocked_by_me == "true" ?
+                <View style={styles.ProfileSettingBtn}>
                   <TouchableOpacity
+                    disabled={blockUserLoader}
                     style={styles.SetttingBtn}
-                    onPress={() => ConnectUser(route?.params?.user_id)}
-                  >
-                    {connectLoading ?
+                    onPress={() => BlockUser()}>
+                    {blockUserLoader ?
                       <ActivityIndicator size="small" color={global.white} />
                       :
-                      <Text style={styles.SetttingBtnText}>{userProfile?.status}</Text>
+                      <Text style={styles.SetttingBtnText}>Unblock</Text>
                     }
                   </TouchableOpacity>
-                  :
-                  userProfile?.status == "Cancel Request" ?
-                    <TouchableOpacity
-                      style={styles.SetttingBtnRed}
-                      onPress={() => RejectUser(route?.params?.user_id)}>
-                      {connectLoading ?
-                        <ActivityIndicator size="small" color={global.white} />
+                </View>
+                :
+                <>
+                  {userProfile?.myConnection ?
+                    <View style={styles.ProfileSettingBtn}>
+                      <TouchableOpacity
+                        onPress={() => RemoveConnectUser(route?.params?.user_id)}
+                        style={styles.SetttingBtnDisconnect}>
+                        {connectLoading ?
+                          <ActivityIndicator size="small" color={global.white} />
+                          :
+                          <Text style={styles.SetttingBtnText}>Disconnect</Text>
+                        }
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.SetttingBtn1}
+                        onPress={() => navigation.navigate('Message', {
+                          receiverUserId: route?.params?.user_id,
+                          profile_picture_url: userProfile?.profile_picture_url,
+                          user_name: userProfile?.user_name
+                        })}
+                      >
+                        <Text style={styles.SetttingBtnText}>Message</Text>
+                      </TouchableOpacity>
+                    </View>
+                    :
+                    <View style={styles.ProfileSettingBtn}>
+                      {userProfile?.status == "Connect" ?
+                        <TouchableOpacity
+                          style={styles.SetttingBtn}
+                          onPress={() => ConnectUser(route?.params?.user_id)}>
+                          {connectLoading ?
+                            <ActivityIndicator size="small" color={global.white} />
+                            :
+                            <Text style={styles.SetttingBtnText}>{userProfile?.status}</Text>
+                          }
+                        </TouchableOpacity>
                         :
-                        <Text style={styles.SetttingBtnText}>{userProfile?.status}</Text>
+                        userProfile?.status == "Disconnect" ?
+                          <TouchableOpacity
+                            style={styles.SetttingBtn}
+                            onPress={() => ConnectUser(route?.params?.user_id)}
+                          >
+                            {connectLoading ?
+                              <ActivityIndicator size="small" color={global.white} />
+                              :
+                              <Text style={styles.SetttingBtnText}>{userProfile?.status}</Text>
+                            }
+                          </TouchableOpacity>
+                          :
+                          userProfile?.status == "Cancel Request" ?
+                            <TouchableOpacity
+                              style={styles.SetttingBtnRed}
+                              onPress={() => RejectUser(route?.params?.user_id)}>
+                              {connectLoading ?
+                                <ActivityIndicator size="small" color={global.white} />
+                                :
+                                <Text style={styles.SetttingBtnText}>{userProfile?.status}</Text>
+                              }
+                            </TouchableOpacity> :
+                            userProfile?.status == "Reject" ?
+                              <>
+                                <TouchableOpacity
+                                  style={styles.SetttingBtnDisconnect}
+                                  onPress={() => RejectInvitation(route?.params?.user_id)}
+                                >
+                                  {RejectUserLoading ?
+                                    <ActivityIndicator size="small" color={global.white} />
+                                    :
+                                    <Text style={styles.SetttingBtnText}>Reject</Text>
+                                  }
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                  onPress={() => AcceptUser(route?.params?.user_id)}
+                                  style={styles.SetttingBtn1}
+                                >
+                                  {acceptLoader ?
+                                    <ActivityIndicator size="small" color={global.white} />
+                                    :
+                                    <Text style={styles.SetttingBtnText}>Accept</Text>
+                                  }
+                                </TouchableOpacity>
+                              </>
+                              : ""
                       }
-                    </TouchableOpacity> :
-                    userProfile?.status == "Reject" ?
-                      <>
-                        <TouchableOpacity
-                          style={styles.SetttingBtnDisconnect}
-                          onPress={() => RejectInvitation(route?.params?.user_id)}
-                        >
-                          {RejectUserLoading ?
-                            <ActivityIndicator size="small" color={global.white} />
-                            :
-                            <Text style={styles.SetttingBtnText}>Reject</Text>
-                          }
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          onPress={() => AcceptUser(route?.params?.user_id)}
-                          style={styles.SetttingBtn1}
-                        >
-                          {acceptLoader ?
-                            <ActivityIndicator size="small" color={global.white} />
-                            :
-                            <Text style={styles.SetttingBtnText}>Accept</Text>
-                          }
-                        </TouchableOpacity>
-                      </>
-                      : ""
+                    </View>
+                  }
+                </>
               }
-            </View>
+            </>
           }
-
           <ScrollView style={{ flexGrow: 1 }}>
-            <View style={styles.wrapper}>
-              {userProfile?.posts !== undefined &&
-                userProfile?.posts !== null &&
-                userProfile?.posts !== '' &&
-                userProfile?.posts?.length > 0 ? (
-                userProfile?.posts.map(userPosts => (
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate('MyPost', { user_id: route?.params?.user_id })}
-                    key={userPosts?.parent_id}
-                    style={styles.box}>
-                    <Image
-                      style={{
-                        resizeMode: 'cover',
-                        height: '100%',
-                        width: '100%',
-                      }}
-                      source={{ uri: userPosts?.attachment_thumbnail_url }}
-                    />
-                  </TouchableOpacity>
-                ))
-              ) : (
+            {userProfile?.blocked_by_me == "false" ?
+              <View style={styles.wrapper}>
+
                 <View
                   style={{
                     paddingTop: ResponsiveSize(80),
@@ -609,12 +757,94 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
                     font={'Montserrat-Bold'}
                   />
                 </View>
-              )}
-            </View>
+              </View>
+              :
+              <View style={styles.wrapper}>
+                {userProfile?.posts !== undefined &&
+                  userProfile?.posts !== null &&
+                  userProfile?.posts !== '' &&
+                  userProfile?.posts?.length > 0 ? (
+                  userProfile?.posts.map(userPosts => (
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('MyPost', { user_id: route?.params?.user_id })}
+                      key={userPosts?.parent_id}
+                      style={styles.box}>
+                      <Image
+                        style={{
+                          resizeMode: 'cover',
+                          height: '100%',
+                          width: '100%',
+                        }}
+                        source={{ uri: userPosts?.attachment_thumbnail_url }}
+                      />
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <View
+                    style={{
+                      paddingTop: ResponsiveSize(80),
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: windowWidth,
+                      borderTopColor: global.description,
+                      borderTopWidth: 1,
+                    }}>
+                    <TextC
+                      text={'No Post Available Yet'}
+                      font={'Montserrat-Bold'}
+                    />
+                  </View>
+                )}
+              </View>
+            }
           </ScrollView>
         </ScrollView>
-      )}
-    </SafeAreaView>
+      )
+      }
+      <Modal
+        isVisible={isBlockModal}
+        style={{ margin: 0 }}
+        animationIn={'bounceInUp'}
+        avoidKeyboard={true}
+        onBackdropPress={() => setIsBlockModal(false)}
+        statusBarTranslucent={false}>
+        <View style={styles.modalTopLayer}>
+          <TouchableOpacity onPress={OpenBlockModalConfirm} style={styles.BlockBtn}>
+            <Entypo name="block" size={ResponsiveSize(20)} color={global.red} />
+            <TextC text={'Block this user'} font={"Montserrat-Bold"} style={{ marginLeft: ResponsiveSize(5), marginTop: ResponsiveSize(2), color: global.red }} />
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+
+
+
+      <Modal
+        isVisible={isBlockModalConfirm}
+        style={{ margin: 0, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+        animationIn={'bounceInUp'}
+        avoidKeyboard={true}
+        onBackdropPress={() => setIsBlockModalConfirm(false)}
+        statusBarTranslucent={false}>
+        <View style={styles.modalTopLayer2}>
+          <TextC text={'Are you sure'} font={"Montserrat-Bold"} style={{}} />
+          <TextC size={ResponsiveSize(10)} font={"Montserrat-Medium"} text={'are you sure you want to block this user?'} style={{ color: global.placeholderColor }} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: ResponsiveSize(15) }}>
+            <TouchableOpacity onPress={() => setIsBlockModalConfirm(false)} style={styles.NotBlock}>
+              <TextC text={'No'} font={"Montserrat-Bold"} style={{ color: global.white }} />
+            </TouchableOpacity>
+            <TouchableOpacity disabled={blockUserLoader} style={styles.BlockDone} onPress={BlockUser}>
+              {blockUserLoader ?
+                <ActivityIndicator size={ResponsiveSize(15)} color={global.white} />
+                :
+                <TextC text={'Yes'} font={"Montserrat-Bold"} style={{ color: global.white }} />
+              }
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </SafeAreaView >
   );
 };
 
