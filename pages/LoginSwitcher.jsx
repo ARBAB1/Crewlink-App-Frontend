@@ -97,7 +97,6 @@ const LoginSwitcher = () => {
 
           <View style={styles.ButtonWrapper}>
             <View style={{ paddingBottom: ResponsiveSize(30) }} >
-              <TextC text={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} font={'Montserrat-Thin'} size={ResponsiveSize(11.5)} style={{ color: global.white, textAlign: 'center', width: windowWidth * 0.7 }} />
             </View>
             <View style={styles.LoginSlider}>
               <TouchableOpacity onPress={() => Switcher('Login')} style={styles.LoginSliderLeft}>
