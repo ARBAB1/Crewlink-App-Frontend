@@ -178,10 +178,11 @@ const HomeScreen = ({
     setSelectedCity(city);
   };
   const getFeeds = async () => {
+    console.log(selectedCity,"bydefaultcity")
     setLoading(true);
     const result = await GetUserPosts({ city: selectedCity, page: page });
     if (result?.status == "No_Post_Found") {
-      toast.show("No Posts Found")
+      toast.show("No Posts Found on this airline")
       setLoading(false)
       setPost([])
     }
