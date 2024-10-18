@@ -181,6 +181,15 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       marginTop: ResponsiveSize(5),
       color: global.primaryColor,
     },
+    AirlineTag: {
+      backgroundColor: '#EEEEEE',
+      borderRadius: ResponsiveSize(20),
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: ResponsiveSize(8),
+      paddingVertical: ResponsiveSize(5),
+      marginLeft: ResponsiveSize(5),
+    },
   });
 
   const LoadProfile = async () => {
@@ -372,7 +381,7 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
               />
             </View>
             <TouchableOpacity>
-              <Entypo name="menu" size={26} color={'#05348E'} />
+              <Entypo name="dots-three-vertical" size={ResponsiveSize(20)} color={'#05348E'} />
             </TouchableOpacity>
           </View>
 
@@ -444,11 +453,23 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
           </View>
 
           <View style={styles.ProfileTitleDescription}>
-            <TextC
-              font={'Montserrat-SemiBold'}
-              text={userProfile?.user_name}
-              size={16}
-            />
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <TextC
+                  font={'Montserrat-SemiBold'}
+                  text={userProfile?.user_name}
+                  size={ResponsiveSize(15)}
+                />
+                {userProfile?.airline && (
+                  <View style={styles.AirlineTag}>
+                    <TextC
+                      font={'Montserrat-SemiBold'}
+                      text={userProfile?.airline}
+                      size={ResponsiveSize(10)}
+                      style={{color: global.primaryColor}}
+                    />
+                  </View>
+                )}
+              </View>
             {userProfile?.bio && (
               <ReadMore
                 seeLessStyle={{
@@ -476,7 +497,6 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
                   <Text style={styles.SetttingBtnText}>Disconnect</Text>
                 }
               </TouchableOpacity>
-
               <TouchableOpacity
                 style={styles.SetttingBtn1}
                 onPress={() => navigation.navigate('Message', {

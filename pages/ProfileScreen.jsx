@@ -169,7 +169,6 @@ const ProfileScreen = ({GetUserProfileReducer, GetProfileData}) => {
 
   const [viewProfile, setViewProfile] = useState(false);
 
-  console.log(GetUserProfileReducer?.data, 'lastcheckin');
   return (
     <>
       <SafeAreaView style={styles.container}>

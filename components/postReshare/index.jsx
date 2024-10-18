@@ -38,7 +38,7 @@ import io from "socket.io-client";
 import { launchImageLibrary } from 'react-native-image-picker';
 
 
-const Post = ({
+const PostReshare = ({
   userName,
   profileImage,
   selfLiked,
@@ -63,6 +63,7 @@ const Post = ({
   type,
   userLocation,
   getAllConnections,
+  reshareUserDetails,
   content_type,
   user_idIn,
 }) => {
@@ -97,11 +98,8 @@ const Post = ({
   const [deleteLoader, setDeleteLoader] = useState(false);
   const [likeLoader, setLikeLoader] = useState(false);
   const [isShareModal, setIsShareModal] = useState(false);
-
-
   const [isReportVisible, setIsReportVisible] = useState(false);
   const [isReportSecondVisible, setIsReportSecondVisible] = useState(false);
-
 
 
 
@@ -1170,6 +1168,13 @@ const Post = ({
       flexDirection: 'row',
       alignItems: 'center',
     },
+    ResharePostHeader2: {
+      width: windowWidth,
+      paddingBottom: ResponsiveSize(10),
+      zIndex: 10000,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     ResharePostFooter: {
       position: 'absolute',
       bottom: 0,
@@ -1240,14 +1245,12 @@ const Post = ({
 
 
   const OpenRepostModal = () => {
-    setIsReportVisible(false);
-    setTimeout(() => {
-      setIsReportSecondVisible(true);
-    }, 500); // A slight delay to ensure the first modal is fully closed
+    setIsReportVisible(false)
+    setIsReportSecondVisible(true)
   }
 
 
-
+  console.log(description)
   const [reportedPostId, setReportedPostId] = useState()
   const addReportPost = async () => {
     setReportLoading(true)
@@ -1275,8 +1278,6 @@ const Post = ({
       }, 5000);
     }
   }
-
-  // console.log(timeAgo)
   return (
     <>
       {reportedPostId == postId ?
@@ -1285,43 +1286,53 @@ const Post = ({
         </View>
         :
         <>
-          <View>
-            <View style={style.PostHeader}>
-              <View style={{ flexDirection: 'row' }}>
-                <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen', { user_id: user_idIn })}>
-                  <FastImage
-                    source={
-                      profileImage == ''
-                        ? require('../../assets/icons/avatar.png')
-                        : { uri: profileImage, priority: FastImage.priority.high }
-                    }
-                    style={style.PostProfileImage}
-                    resizeMode="cover"
-                  />
-                </TouchableOpacity>
-                <View style={style.PostProfileImageBox}>
+          {content?.length > 0 ?
+            <View>
+              <View style={style.PostHeader}>
+                <View style={{ flexDirection: 'row' }}>
                   <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen', { user_id: user_idIn })}>
-                    <TextC
-                      size={ResponsiveSize(12)}
-                      text={userName}
-                      font={'Montserrat-Bold'}
+                    <FastImage
+                      source={
+                        profileImage == ''
+                          ? require('../../assets/icons/avatar.png')
+                          : { uri: profileImage, priority: FastImage.priority.high }
+                      }
+                      style={style.PostProfileImage}
+                      resizeMode="cover"
                     />
                   </TouchableOpacity>
-                  <TimeAgo
+                  <View style={style.PostProfileImageBox}>
+                    <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen', { user_id: user_idIn })}>
+                      <TextC
+                        size={ResponsiveSize(12)}
+                        text={userName}
+                        font={'Montserrat-Bold'}
+                      />
+                    </TouchableOpacity>
+                    <TimeAgo
                     style={{ fontFamily: "Montserrat-Medium", fontSize: ResponsiveSize(8),color:global.description}}
                     time={timeAgo}
                   />
+                  </View>
+                </View>
+                <View>
+                  <TouchableOpacity onPress={() => setIsReportVisible(true)}>
+                    <Entypo color={global.primaryColor} size={ResponsiveSize(17)} name='dots-three-vertical' />
+                  </TouchableOpacity>
                 </View>
               </View>
-              <View>
-                <TouchableOpacity onPress={() => setIsReportVisible(true)}>
-                  <Entypo color={global.primaryColor} size={ResponsiveSize(17)} name='dots-three-vertical' />
-                </TouchableOpacity>
-              </View>
-            </View>
-            {content?.length > 0 ?
-              <>
-                {content?.length > 1 ? (
+              {content?.length > 1 ? (
+                <View style={{ position: 'relative' }}>
+                  <View style={style.ResharePostHeader}>
+                    <FastImage
+                      source={{
+                        uri: reshareUserDetails?.profile_picture_url,
+                        priority: FastImage.priority.high,
+                      }}
+                      style={style.ResharePostHeaderDp}
+                    />
+                    <TextC text={reshareUserDetails?.user_name} font={'Montserrat-Bold'} style={{ marginLeft: ResponsiveSize(8), color: global.white }} />
+                  </View>
                   <Carousel
                     loop={false}
                     width={windowWidth}
@@ -1377,123 +1388,268 @@ const Post = ({
                       );
                     }}
                   />
-                ) : (
-                  <>
-                    {content[0]?.attachment_url.endsWith('.mp4') ? (
-                      <View
-                        style={{
-                          height: Winheight,
-                          width: windowWidth,
-                          backgroundColor: 'red',
-                        }}>
-                        <Video
-                          onLoad={handleSetHeight}
-                          repeat={true}
-                          source={{
-                            uri: content[0]?.attachment_thumbnail_url,
-                          }}
-                          ref={videoRef}
-                          paused={false}
-                          style={{ height: Winheight, width: windowWidth }}
-                        />
-                      </View>
-                    ) : (
-                      <View style={{ position: 'relative' }}>
+                  <View style={style.ResharePostFooter}>
+                    <TextC text={reshareUserDetails?.old_caption} font={'Montserrat-SemiBold'} style={{ marginLeft: ResponsiveSize(8), color: global.white }} />
+                  </View>
+                </View>
+              ) : (
+                <>
+                  {content[0]?.attachment_url.endsWith('.mp4') ? (
+                    <View
+                      style={{
+                        height: Winheight,
+                        width: windowWidth,
+                        backgroundColor: 'gray',
+                        position: 'relative'
+                      }}>
+                      <View style={style.ResharePostHeader}>
                         <FastImage
                           source={{
-                            uri: content[0]?.attachment_thumbnail_url,
+                            uri: reshareUserDetails?.profile_picture_url,
                             priority: FastImage.priority.high,
                           }}
-                          resizeMode='cover'
-                          style={style.ActuallPost}
+                          style={style.ResharePostHeaderDp}
                         />
+                        <TextC text={reshareUserDetails?.user_name} font={'Montserrat-Bold'} style={{ marginLeft: ResponsiveSize(8), color: global.white }} />
                       </View>
-                    )}
-                  </>
+                      <Video
+                        onLoad={handleSetHeight}
+                        repeat={true}
+                        source={{
+                          uri: content[0]?.attachment_thumbnail_url,
+                        }}
+                        ref={videoRef}
+                        paused={false}
+                        style={{ height: Winheight, width: windowWidth }}
+                      />
+                      <View style={style.ResharePostFooter}>
+                        <TextC text={reshareUserDetails?.old_caption} font={'Montserrat-SemiBold'} style={{ marginLeft: ResponsiveSize(8), color: global.white }} />
+                      </View>
+                    </View>
+                  ) : (
+                    <View style={{ position: 'relative' }}>
+                      <View style={style.ResharePostHeader}>
+                        <FastImage
+                          source={{
+                            uri: reshareUserDetails?.profile_picture_url,
+                            priority: FastImage.priority.high,
+                          }}
+                          style={style.ResharePostHeaderDp}
+                        />
+                        <TextC text={reshareUserDetails?.user_name} font={'Montserrat-Bold'} style={{ marginLeft: ResponsiveSize(8), color: global.white }} />
+                      </View>
+                      <FastImage
+                        source={{
+                          uri: content[0]?.attachment_thumbnail_url,
+                          priority: FastImage.priority.high,
+                        }}
+                        style={style.ActuallPost}
+                      />
+                      <View style={style.ResharePostFooter}>
+                        <TextC text={reshareUserDetails?.old_caption} font={'Montserrat-SemiBold'} style={{ marginLeft: ResponsiveSize(8), color: global.white }} />
+                      </View>
+                    </View>
+                  )}
+                </>
+              )}
+              <View style={style.postActionSection}>
+                <Pressable
+                  onPress={liked ? handleDislike : handleLike}
+                  style={style.PostIcons1}>
+                  <AntDesign
+                    name={liked ? 'heart' : 'hearto'}
+                    color={liked ? global.red : global.primaryColor}
+                    size={ResponsiveSize(22)}
+                  />
+                </Pressable>
+                {allow_comments_flag == 'Y' && (
+                  <Pressable onPress={() => toggleModal()} style={style.PostIcons}>
+                    <Image
+                      source={CommnetLight}
+                      style={{ height: ResponsiveSize(20), width: ResponsiveSize(20) }}
+                    />
+                  </Pressable>
                 )}
-              </>
-              :
-              <View style={{ paddingVertical: ResponsiveSize(5), paddingHorizontal: ResponsiveSize(15) }}>
+                <Pressable onPress={() => toggleShare()} style={style.PostIcons}>
+                  <Image
+                    source={ShareLight}
+                    style={{
+                      height: ResponsiveSize(20),
+                      width: ResponsiveSize(20),
+                      marginTop: 1,
+                    }}
+                  />
+                </Pressable>
+              </View>
+              <View style={style.PostDetail}>
+                {likes_show_flag == 'Y' && (
+                  <TextC
+                    size={ResponsiveSize(10)}
+                    text={`${likeCountPre} likes`}
+                    font={'Montserrat-Medium'}
+                  />
+                )}
+                {description !== '' ? (
+                  <View style={{ paddingVertical: ResponsiveSize(3) }}>
+                    <ReadMore
+                      seeLessStyle={{
+                        fontFamily: 'Montserrat-Bold',
+                        color: global.primaryColor,
+                      }}
+                      seeMoreStyle={{
+                        fontFamily: 'Montserrat-Bold',
+                        color: global.primaryColor,
+                      }}
+                      numberOfLines={2}
+                      style={style.DescriptionStyle}>
+                      {description}
+                    </ReadMore>
+                  </View>
+                ) : (
+                  ''
+                )}
+                {allow_comments_flag == 'Y' ? (
+                  <>
+                  </>
+                ) : (
+                  <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
+                    <TextC
+                      size={ResponsiveSize(10)}
+                      text={'Comments are turned off'}
+                      font={'Montserrat-Medium'}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
+              <View style={style.PostDate}>
+              </View>
+            </View>
+            :
+            <View>
+              <View style={style.PostHeader}>
+                <View style={{ flexDirection: 'row' }}>
+                  <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen', { user_id: user_idIn })}>
+                    <FastImage
+                      source={
+                        profileImage == ''
+                          ? require('../../assets/icons/avatar.png')
+                          : { uri: profileImage, priority: FastImage.priority.high }
+                      }
+                      style={style.PostProfileImage}
+                      resizeMode="cover"
+                    />
+                  </TouchableOpacity>
+                  <View style={style.PostProfileImageBox}>
+                    <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen', { user_id: user_idIn })}>
+                      <TextC
+                        size={ResponsiveSize(12)}
+                        text={userName}
+                        font={'Montserrat-Bold'}
+                      />
+                    </TouchableOpacity>
+                    <TimeAgo
+                    style={{ fontFamily: "Montserrat-Medium", fontSize: ResponsiveSize(8),color:global.description}}
+                    time={timeAgo}
+                  />
+                  </View>
+                </View>
+                <View>
+                  <TouchableOpacity onPress={() => setIsReportVisible(true)}>
+                    <Entypo color={global.primaryColor} size={ResponsiveSize(17)} name='dots-three-vertical' />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={{ paddingVertical: ResponsiveSize(15), paddingHorizontal: ResponsiveSize(15),borderTopColor:"#EEEEEE",borderTopWidth:ResponsiveSize(1),borderBottomColor:"#EEEEEE",borderBottomWidth:ResponsiveSize(1),}}>
+                <View style={style.ResharePostHeader2}>
+                  <FastImage
+                    source={{
+                      uri: reshareUserDetails?.profile_picture_url,
+                      priority: FastImage.priority.high,
+                    }}
+                    style={style.ResharePostHeaderDp}
+                  />
+                  <TextC text={reshareUserDetails?.user_name} font={'Montserrat-Bold'} style={{ marginLeft: ResponsiveSize(8), color: global.black }} />
+                </View>
                 <TextC
                   size={ResponsiveSize(13)}
-                  text={description}
+                  text={reshareUserDetails?.old_caption}
                   font={'Montserrat-SemiBold'}
                   style={{ color: global.placeholderColor, width: windowWidth - ResponsiveSize(30) }}
                 />
               </View>
-            }
-            <View style={style.postActionSection}>
-              <Pressable
-                onPress={liked ? handleDislike : handleLike}
-                style={style.PostIcons1}>
-                <AntDesign
-                  name={liked ? 'heart' : 'hearto'}
-                  color={liked ? global.red : global.primaryColor}
-                  size={ResponsiveSize(22)}
-                />
-              </Pressable>
-              {allow_comments_flag == 'Y' && (
-                <Pressable onPress={() => toggleModal()} style={style.PostIcons}>
-                  <Image
-                    source={CommnetLight}
-                    style={{ height: ResponsiveSize(20), width: ResponsiveSize(20) }}
+              <View style={style.postActionSection}>
+                <Pressable
+                  onPress={liked ? handleDislike : handleLike}
+                  style={style.PostIcons1}>
+                  <AntDesign
+                    name={liked ? 'heart' : 'hearto'}
+                    color={liked ? global.red : global.primaryColor}
+                    size={ResponsiveSize(22)}
                   />
                 </Pressable>
-              )}
-              <Pressable onPress={() => toggleShare()} style={style.PostIcons}>
-                <Image
-                  source={ShareLight}
-                  style={{
-                    height: ResponsiveSize(20),
-                    width: ResponsiveSize(20),
-                    marginTop: 1,
-                  }}
-                />
-              </Pressable>
-            </View>
-            <View style={style.PostDetail}>
-              {likes_show_flag == 'Y' && (
-                <TextC
-                  size={ResponsiveSize(10)}
-                  text={`${likeCountPre} likes`}
-                  font={'Montserrat-Medium'}
-                />
-              )}
-              {description !== '' ? (
-                <View style={{ paddingVertical: ResponsiveSize(3) }}>
-                  <ReadMore
-                    seeLessStyle={{
-                      fontFamily: 'Montserrat-Bold',
-                      color: global.primaryColor,
+                {allow_comments_flag == 'Y' && (
+                  <Pressable onPress={() => toggleModal()} style={style.PostIcons}>
+                    <Image
+                      source={CommnetLight}
+                      style={{ height: ResponsiveSize(20), width: ResponsiveSize(20) }}
+                    />
+                  </Pressable>
+                )}
+                <Pressable onPress={() => toggleShare()} style={style.PostIcons}>
+                  <Image
+                    source={ShareLight}
+                    style={{
+                      height: ResponsiveSize(20),
+                      width: ResponsiveSize(20),
+                      marginTop: 1,
                     }}
-                    seeMoreStyle={{
-                      fontFamily: 'Montserrat-Bold',
-                      color: global.primaryColor,
-                    }}
-                    numberOfLines={2}
-                    style={style.DescriptionStyle}>
-                    {description}
-                  </ReadMore>
-                </View>
-              ) : (
-                ''
-              )}
-              {allow_comments_flag == 'Y' ? (
-                <>
-                </>
-              ) : (
-                <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
+                  />
+                </Pressable>
+              </View>
+              <View style={style.PostDetail}>
+                {likes_show_flag == 'Y' && (
                   <TextC
                     size={ResponsiveSize(10)}
-                    text={'Comments are turned off'}
+                    text={`${likeCountPre} likes`}
                     font={'Montserrat-Medium'}
                   />
-                </TouchableOpacity>
-              )}
+                )}
+                {description !== '' ? (
+                  <View style={{ paddingVertical: ResponsiveSize(3) }}>
+                    <ReadMore
+                      seeLessStyle={{
+                        fontFamily: 'Montserrat-Bold',
+                        color: global.primaryColor,
+                      }}
+                      seeMoreStyle={{
+                        fontFamily: 'Montserrat-Bold',
+                        color: global.primaryColor,
+                      }}
+                      numberOfLines={2}
+                      style={style.DescriptionStyle}>
+                      {description}
+                    </ReadMore>
+                  </View>
+                ) : (
+                  ''
+                )}
+                {allow_comments_flag == 'Y' ? (
+                  <>
+                  </>
+                ) : (
+                  <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
+                    <TextC
+                      size={ResponsiveSize(10)}
+                      text={'Comments are turned off'}
+                      font={'Montserrat-Medium'}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
+              <View style={style.PostDate}>
+              </View>
             </View>
-            <View style={style.PostDate}>
-            </View>
-          </View>
+          }
         </>
       }
       <Modal
@@ -1830,11 +1986,7 @@ const Post = ({
       </Modal>
       <Modal
         isVisible={isReportVisible}
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          margin: 0,  // Ensure full-screen modal
-        }}
+        style={{ margin: 0 }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
         onBackdropPress={() => setIsReportVisible(false)}
@@ -1863,14 +2015,9 @@ const Post = ({
       </Modal>
       <Modal
         isVisible={isReportSecondVisible}
- style={{
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 0,  // Ensure full-screen modal
-  }}
+        style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
-
         onBackdropPress={() => setIsReportSecondVisible(false)}
         statusBarTranslucent={false}>
         <View style={style.modalTopLayerReportSecond}>
@@ -1898,4 +2045,4 @@ const Post = ({
 function mapStateToProps({ PostCreationReducer }) {
   return { PostCreationReducer };
 }
-export default connect(mapStateToProps, PostCreationAction)(Post);
+export default connect(mapStateToProps, PostCreationAction)(PostReshare);

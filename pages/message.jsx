@@ -1182,30 +1182,30 @@ const Message = ({ route }) => {
         setIsLocationModal(true)
     }
 
-    // const requestCameraPermission = async () => {
-    //     try {
-    //         const granted =
-    //             Platform.OS === 'android'
-    //                 ? await request(PERMISSIONS.ANDROID.CAMERA)
-    //                 : await request(PERMISSIONS.IOS.CAMERA);
-    //     } catch (err) {
-    //         console.warn(err);
-    //     }
-    // };
+    const requestCameraPermission = async () => {
+        try {
+            const granted =
+                Platform.OS === 'android'
+                    ? await request(PERMISSIONS.ANDROID.CAMERA)
+                    : await request(PERMISSIONS.IOS.CAMERA);
+        } catch (err) {
+            console.warn(err);
+        }
+    };
 
-    // useEffect(() => {
-    //     GetLocation?.getCurrentPosition({
-    //         enableHighAccuracy: true,
-    //         timeout: 60000,
-    //     })
-    //         .then(location => {
-    //             console.log(location, 'lllocataiojn');
-    //         })
-    //         .catch(error => {
-    //             const { code, message } = error;
-    //             console.warn(code, message);
-    //         })
-    // }, [])
+    useEffect(() => {
+        GetLocation?.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 60000,
+        })
+            .then(location => {
+                console.log(location, 'lllocataiojn');
+            })
+            .catch(error => {
+                const { code, message } = error;
+                console.warn(code, message);
+            })
+    }, [])
 
 
 
