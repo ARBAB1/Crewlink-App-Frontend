@@ -264,7 +264,7 @@ const CheckInDetail = ({
                   dropdownOverlayColor="rgba(0, 0, 0,0.7)"
                   onSelect={selectedItem => {
                     stateDropdown.current.reset();
-                    setCurrentCountry(selectedItem.name);
+                    setCurrentCountry(selectedItem.country_id);
                   }}
                   searchInputTxtStyle={{
                     fontSize: ResponsiveSize(11),
@@ -307,7 +307,7 @@ const CheckInDetail = ({
                                     ? 'black'
                                     : global.placeholderColor,
                                 }}>
-                                {(selectedItem && selectedItem.name) ||
+                                {(selectedItem && selectedItem.country_name) ||
                                   'United States'}
                               </Text>
                               <Icon
@@ -329,7 +329,7 @@ const CheckInDetail = ({
                             ...(isSelected && {backgroundColor: '#D2D9DF'}),
                           }}>
                           <Text style={styles.dropdownItemTxtStyle}>
-                            {item?.name}
+                            {item?.country_name}
                           </Text>
                         </View>
                       </>
@@ -355,7 +355,7 @@ const CheckInDetail = ({
                     data={allStateData}
                     dropdownOverlayColor="rgba(0, 0, 0,0.7)"
                     onSelect={selectedItem => {
-                      setCurrentState(selectedItem.name);
+                      setCurrentState(selectedItem.state_id);
                     }}
                     searchInputTxtStyle={{
                       fontSize: ResponsiveSize(11),
@@ -398,7 +398,7 @@ const CheckInDetail = ({
                                       ? 'black'
                                       : global.placeholderColor,
                                   }}>
-                                  {(selectedItem && selectedItem.name) ||
+                                  {(selectedItem && selectedItem.state_name) ||
                                     'Select State'}
                                 </Text>
                                 <Icon
@@ -422,7 +422,7 @@ const CheckInDetail = ({
                               ...(isSelected && {backgroundColor: '#D2D9DF'}),
                             }}>
                             <Text style={styles.dropdownItemTxtStyle}>
-                              {item?.name}
+                              {item?.state_name}
                             </Text>
                           </View>
                         </>
@@ -466,7 +466,7 @@ const CheckInDetail = ({
                       data={allCityData}
                       dropdownOverlayColor="rgba(0, 0, 0,0.7)"
                       onSelect={selectedItem => {
-                        setCurrentCity(selectedItem);
+                        setCurrentCity(selectedItem.city_name);
                       }}
                       disabled={
                         allCityData?.length < 0 ||
@@ -532,7 +532,7 @@ const CheckInDetail = ({
                                 ...(isSelected && {backgroundColor: '#D2D9DF'}),
                               }}>
                               <Text style={styles.dropdownItemTxtStyle}>
-                                {item}
+                                {item?.city_name}
                               </Text>
                             </View>
                           </>

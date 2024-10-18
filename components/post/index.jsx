@@ -148,7 +148,6 @@ const Post = ({
     if (commentPage !== 1) {
       openCommentSectionPagination();
     }
-
   }, [commentPage]);
 
   const openCommentSection = async Reload => {
@@ -2009,7 +2008,6 @@ const Post = ({
           </View>
         </View>
       </Modal>
-
     </>
   );
 };

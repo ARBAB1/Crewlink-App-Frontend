@@ -761,17 +761,17 @@ const EditProfile = ({
 
           <TextInput value={SearchCountry} onChangeText={(e) => setSearchCountry(e)} placeholder='Search Country' style={styles.ModalSearchBar} />
           <ScrollView style={styles.AirlineBoundries} showsVerticalScrollIndicator={false}>
-            {allCountriesData?.filter(item => item?.name.toLowerCase().includes(SearchCountry.toLowerCase())).map(AirLine =>
-              <TouchableOpacity onPress={() => AddCountry(AirLine?.name)} style={styles.SelectOptions}>
+            {allCountriesData?.filter(item => item?.country_name?.toLowerCase().includes(SearchCountry.toLowerCase())).map(AirLine =>
+              <TouchableOpacity onPress={() => AddCountry(AirLine?.country_name)} style={styles.SelectOptions}>
                 <TextC
-                  key={AirLine?.name}
+                  key={AirLine?.country_name}
                   size={ResponsiveSize(12)}
                   font={'Montserrat-Regular'}
-                  text={AirLine?.name}
+                  text={AirLine?.country_name}
                   style={{ color: global.black }}
                 />
 
-                {country == AirLine?.name && (
+                {country == AirLine?.country_name && (
                   <AntDesign name='checkcircleo' color='green' size={ResponsiveSize(16)} />
                 )}
               </TouchableOpacity>

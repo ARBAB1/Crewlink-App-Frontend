@@ -23,7 +23,7 @@ import { global, ResponsiveSize } from "../components/constant";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import TextC from "../components/text/text";
 import { TextInput } from "react-native-gesture-handler";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import io from "socket.io-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import TimeAgo from '@manu_omg/react-native-timeago';
@@ -39,6 +39,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 const UserChatSetting = ({route}) => {
      console.log(route.params,"iop")
     const scheme = useColorScheme();
+    const focus = useIsFocused();
     const [isVisible, setIsVisible] = useState(false);
     const windowWidth = Dimensions.get('window').width;
     const [inputText, setInputText] = useState('');
@@ -245,6 +246,11 @@ const UserChatSetting = ({route}) => {
             if (result.statusCode === 200) {
                 console.log(result.data, "userDetails");
                 setUserDetails(result.data);
+                if(result.data?.blocked_by_me==="true"){
+                setBlocked(true)
+                }else{
+                    setBlocked(false)
+                }
             }
         } catch (error) {
             console.error("Failed to fetch user details:", error);
@@ -275,9 +281,9 @@ const UserChatSetting = ({route}) => {
         
             fetchUserDetails();
             closeBottomSheet();
-            allBlockedUsers();
+            // allBlockedUsers();
         
-    }, []);
+    }, [focus]);
     const handleOpenSheet = () => {
         openBottomSheet(
             <>

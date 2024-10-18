@@ -102,7 +102,9 @@ export const ChangeAirline = (body) => async (dispatch) => {
             body: body
         });
         const res = await response.json()
-        return res?.message
+        console.log(res, 'res111')
+
+        return res
     }
     catch (error) {
         console.log(error)
@@ -153,32 +155,19 @@ export const getAllCountries = (body) => async (dispatch) => {
 }
 
 export const getAllStates = (body) => async () => {
+    console.log(body, 'body')
+    const Token = await AsyncStorage.getItem('Token');
     try {
-        const response = await fetch(`${baseUrl.CountryBaseUrl}/api/v0.1/countries/states`, {
-            method: "POST",
+        const response = await fetch(`${baseUrl.baseUrl}/check-in/get-all-states/${body?.country}`, {
+            method: "GET",
             headers: {
                 'Content-Type': 'application/json',
+                'x-api-key': baseUrl.apiKey,
+                'accesstoken': `Bearer ${Token}`
             },
-            body: JSON.stringify(body)
         });
         const res = await response.json()
-        return res?.data?.states
-    }
-    catch (error) {
-        console.log(error)
-    }
-}
-
-export const getAllCities = (body) => async (dispatch) => {
-    try {
-        const response = await fetch(`${baseUrl.CountryBaseUrl}/api/v0.1/countries/state/cities`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body)
-        });
-        const res = await response.json()
+    
         return res?.data
     }
     catch (error) {
@@ -186,5 +175,25 @@ export const getAllCities = (body) => async (dispatch) => {
     }
 }
 
+export const getAllCities = (body) => async (dispatch) => {
+    console.log(body, 'body')
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+        const response = await fetch(`${baseUrl.baseUrl}/check-in/get-all-cities/${body?.state}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': baseUrl.apiKey,
+                'accesstoken': `Bearer ${Token}`
+            },
+        });
+        const res = await response.json()
+        console.log(res, 'res')
+        return res?.data
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
 
 

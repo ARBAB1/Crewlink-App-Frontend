@@ -10,7 +10,7 @@ import { AllEventReducer, JoinedEventReducer, MyEventReducer } from "./reducers/
 import { GetUserProfileReducer } from "./reducers/UserProfile";
 import AuthReducerGlobal from "./reducers/Auth";
 import PostCreationReducer from "./reducers/PostCreation";
-import { AllClosedConnectionsReducer, AllConnectionsReducer, AllPrivacyReducer, CustomConnectionsReducer, PendingConnectionsReducer } from "./reducers/Connections";
+import { AllBlockedConnectionsReducer, AllClosedConnectionsReducer, AllConnectionsReducer, AllPrivacyReducer, CustomConnectionsReducer, PendingConnectionsReducer } from "./reducers/Connections";
 import NotificationReducer from "./reducers/Notification";
 import PostDetailReducer from "./reducers/PostById";
 
@@ -38,7 +38,8 @@ const reducers = combineReducers({
   CustomConnectionsReducer,
   AllPrivacyReducer,
   AllClosedConnectionsReducer,
-  CityReducer
+  CityReducer,
+  AllBlockedConnectionsReducer
 });
 
 const composeEnhancers = window.REDUX_DEVTOOLS_EXTENSION_COMPOSE || compose;

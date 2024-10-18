@@ -11,6 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { global, ResponsiveSize } from '../components/constant';
+import { baseUrl, apiKey } from '../store/config.json'
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import TextC from '../components/text/text';
 import { useNavigation } from '@react-navigation/native';
@@ -20,9 +21,12 @@ import * as AllConnectionsAction from '../store/actions/Connections/index';
 import { connect } from 'react-redux';
 import ModalSelector from 'react-native-modal-selector';
 import { Image } from 'react-native-elements';
-
+import { set } from 'react-hook-form';
+import Entypo from 'react-native-vector-icons/Entypo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const PrivacySetting = ({
   getAllConnections,
+  getAllBlockedConnections,
   CheckCustomConnections,
   AddCustomConnections,
   AddCheckInPrivacy,
@@ -38,10 +42,12 @@ const PrivacySetting = ({
   const [AccountPrivacy, setAccountPrivacy] = useState('');
   const [CheckInPrivacy, setCheckInPrivacy] = useState('');
   const [allConnectionData, setAllConnectionData] = useState([]);
+  const [blockedConnections, setBlockedConnections] = useState([]);
   const [closedConnections, setClosedConnections] = useState([]);
   const [selectedConnections, setSelectedConnections] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [isConnectionVisible, setConnectionVisible] = useState(false);
+  const [isBlockVisible, setBlockVisible] = useState(false);
   const [customSetting, setCustomSetting] = useState(null);
   const [privacyData, setPrivacyData] = useState();
   const navigation = useNavigation();
@@ -209,7 +215,11 @@ const PrivacySetting = ({
     const response = await getAllClosedConnections();
     setClosedConnections(response.users);
   };
-
+const LoadBlockedConnections = async () => {
+  const response = await getAllBlockedConnections({ page });
+  console.log(response, 'responsess')
+  setBlockedConnections(response);
+}
   const LoadPrivacy = async () => {
     const loadAllPrivacy = await getAllPrivacy();
     setAccountPrivacy(loadAllPrivacy.profile_visibility);
@@ -249,11 +259,36 @@ const PrivacySetting = ({
     LoadConnections();
     LoadClosedConnections();
     CheckCustomSettings();
+    LoadBlockedConnections();
   }, []);
-
+  const BlockUser = async (user_id) => {
+    try {
+        const Token = await AsyncStorage.getItem('Token');
+        const response = await fetch(`${baseUrl}/block/block-unblock-user`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'accesstoken': `Bearer ${Token}`,
+            },
+            body: JSON.stringify({ blocked_id: user_id }),
+        });
+        const result = await response.json();
+        console.log(result, "BlockUser");
+        if (result.statusCode === 201) {
+          LoadBlockedConnections()
+  // setBlocked(!blocked)
+        }
+    } catch (error) {
+        console.error("Failed to fetch user details:", error);
+    }
+};
   const filteredConnections = allConnectionData?.filter(connection =>
     connection.user_name.toLowerCase().includes(searchText.toLowerCase())
   );
+const filteredBlockedConnections = blockedConnections?.filter(connection =>
+  connection.user_name.toLowerCase().includes(searchText.toLowerCase())
+);
 
   const isUserInClosedConnections = user_id =>
     closedConnections.some(connection => connection.added_user_id === user_id);
@@ -365,6 +400,12 @@ const PrivacySetting = ({
   style={{ color: global.placeholderColor }}
 />
 </View>
+<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: ResponsiveSize(15) }}>
+                <TextC size={ResponsiveSize(12)} text={'Blocked Connections List'} font={'Montserrat-SemiBold'} />
+                <TouchableOpacity onPress={() => setBlockVisible(true)}>
+                  <Octicons name="diff-added" color={"red"} size={ResponsiveSize(18)} />
+                </TouchableOpacity>
+              </View>
   <View style={styles.SearchCenter}>
 
             <TextC size={ResponsiveSize(15)} text={'Connections'} font={'Montserrat-Bold'} />
@@ -460,6 +501,62 @@ const PrivacySetting = ({
             )}
           </View>
         </Modal>
+        <Modal
+          isVisible={isBlockVisible}
+          style={{ margin: 0, paddingHorizontal: windowWidth * 0.05 }}
+          animationIn={'bounceInUp'}
+          avoidKeyboard={true}
+          onBackdropPress={() => setBlockVisible(false)}
+          statusBarTranslucent={false}>
+          <View style={styles.CountryModalLayers}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: ResponsiveSize(10), width: '100%' }}>
+              <TextC text={'Blocked Connections'} font={'Montserrat-Bold'} size={ResponsiveSize(15)} />
+              <TouchableOpacity onPress={()=>  setBlockVisible(false)} style={{ padding: ResponsiveSize(5) }}>
+              <Entypo name="cross" color={global.red} size={ResponsiveSize(18)} />
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              value={searchText}
+              onChangeText={setSearchText}
+              placeholder="Search Connections"
+              style={styles.ModalSearchBar}
+            />
+
+            <ScrollView style={styles.AirlineBoundries} showsVerticalScrollIndicator={false}>
+              {filteredBlockedConnections?.map(connection => (
+                <View
+                  key={connection.user_id}
+                
+                  style={styles.SelectOptions}>
+                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                
+                    <Image source={connection?.profile_picture ? { uri: connection?.profile_picture } : require('../assets/icons/avatar.png')} resizeMode="cover" style={{ width: ResponsiveSize(40), height: ResponsiveSize(40), borderRadius: ResponsiveSize(20) }} />
+                  <TextC
+                    size={ResponsiveSize(12)}
+                    font={'Montserrat-Regular'}
+                    text={connection.user_name}
+                    style={{ color: global.black }}
+                  />
+                     </View>
+                     <TouchableOpacity style={styles.AddButton} onPress={()=>  BlockUser(connection.user_id)}>
+                  <TextC text="Unblock" font="Montserrat-Bold" size={ResponsiveSize(12)} style={{ color: global.white }} />
+                </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+
+            {/* Add/Edit/Delete Custom Connection Button */}
+           
+              <View >
+                
+                <TouchableOpacity style={styles.DeleteButton} onPress={()=>  setBlockVisible(false)}>
+                  <TextC text="Cancel" font="Montserrat-Bold" size={ResponsiveSize(12)} style={{ color: global.white }} />
+                </TouchableOpacity>
+              </View>
+            
+          </View>
+        </Modal>
       </SafeAreaView>
     </>
   );
@@ -469,8 +566,9 @@ function mapStateToProps({
   AllConnectionsReducer,
   CustomConnectionsReducer,
   AllPrivacyReducer,
+  AllBlockedConnectionsReducer,
 }) {
-  return { AllConnectionsReducer, CustomConnectionsReducer, AllPrivacyReducer };
+  return { AllConnectionsReducer, CustomConnectionsReducer, AllPrivacyReducer, AllBlockedConnectionsReducer };
 }
 
 export default connect(mapStateToProps, {
@@ -480,6 +578,7 @@ export default connect(mapStateToProps, {
   AddCustomConnections: AllConnectionsAction.AddCustomConnections,
   AddAccountPrivacy: AllConnectionsAction.AddAccountPrivacy,
   AddCheckInPrivacy: AllConnectionsAction.AddCheckInPrivacy,
+  getAllBlockedConnections: AllConnectionsAction.getAllBlockedConnections,
   getAllClosedConnections: AllConnectionsAction.getAllClosedConnections,
   DeleteCustomConnections: AllConnectionsAction.DeleteCustomConnections,
   UpdateCustomConnections: AllConnectionsAction.UpdateCustomConnections,
