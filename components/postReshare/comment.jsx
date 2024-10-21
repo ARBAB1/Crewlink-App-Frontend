@@ -29,6 +29,7 @@ const Comments = ({
   CloseCommentReplies,
   DeleteComment,
   setReplyComment,
+  delCommentPostOwner
 }) => {
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -420,7 +421,7 @@ const Comments = ({
             )}
           </View>
         </View>
-        {data?.myComment && (
+        {(data?.myComment || delCommentPostOwner) && (
           <View
             style={{
               height: '100%',

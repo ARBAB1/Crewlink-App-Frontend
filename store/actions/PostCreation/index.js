@@ -188,6 +188,7 @@ export const DisLikeFunc = (body) => async () => {
     }
 }
 export const LoadComments = (body) => async () => {
+    console.log(body, 'bodyCommentBody')
     const Token = await AsyncStorage.getItem('Token');
     try {
         const response = await fetch(`${baseUrl.baseUrl}/posts/get-posts-comment/${body?.post_id}/${body?.page}/${body?.limit}`, {
@@ -225,6 +226,7 @@ export const LoadReplies = (body) => async () => {
         });
         if (response.ok) {
             const res = await response.json()
+            
             return res;
         }
         else {

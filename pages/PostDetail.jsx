@@ -26,7 +26,7 @@ const PostDetail = ({ route, getPostDetail }) => {
     const windowWidth = Dimensions.get('window').width;
     const [post, setPost] = useState([]);
     const [loading, setLoading] = useState(false);
-
+console.log(post, 'post112')
     const styles = StyleSheet.create({
         wrapper: {
             flexDirection: 'row',
