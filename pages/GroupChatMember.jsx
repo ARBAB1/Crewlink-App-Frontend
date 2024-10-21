@@ -28,11 +28,15 @@ import { connect } from "react-redux";
 
 const GroupChatMember = ({ getAllConnections,route, AllConnectionsReducer }) => {
     
-    console.log(route?.params?.groupId, 'gro')
     const scheme = useColorScheme();
     const windowWidth = Dimensions.get('window').width;
     const [membersList, setMembersList] = useState([])
     const [GroupMember, setGroupMember] = useState([]);
+    const navigation = useNavigation();
+    const [recentChats, setRecentChats] = useState([])
+    const [searchUser, setSearchUser] = useState("")
+    const [loader, setLoader] = useState(false)
+    const [members, setMembers] = useState([])
     const styles = StyleSheet.create({
         wrapper: {
             flexDirection: 'row',
@@ -148,14 +152,17 @@ const GroupChatMember = ({ getAllConnections,route, AllConnectionsReducer }) => 
           
           navigation.goBack()
     }
-    const navigation = useNavigation();
-    const [recentChats, setRecentChats] = useState([])
-    const [searchUser, setSearchUser] = useState("")
-    const [loader, setLoader] = useState(false)
-    const [members, setMembers] = useState([])
-    const GroupDetails = async (group_id) => {
    
-    
+    useEffect(() => {
+        setLoader(true)
+        GroupDetails()
+
+       
+        // allEventDataLoader()
+    }, []);
+    const GroupDetails = async () => {
+   
+        const group_id = route?.params?.groupId;
         const Token = await AsyncStorage.getItem('Token');
         const socket = io(`${baseUrl}/chat`, {
           transports: ['websocket'],
@@ -170,41 +177,19 @@ const GroupChatMember = ({ getAllConnections,route, AllConnectionsReducer }) => 
           .emit('getGroupMemberDetails', {
             group_id: group_id,
           })
-          .on('getGroupMemberDetails', data => {
-            console.log(data, 'data');
+          .on('getGroupMemberDetails', async data => {
             // setGroupDetail(data?.groupDetails);
-            setGroupMember(data?.groupMembers);
+           const GroupMember = data?.groupMembers
+            const loadAllEvent = await getAllConnections({ page: 1 });
+            const filteredEvents = GroupMember && loadAllEvent && loadAllEvent.filter(event =>  !GroupMember.some(member => member.user_id == event.user_id));
+    
+            console.log(filteredEvents, 'filteredEvents');
+            setRecentChats(filteredEvents);
+            setLoader(false);
           });
       };
-      const allEventDataLoader = async () => {
-        const group_id = route?.params?.groupId;
     
-        // Fetch group details and all events
-        GroupDetails(group_id);
-        const loadAllEvent = await getAllConnections({ page: 1 });
-        console.log(GroupMember, 'GroupMember');
-        console.log(loadAllEvent, 'loadAllEvent');
-    
-        // Filter loadAllEvent to exclude users present in GroupMember
-        const filteredEvents = loadAllEvent.filter(event => 
-            !GroupMember.some(member => member.user_id === event.user_id)
-        );
-    
-        console.log(filteredEvents, 'filteredEvents');
-        setRecentChats(filteredEvents);
-        setLoader(false);
-    }
-    
-    
-    useEffect(() => {
-        setLoader(true)
-       
-        allEventDataLoader({ refreshing: false })
-    }, []);
 
-   
-  
-console.log(members, 'membersaq')
     const addMembers = (user) => {
         setMembers((prevItems) => {
             const exists = prevItems.some(item => item.user_id === user.user_id);
@@ -230,7 +215,6 @@ console.log(members, 'membersaq')
 
 
 
-    console.log(membersList, "membersList")
 
  
     return (

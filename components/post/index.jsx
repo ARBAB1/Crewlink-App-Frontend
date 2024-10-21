@@ -35,10 +35,11 @@ import Comments from './comment';
 import Reply from './Reply';
 import FastImage from 'react-native-fast-image';
 import {useNavigation} from '@react-navigation/native';
-import {baseUrl, apiKey} from '../../store/config.json';
-
+import baseUrl from '../../store/config.json';
+import io from 'socket.io-client';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {useToast} from 'react-native-toast-notifications';
+import { date } from 'yup';
 
 const Post = ({
   userName,
@@ -72,7 +73,10 @@ const Post = ({
 }) => {
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
+  const [username, setUserName] = useState(false);
   const [liked, setLike] = useState(selfLiked);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [myuser, setMyuser] = useState();
   const [likeCountPre, setLikeCountPre] = useState(likeCount);
   const videoRef = useRef(null);
   const commentScrollRef = useRef(null);
@@ -116,19 +120,21 @@ const Post = ({
     }
   }, [type]);
 
+
+  
   const [getLatestConnection, setGetLatestConnection] = useState([]);
 
   const getAllConnectionsFunc = async () => {
     const Token = await AsyncStorage.getItem('Token');
     try {
       const response = await fetch(
-        `${baseUrl.baseUrl}/connect/get-my-connections-list/1/10`,
+        `${baseUrl.baseUrl}/connect/get-my-connections-list/1/100`,
         {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'x-api-key': baseUrl.apiKey,
-            accesstoken: `Bearer ${Token}`,
+            'accesstoken': `Bearer ${Token}`,
           },
         },
       );
@@ -137,24 +143,26 @@ const Post = ({
         setGetLatestConnection(res?.data?.connections);
       }
     } catch (error) {
-      console.log(error);
+      console.log(error,"aq");
     }
   };
 
   const getDetailUser = async () => {
     const Token = await AsyncStorage.getItem('Token');
     try {
-      const response = await fetch(`${baseUrl}/users/user-details`, {
+      const response = await fetch(`${baseUrl.baseUrl}/users/user-details`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          'x-api-key': baseUrl.apiKey,
           accesstoken: `Bearer ${Token}`,
         },
       });
       const res = await response.json();
+      console.log(res?.data,"myuser");
+      setMyuser(res?.data);
       setCanDeleteComment(res?.data?.user_id == user_idIn ? true : false);
-      // console.log(res?.data?.last_checkin)
+      
     } catch (error) {
       console.log(error);
     }
@@ -670,6 +678,9 @@ const Post = ({
   // Loading comments Replies
 
   // commment add funtion
+
+
+
   const commentAdder = async () => {
     setCommentAddLoading(true);
     commentScrollRef.current.scrollTo(0);
@@ -881,7 +892,12 @@ const Post = ({
 
   const toggleShare = () => {
     setIsShareModal(!isShareModal);
+    setSelectedUsers([]);
   };
+
+
+
+
   const [Winheight, setHeight] = useState(windowHeight * 0.4);
   const handleSetHeight = useCallback(e => {
     const naturalRatio = 16 / 13;
@@ -1225,7 +1241,17 @@ const Post = ({
   const [reportPostDescription, setReportPostDescription] = useState('');
   const [reportLoading, setReportLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-
+  const toggleUserSelection = (userId) => {
+    setSelectedUsers(prevSelectedUsers => {
+      if (prevSelectedUsers.includes(userId)) {
+        // If the user is already selected, remove them
+        return prevSelectedUsers.filter(id => id !== userId);
+      } else {
+        // If the user is not selected, add them
+        return [...prevSelectedUsers, userId];
+      }
+    });
+  };
   const ResharePost = async () => {
     setReshareLoader(true);
     const Token = await AsyncStorage.getItem('Token');
@@ -1247,8 +1273,10 @@ const Post = ({
     setIsShareModal(false);
   };
   const sendMessage = async (message_Props, user_Id) => {
+    console.log(message_Props, user_Id);
     setMsgReshareLoader({user_Id: user_Id, value: true});
     const Token = await AsyncStorage.getItem('Token');
+ 
     const socket = io(`${baseUrl.baseUrl}/chat`, {
       transports: ['websocket'],
       extraHeaders: {
@@ -1261,6 +1289,7 @@ const Post = ({
       receiverUserId: user_Id,
       post_id: message_Props,
     });
+
     setTimeout(() => {
       setMsgReshareLoader({user_Id: user_Id, value: false});
     }, 2000);
@@ -1510,6 +1539,15 @@ const Post = ({
                 />
               </View>
             )}
+
+
+
+
+
+
+
+
+
             <View style={style.postActionSection}>
               <Pressable
                 onPress={liked ? handleDislike : handleLike}
@@ -1829,6 +1867,13 @@ const Post = ({
           </View>
         </View>
       </Modal>
+
+
+
+
+
+
+
       <Modal
         isVisible={isShareModal}
         style={{margin: 0}}
@@ -1867,17 +1912,20 @@ const Post = ({
                   paddingHorizontal: ResponsiveSize(10),
                   paddingTop: ResponsiveSize(10),
                 }}>
+                  {
+                    
+                  }
                 <FastImage
                   source={
-                    profileImage == ''
+                    myuser?.profile_picture_url == ''
                       ? require('../../assets/icons/avatar.png')
-                      : {uri: profileImage, priority: FastImage.priority.high}
+                      : {uri: myuser?.profile_picture_url, priority: FastImage.priority.high}
                   }
                   style={style.PostProfileImage}
                   resizeMode="cover"
                 />
                 <TextC
-                  text={userName}
+                  text={myuser?.user_name}
                   font={'Montserrat-Bold'}
                   size={ResponsiveSize(14)}
                   style={{color: global.black}}
@@ -1943,7 +1991,12 @@ const Post = ({
                     <TouchableOpacity
                       disabled={MsgReShareLoader?.value}
                       style={style.ConnectionListIcon}
-                      onPress={() => sendMessage(postId, data?.user_id)}>
+                      onPress={() => 
+                        { 
+                           toggleUserSelection(data?.user_id) 
+                        sendMessage(postId, data?.user_id)
+                      }}
+                        >
                       <View style={style.ConnectionIconDpAbdolute}>
                         <FastImage
                           source={
@@ -1957,6 +2010,7 @@ const Post = ({
                           style={style.ConnectionIconDp}
                           resizeMode="cover"
                         />
+                        {console.log(MsgReShareLoader,data?.user_id, 'MsgReShareLoader')}
                         {MsgReShareLoader?.user_Id == data?.user_id &&
                         MsgReShareLoader?.value == true ? (
                           <ActivityIndicator
@@ -1972,6 +2026,15 @@ const Post = ({
                           ''
                         )}
                       </View>
+                      {selectedUsers.includes(data?.user_id) && (
+  <Feather
+    name="check"
+    style = {{position: 'absolute', top: ResponsiveSize(1), left: ResponsiveSize(43)}}
+    size={ResponsiveSize(25)}
+    color={global.secondaryColor}
+ 
+  />
+)}
                       <TextC
                         text={data?.user_name}
                         font={'Montserrat-Bold'}
@@ -1982,7 +2045,15 @@ const Post = ({
                       />
                     </TouchableOpacity>
                   ))
-                : ''}
+                : (
+                  <View style={{display: 'flex', justifyContent: 'center', alignItems: 'center', width:windowWidth*0.9 }}>
+                    <TextC
+                      text={'No connections found'}
+                      font={'Montserrat-Medium'}
+                      size={ResponsiveSize(11)}
+                    />
+                  </View>
+                )}
             </ScrollView>
           </View>
         </View>
