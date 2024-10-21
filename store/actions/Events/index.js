@@ -299,7 +299,8 @@ export const CreateEvent = (FormData) => async (dispatch, getState) => {
             body: FormData
         });
         const res = await response.json()
-        if (res.message == "Event created successfully") {
+        console.log(res, 'res')
+        if (res.statusCode == 201) {
             dispatch({
                 type: TASK_CREATE_EVENT_END,
                 loading: false,
