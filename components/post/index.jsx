@@ -159,7 +159,6 @@ const Post = ({
         },
       });
       const res = await response.json();
-      console.log(res?.data,"myuser");
       setMyuser(res?.data);
       setCanDeleteComment(res?.data?.user_id == user_idIn ? true : false);
       
@@ -2009,7 +2008,6 @@ const Post = ({
                           style={style.ConnectionIconDp}
                           resizeMode="cover"
                         />
-                        {console.log(MsgReShareLoader,data?.user_id, 'MsgReShareLoader')}
                         {MsgReShareLoader?.user_Id == data?.user_id &&
                         MsgReShareLoader?.value == true ? (
                           <ActivityIndicator

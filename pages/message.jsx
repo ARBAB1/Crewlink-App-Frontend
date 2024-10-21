@@ -616,12 +616,10 @@ const Message = ({ route }) => {
     };
 
     const loadRecentChats = async () => {
-        console.log("yahan tk asyayyayayayyayayayyayay")
         setLoader(true)
         const Token = await AsyncStorage.getItem('Token');
         const U_id = await AsyncStorage.getItem('U_id');
         setUserId(U_id)
-        
         const socket = io(`${baseUrl}/chat`, {
           transports: ['websocket'],
           extraHeaders: {
@@ -629,16 +627,14 @@ const Message = ({ route }) => {
             'accesstoken': `Bearer ${Token}`
           }
         });
-    
         socket.on('connect', () => {
           socket.emit('oldMessages', { "receiverUserId": route?.params?.receiverUserId });
         });
     
         socket.on('message', (data) => {
-          if (data.message.filter(message => message.read_status === 'N').length > 0) {
-            console.log(data.message, "Unread messages detected")
-            socket.emit('readMessage', { receiverUserId: route?.params?.receiverUserId });
-          }
+        //   if (data.message.filter(message => message.read_status === 'N').length > 0) {
+        //     socket.emit('readMessage', { receiverUserId: route?.params?.receiverUserId });
+        //   }
           handleMessages(data);
         });
     
@@ -678,7 +674,7 @@ const Message = ({ route }) => {
                 },
             })
         }
-    }, [route?.params?.receiverUserId]);
+    }, []);
 
 
 

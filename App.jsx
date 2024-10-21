@@ -25,8 +25,6 @@ const App = () => {
 
     // Handle foreground messages (when the app is open)
     const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
-      console.log('Foreground message received:', remoteMessage);
-
       // Display notification with Notifee
       await notifee.displayNotification({
         title: remoteMessage.notification.title,

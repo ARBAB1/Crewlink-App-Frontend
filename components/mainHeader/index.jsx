@@ -44,7 +44,6 @@ const MainHeader = ({ GetUserProfileReducer, loading }) => {
                             ? 'No Check-in'
                             : GetUserProfileReducer?.data?.last_checkin} />
                     }
-                    {console.log(GetUserProfileReducer?.data, 'GetUserProfileReducer?.data?.last_checkin')}
                 </TouchableOpacity>
 
                 <TouchableOpacity style={{ paddingVertical: ResponsiveSize(4), paddingLeft: ResponsiveSize(10), paddingRight: ResponsiveSize(5) }} onPress={() => navigation.navigate('Notification')}>
