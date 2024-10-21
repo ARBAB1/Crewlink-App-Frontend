@@ -665,15 +665,18 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
           </View>
           <View style={styles.BoxWrapper}>
             <View style={styles.box}>
-              <View style={styles.profileContainer}>
+            
+{
+filterAdmin[0]?.isAdmin === true ? (
+    <>
+      <View style={styles.profileContainer}>
                 <Image
                   source={require('../assets/icons/user2.png')}
                   style={styles.profileIcon}
                   resizeMode="cover"
                 />
               </View>
-
-              <TouchableOpacity
+      <TouchableOpacity
                 onPress={() => navigation.navigate('GroupChatMember', {groupId: GroupDetail.group_id})}
                 style={styles.detailsContainer}>
                 {/* Role (Admin/Member) */}
@@ -690,6 +693,13 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
 
                 {/* Username */}
               </TouchableOpacity>
+    </>
+  ) : (
+    <>
+    </>
+  )
+}
+            
             </View>
             {GroupMember !== undefined &&
             GroupMember !== '' &&

@@ -33,7 +33,7 @@ import Comments from './comment';
 import Reply from './Reply';
 import FastImage from 'react-native-fast-image';
 import {useNavigation} from '@react-navigation/native';
-import {baseUrl, apiKey} from '../../store/config.json';
+import baseUrl from '../../store/config.json';
 
 import io from 'socket.io-client';
 import {launchImageLibrary} from 'react-native-image-picker';
@@ -77,6 +77,7 @@ const PostReshare = ({
   const commentScrollRef = useRef(null);
   const commentSectioLength = windowWidth - ResponsiveSize(30);
   const [commentLoading, setCommentLoading] = useState(false);
+  const [myuser, setMyuser] = useState();
   const [commentCrash, setCommentCrash] = useState(false);
   const [commentList, setCommentList] = useState([]);
   const [tempReplyId, setTempReplyId] = useState();
@@ -117,16 +118,17 @@ const PostReshare = ({
   const getDetailUser = async () => {
     const Token = await AsyncStorage.getItem('Token');
     try {
-      const response = await fetch(`${baseUrl}/users/user-details`, {
+      const response = await fetch(`${baseUrl.baseUrl}/users/user-details`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          'x-api-key': baseUrl.apiKey,
           accesstoken: `Bearer ${Token}`,
         },
       });
       const res = await response.json();
       setCanDeleteComment(res?.data?.user_id == user_idIn ? true : false);
+      setMyuser(res?.data);
       // console.log(res?.data?.last_checkin)
     } catch (error) {
       console.log(error);
@@ -149,7 +151,7 @@ const PostReshare = ({
           headers: {
             'Content-Type': 'application/json',
             'x-api-key': baseUrl.apiKey,
-            accesstoken: `Bearer ${Token}`,
+            "accesstoken": `Bearer ${Token}`,
           },
         },
       );
@@ -883,6 +885,7 @@ const PostReshare = ({
 
   const toggleShare = () => {
     setIsShareModal(!isShareModal);
+    setSelectedUsers([]);
   };
   const [Winheight, setHeight] = useState(windowHeight * 0.4);
   const handleSetHeight = useCallback(e => {
@@ -1226,6 +1229,16 @@ const PostReshare = ({
       borderRadius: ResponsiveSize(50),
       overflow: 'hidden',
     },
+    ConnectionIconCheck: {
+      display:"flex",
+      position: 'absolute',
+      top: 10,
+      left: 10,
+      right: 10,
+      bottom: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   });
 
   const [reShareLoader, setReshareLoader] = useState(false);
@@ -1233,6 +1246,8 @@ const PostReshare = ({
   const [reShareCaption, setReShareCaption] = useState('');
   const [reportPostDescription, setReportPostDescription] = useState('');
   const [reportLoading, setReportLoading] = useState(false);
+
+  const [selectedUsers, setSelectedUsers] = useState([]);
 
   const ResharePost = async () => {
     setReshareLoader(true);
@@ -1257,7 +1272,9 @@ const PostReshare = ({
   };
   const sendMessage = async (message_Props, user_Id) => {
     setMsgReshareLoader({user_Id: user_Id, value: true});
+
     const Token = await AsyncStorage.getItem('Token');
+
     const socket = io(`${baseUrl.baseUrl}/chat`, {
       transports: ['websocket'],
       extraHeaders: {
@@ -1271,6 +1288,7 @@ const PostReshare = ({
       post_id: message_Props,
     });
     setTimeout(() => {
+      
       setMsgReshareLoader({user_Id: user_Id, value: false});
     }, 2000);
   };
@@ -1310,6 +1328,17 @@ const PostReshare = ({
     }
   };
 
+  const toggleUserSelection = (userId) => {
+    setSelectedUsers(prevSelectedUsers => {
+      if (prevSelectedUsers.includes(userId)) {
+        // If the user is already selected, remove them
+        return prevSelectedUsers.filter(id => id !== userId);
+      } else {
+        // If the user is not selected, add them
+        return [...prevSelectedUsers, userId];
+      }
+    });
+  };
   const addDeletePost = async () => {
     console.log(postId, 'postId');
     setDeleteLoading(true);
@@ -2109,15 +2138,15 @@ console.log(res,"deletePostReshare")
                 }}>
                 <FastImage
                   source={
-                    profileImage == ''
+                     myuser?.profile_picture_url === ''
                       ? require('../../assets/icons/avatar.png')
-                      : {uri: profileImage, priority: FastImage.priority.high}
+                      : {uri: myuser?.profile_picture_url, priority: FastImage.priority.high}
                   }
                   style={style.PostProfileImage}
                   resizeMode="cover"
                 />
                 <TextC
-                  text={userName}
+                  text={myuser?.user_name}
                   font={'Montserrat-Bold'}
                   size={ResponsiveSize(14)}
                   style={{color: global.black}}
@@ -2183,7 +2212,11 @@ console.log(res,"deletePostReshare")
                     <TouchableOpacity
                       disabled={MsgReShareLoader?.value}
                       style={style.ConnectionListIcon}
-                      onPress={() => sendMessage(postId, data?.user_id)}>
+                      onPress={() => {
+                       // Store selected user
+                       toggleUserSelection(data?.user_id); 
+                        sendMessage(postId, data?.user_id); 
+                      }}>
                       <View style={style.ConnectionIconDpAbdolute}>
                         <FastImage
                           source={
@@ -2197,6 +2230,7 @@ console.log(res,"deletePostReshare")
                           style={style.ConnectionIconDp}
                           resizeMode="cover"
                         />
+
                         {MsgReShareLoader?.user_Id == data?.user_id &&
                         MsgReShareLoader?.value == true ? (
                           <ActivityIndicator
@@ -2209,9 +2243,18 @@ console.log(res,"deletePostReshare")
                             }}
                           />
                         ) : (
-                          ''
+                      ""
                         )}
                       </View>
+                      {selectedUsers.includes(data?.user_id) && (
+  <Feather
+    name="check"
+    style = {{position: 'absolute', top: ResponsiveSize(1), left: ResponsiveSize(43)}}
+    size={ResponsiveSize(25)}
+    color={global.secondaryColor}
+ 
+  />
+)}
                       <TextC
                         text={data?.user_name}
                         font={'Montserrat-Bold'}
@@ -2223,6 +2266,7 @@ console.log(res,"deletePostReshare")
                     </TouchableOpacity>
                   ))
                 : ''}
+               
             </ScrollView>
           </View>
         </View>

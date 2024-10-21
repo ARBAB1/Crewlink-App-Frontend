@@ -26,6 +26,7 @@ import FastImage from 'react-native-fast-image';
 import Modal from 'react-native-modal';
 
 const ProfileScreen = ({GetUserProfileReducer, GetProfileData}) => {
+  console.log(GetUserProfileReducer, 'GetUserProfileReducer');
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const navigation = useNavigation();
