@@ -660,7 +660,7 @@ const Message = ({ route }) => {
                 },
             })
         }
-    }, [isOpenAction]);
+    }, []);
 
 
     const addToQueue = (message) => {
@@ -721,8 +721,6 @@ const Message = ({ route }) => {
                 setMultiSelected([])
                 setReplyMessage()
             })
-            console.log("Sendnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
-            loadRecentChats()
         }
     }
 
