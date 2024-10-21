@@ -614,6 +614,8 @@ const Message = ({ route }) => {
             })
         }
     };
+    const [readbool,setReadBool] = useState(false)
+    const [readboollegth,setReadBoolLebgth] = useState(0)
     const loadRecentChats = async () => {
         console.log("yahan tk asyayyayayayyayayayyayay")
         setLoader(true)
@@ -630,12 +632,21 @@ const Message = ({ route }) => {
         socket.on('connect').emit('oldMessages', {
             "receiverUserId": route?.params?.receiverUserId,
         }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
+          
             if (data?.message.length >= 25) {
+                if(readboollegth!=data?.message.length){
+                    setReadBoolLength(data?.message.length)
+                    setReadBool(!readbool)
+                }
                 setLoader(false)
                 setRecentChats(data?.message);
                 scrollViewRef.current.scrollToEnd({ animated: true })
             }
             else {
+                if(readboollegth!=data?.message.length){
+                    setReadBoolLength(data?.message.length)
+                    setReadBool(!readbool)
+                }
                 setHasMoreContent(false)
                 setLoader(false)
                 setRecentChats(data?.message);
@@ -661,6 +672,11 @@ const Message = ({ route }) => {
             })
         }
     }, []);
+    useEffect(() => {
+    
+        loadRecentChats()
+       
+    }, [readbool]);
 
 
     const addToQueue = (message) => {
