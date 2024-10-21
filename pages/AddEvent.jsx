@@ -36,6 +36,7 @@ import {useSWRConfig} from 'swr';
 import {check, PERMISSIONS, RESULTS, request} from 'react-native-permissions';
 import {useHeaderHeight} from '@react-navigation/elements';
 import {KeyboardAvoidingView, Platform} from 'react-native';
+import {useToast} from 'react-native-toast-notifications';
 
 const AddEvent = ({
   AllEventReducer,
@@ -50,6 +51,7 @@ const AddEvent = ({
   const [isImageSave, setIsImageSave] = useState(true);
   const [documentImage, setDocumentImage] = useState('');
   const [document, setDocument] = useState('');
+  const toast = useToast();
 
     useEffect(()=>{
       return ()=>{closeBottomSheet()}
@@ -240,6 +242,7 @@ const AddEvent = ({
       startTime: '',
       endTime: '',
     },
+
   });
 
   const onSubmit = async data => {
@@ -262,7 +265,11 @@ const AddEvent = ({
           });
         }
         const Responce = await CreateEvent(formData);
+        console.log(Responce, 'Responce');
         if (Responce == true) {
+          toast.show(
+          'Event created successfully',
+          )
           getMyEvents({page: 1, refreash: true});
           getAllEvents({page: 1, refreash: true});
           getJoinedEvents({page: 1, refreash: true});

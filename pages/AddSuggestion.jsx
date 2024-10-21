@@ -370,7 +370,7 @@ import {
                 <TextInputC
                   disable={AllEventReducer?.EventCreateLoading}
                   value={value}
-                  placeholder={'Event title'}
+                  placeholder={'title'}
                   onChangeText={onChange}
                 />
               )}
