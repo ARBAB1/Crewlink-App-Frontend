@@ -721,6 +721,8 @@ const Message = ({ route }) => {
                 setMultiSelected([])
                 setReplyMessage()
             })
+            console.log("Sendnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
+            loadRecentChats()
         }
     }
 
