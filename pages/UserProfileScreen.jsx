@@ -270,8 +270,6 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       alignItems: 'center',
       justifyContent: 'center'
     },
-
-
     modalTopLayerReportSecond: {
       height: windowHeight * 0.35,
       width: windowWidth * 0.8,

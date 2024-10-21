@@ -1332,7 +1332,6 @@ const Post = ({
       }, 1000);
     }
   };
-  // console.log(timeAgo)
   return (
     <>
       {reportedPostId == postId ? (

@@ -408,7 +408,6 @@ const MessageList = ({ GetProfileData }) => {
     );
   }, []);
 
-  console.log(recentChats[0], 'recentChatsNulll')
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
       <StatusBar

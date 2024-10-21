@@ -95,7 +95,8 @@ const Message = ({ route }) => {
             paddingVertical: ResponsiveSize(15),
             backgroundColor: global.white,
             borderBottomColor: global.description,
-            borderBottomWidth: ResponsiveSize(1)
+            borderBottomWidth: ResponsiveSize(1),
+            height: ResponsiveSize(55),
         },
         logoSide1: {
             flexDirection: 'row',
@@ -184,16 +185,42 @@ const Message = ({ route }) => {
         },
         messageWrapper: {
             paddingHorizontal: ResponsiveSize(15),
-            paddingVertical: ResponsiveSize(5)
+            paddingVertical: ResponsiveSize(2)
         },
         messageContainer1: {
             flexDirection: "row",
             flex: 1,
+            paddingVertical: ResponsiveSize(4),
+            borderBottomLeftRadius: ResponsiveSize(10),
+            borderTopRightRadius: ResponsiveSize(10),
+            borderBottomRightRadius: ResponsiveSize(10),
         },
         messageContainer2: {
             justifyContent: "flex-end",
             flexDirection: "row",
             flex: 1,
+            paddingVertical: ResponsiveSize(4),
+            borderTopLeftRadius: ResponsiveSize(10),
+            borderBottomLeftRadius: ResponsiveSize(10),
+            borderBottomRightRadius: ResponsiveSize(10),
+
+        },
+        messageContainer2Selected: {
+            justifyContent: "flex-end",
+            flexDirection: "row",
+            flex: 1,
+            paddingVertical: ResponsiveSize(4),
+            borderTopLeftRadius: ResponsiveSize(10),
+            borderBottomLeftRadius: ResponsiveSize(10),
+            borderBottomRightRadius: ResponsiveSize(10),
+            backgroundColor:global.messageRgba
+        },
+        messageContainer1Selected:{
+            flexDirection: "row",
+            flex: 1,
+            paddingVertical: ResponsiveSize(4),
+            borderRadius: ResponsiveSize(10),
+            backgroundColor:global.messageRgba
         },
         message: {
             fontSize: ResponsiveSize(12),
@@ -379,6 +406,13 @@ const Message = ({ route }) => {
         },
         logoSide: {
             flexDirection: 'row',
+            alignItems: 'center',
+        },
+        logoSideChatAction: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: windowWidth - ResponsiveSize(30)
         },
         EmptyMessage: {
             flex: 1,
@@ -567,8 +601,6 @@ const Message = ({ route }) => {
             ['15%'],
         );
     };
-
-
     const openMobileCamera = async () => {
         const result = await launchCamera();
         if (result?.assets.length > 0) {
@@ -581,7 +613,6 @@ const Message = ({ route }) => {
             })
         }
     };
-
     const loadRecentChats = async () => {
         setLoader(true)
         const Token = await AsyncStorage.getItem('Token');
@@ -610,7 +641,6 @@ const Message = ({ route }) => {
             }
         }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId })
     }
-
     useEffect(() => {
         navigation.getParent()?.setOptions({
             tabBarStyle: { display: 'none' },
@@ -628,7 +658,7 @@ const Message = ({ route }) => {
                 },
             })
         }
-    }, [focus]);
+    }, []);
 
 
     const addToQueue = (message) => {
@@ -685,6 +715,9 @@ const Message = ({ route }) => {
             }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
                 CancelReply()
                 setRecentChats(data?.message);
+                setIsOpenAction(false)
+                setMultiSelected([])
+                setReplyMessage()
             })
         }
     }
@@ -714,15 +747,60 @@ const Message = ({ route }) => {
     }
 
     const [ReplyMessage, setReplyMessage] = useState()
-    const GetReply = (Address) => {
+    const [isOpenAction, setIsOpenAction] = useState(false)
+    const [multiSelected, setMultiSelected] = useState([])
+
+
+
+
+    const OpenMessageAction = (Address) => {
         fadeIn()
-        setReplyMessage(Address)
+        setIsOpenAction(true)
+        setReplyMessage({
+            ...Address,
+            isReply: false,
+        })
         Vibration.vibrate(100)
+        setMultiSelected((prev) => {
+            const messageId = Address?.message_id;
+            if (!messageId) return prev;
+            if (prev.includes(messageId)) {
+                return prev.filter((id) => id !== messageId);
+            } else {
+                return [...prev, messageId];
+            }
+        });
     }
+
+
+    const addMore = (address) => {
+        Vibration.vibrate(50)
+        setMultiSelected((prev) => {
+            const messageId = address?.message_id;
+            if (!messageId) return prev;
+            if (prev.includes(messageId)) {
+                return prev.filter((id) => id !== messageId);
+            } else {
+                return [...prev, messageId];
+            }
+        });
+    }
+
+    const DoReply = () => {
+        setReplyMessage((prev) => ({
+            ...prev,
+            isReply: true,
+        }));
+    }
+
     const CancelReply = () => {
         fadeOut()
         setReplyMessage()
+        setIsOpenAction(false)
     }
+
+
+
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const fadeIn = () => {
         Animated.timing(fadeAnim, {
@@ -831,11 +909,12 @@ const Message = ({ route }) => {
         const hours = date.getHours();
         const minutes = date.getMinutes();
         const formattedTime = `${hours % 12 || 12}:${minutes.toString().padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`;
+        const isSelected = multiSelected.includes(items?.item?.message_id);
         return (
             <>
                 <View style={styles.messageWrapper}>
                     {items?.item?.senderUserId == user_id ?
-                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer2} onPress={() => items?.item?.isShared == "Y" ? navigation.navigate('PostDetail', items?.item?.post_id) : null}>
+                        <Pressable onLongPress={() => OpenMessageAction(items?.item)} style={isSelected ? styles.messageContainer2Selected : styles.messageContainer2} onPress={() => isOpenAction ? addMore(items?.item) : items?.item?.isShared == "Y" ? navigation.navigate('PostDetail', items?.item?.post_id) : null}>
                             <View style={styles.empty}></View>
                             {items?.item?.isShared == "Y" ?
                                 <View style={{ flexDirection: 'column' }}>
@@ -870,7 +949,7 @@ const Message = ({ route }) => {
                                 <>
                                     {items?.item?.is_media == "Y" ?
                                         <>
-                                            <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)}>
+                                            <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => OpenMessageAction(items?.item)}>
                                                 <View style={styles.otherMedia}>
                                                     {isVideo[1] == '4' ?
                                                         <>
@@ -1129,7 +1208,7 @@ const Message = ({ route }) => {
                             }
                         </Pressable>
                         :
-                        <Pressable onLongPress={() => GetReply(items?.item)} style={styles.messageContainer1} onPress={() => items?.item?.isShared == "Y" ? navigation.navigate('PostDetail', items?.item?.post_id) : null}>
+                        <Pressable onLongPress={() => OpenMessageAction(items?.item)} style={isSelected ? styles.messageContainer1Selected : styles.messageContainer1} onPress={() => isOpenAction ? addMore(items?.item) : items?.item?.isShared == "Y" ? navigation.navigate('PostDetail', items?.item?.post_id) : null}>
                             {items?.item?.isShared == "Y" ?
                                 <>
                                     <ImageBackground
@@ -1181,7 +1260,7 @@ const Message = ({ route }) => {
                                                 }
                                                 style={styles.PostProfileImage2}
                                                 resizeMode="cover" />
-                                            <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => GetReply(items?.item)} style={styles.otherMedia2} >
+                                            <Pressable onPress={() => MediaDetail(items?.item, isVideo[1] == '4' ? false : true)} onLongPress={() => OpenMessageAction(items?.item)} style={styles.otherMedia2} >
                                                 {isVideo[1] == '4' ?
                                                     <>
                                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -1357,8 +1436,11 @@ const Message = ({ route }) => {
                 </View>
             </>
         );
-    }, [recentChats]);
-
+    }, [multiSelected,recentChats,isOpenAction,ReplyMessage]);
+ 
+ 
+ 
+ 
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -1372,57 +1454,81 @@ const Message = ({ route }) => {
                     barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
                 />
                 <View style={styles.wrapper}>
-                    <View style={styles.logoSide}>
-                        <Pressable onPress={() => {
-                            navigation.navigate('Home', { screen: 'MessageList' })
-                            return navigation.getParent()?.setOptions({
-                                tabBarStyle: {
-                                    display: 'flex',
-                                    backgroundColor: '#69BE25',
-                                    borderTopLeftRadius: ResponsiveSize(20),
-                                    borderTopRightRadius: ResponsiveSize(20),
-                                },
-                            });
-                        }} style={styles.logoSide1}>
-                            <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
-                        </Pressable>
-                        <TouchableOpacity style={styles.logoSide2} onPress={() => {
-                            navigation.navigate('UserProfileScreen', { user_id: route?.params?.receiverUserId })
-                            return navigation.getParent()?.setOptions({
-                                tabBarStyle: {
-                                    display: 'flex',
-                                    backgroundColor: '#69BE25',
-                                    borderTopLeftRadius: ResponsiveSize(20),
-                                    borderTopRightRadius: ResponsiveSize(20),
-                                },
-                            });
-                        }}>
-                            <ImageBackground
-                                source={
-                                    userDetails?.profile_picture_url == ''
-                                        ? require('../assets/icons/avatar.png')
-                                        : { uri: userDetails?.profile_picture_url }
+                    {isOpenAction == true ?
+                        <View style={styles.logoSideChatAction}>
+                            <Pressable onPress={() => {
+                                navigation.navigate('Home', { screen: 'MessageList' })
+                                return navigation.getParent()?.setOptions({
+                                    tabBarStyle: {
+                                        display: 'flex',
+                                        backgroundColor: '#69BE25',
+                                        borderTopLeftRadius: ResponsiveSize(20),
+                                        borderTopRightRadius: ResponsiveSize(20),
+                                    },
+                                });
+                            }} style={styles.logoSide1}>
+                                <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
+                            </Pressable>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                {multiSelected.length <= 1 &&
+                                <TouchableOpacity onPress={() => DoReply()}>
+                                    <Feather name="corner-up-left" size={ResponsiveSize(20)} color={global.primaryColor} />
+                                </TouchableOpacity>
                                 }
-                                style={styles.PostProfileImage}
-                                resizeMode="cover"></ImageBackground>
-                            <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={userDetails?.user_name} />
-                        </TouchableOpacity>
-                    </View>
-                    <Pressable onPress={() => {
-                        navigation.navigate('UserChatSetting', { user_id: route?.params?.receiverUserId })
-                        return navigation.getParent()?.setOptions({
-                            tabBarStyle: {
-                                display: 'flex',
-                                backgroundColor: '#69BE25',
-                                borderTopLeftRadius: ResponsiveSize(20),
-                                borderTopRightRadius: ResponsiveSize(20),
-                            },
-                        });
 
-                    }} style={styles.logoSide1}>
-                        <Entypo name='dots-three-vertical' color={global.primaryColor} size={ResponsiveSize(22)} />
-                    </Pressable>
+
+                                <TouchableOpacity style={{ marginHorizontal: ResponsiveSize(10) }}>
+                                    <AntDesign name="delete" size={ResponsiveSize(20)} color={global.primaryColor} />
+                                </TouchableOpacity>
+{/* 
+                                <TouchableOpacity>
+                                    <Feather name="corner-up-right" size={ResponsiveSize(20)} color={global.primaryColor} />
+                                </TouchableOpacity> */}
+                            </View>
+                        </View>
+                        :
+                        <View style={styles.logoSide}>
+                            <Pressable onPress={() => {
+                                navigation.navigate('Home', { screen: 'MessageList' })
+                                return navigation.getParent()?.setOptions({
+                                    tabBarStyle: {
+                                        display: 'flex',
+                                        backgroundColor: '#69BE25',
+                                        borderTopLeftRadius: ResponsiveSize(20),
+                                        borderTopRightRadius: ResponsiveSize(20),
+                                    },
+                                });
+                            }} style={styles.logoSide1}>
+                                <AntDesign name='left' color={global.primaryColor} size={ResponsiveSize(22)} />
+                            </Pressable>
+                            <TouchableOpacity style={styles.logoSide2} onPress={() => {
+                                navigation.navigate('UserChatSetting', { user_id: route?.params?.receiverUserId })
+                                return navigation.getParent()?.setOptions({
+                                    tabBarStyle: {
+                                        display: 'flex',
+                                        backgroundColor: '#69BE25',
+                                        borderTopLeftRadius: ResponsiveSize(20),
+                                        borderTopRightRadius: ResponsiveSize(20),
+                                    },
+                                });
+
+                            }}>
+                                <ImageBackground
+                                    source={
+                                        userDetails?.profile_picture_url == ''
+                                            ? require('../assets/icons/avatar.png')
+                                            : { uri: userDetails?.profile_picture_url }
+                                    }
+                                    style={styles.PostProfileImage}
+                                    resizeMode="cover"></ImageBackground>
+                                <TextC size={ResponsiveSize(12)} font={'Montserrat-Bold'} text={userDetails?.user_name} />
+                            </TouchableOpacity>
+                        </View>
+                    }
                 </View>
+
+
+
                 <ScrollView
                     ref={scrollViewRef}
                     contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white, position: 'relative', paddingTop: ResponsiveSize(10), paddingBottom: ResponsiveSize(ReplyMessage?.message_id ? 100 : 65) }}
@@ -1461,6 +1567,7 @@ const Message = ({ route }) => {
                                     keyExtractor={(items, index) => index?.toString()}
                                     renderItem={renderItem}
                                     scrollEventThrottle={16}
+                                    extraData={multiSelected}
                                 />
                                 :
                                 <View style={styles.EmptyMessage}>
@@ -1471,6 +1578,9 @@ const Message = ({ route }) => {
                     }
 
                 </ScrollView>
+
+
+
                 <View style={styles.MessageInputWrapper}>
                     {userDetails?.blocked_by_me == "true" ?
                         <View>
@@ -1488,7 +1598,7 @@ const Message = ({ route }) => {
                             </View>
                             :
                             <>
-                                {ReplyMessage?.message_id &&
+                                {ReplyMessage?.isReply &&
                                     <Animated.View style={{ ...styles.ReplyBox, opacity: fadeAnim }}>
                                         <View style={styles.ReplyInfo}>
                                             {ReplyMessage?.senderUserId == user_id ?
