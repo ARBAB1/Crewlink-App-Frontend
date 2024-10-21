@@ -614,45 +614,52 @@ const Message = ({ route }) => {
             })
         }
     };
-    const [readbool,setReadBool] = useState(false)
-    const [readboollegth,setReadBoolLebgth] = useState(0)
+
     const loadRecentChats = async () => {
         console.log("yahan tk asyayyayayayyayayayyayay")
         setLoader(true)
         const Token = await AsyncStorage.getItem('Token');
         const U_id = await AsyncStorage.getItem('U_id');
         setUserId(U_id)
+        
         const socket = io(`${baseUrl}/chat`, {
-            transports: ['websocket'],
-            extraHeaders: {
-                'x-api-key': "TwillioAPI",
-                'accesstoken': `Bearer ${Token}`
-            }
+          transports: ['websocket'],
+          extraHeaders: {
+            'x-api-key': "TwillioAPI",
+            'accesstoken': `Bearer ${Token}`
+          }
         });
-        socket.on('connect').emit('oldMessages', {
-            "receiverUserId": route?.params?.receiverUserId,
-        }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
-          
-            if (data?.message.length >= 25) {
-                if(readboollegth!=data?.message.length){
-                    setReadBoolLength(data?.message.length)
-                    setReadBool(!readbool)
-                }
-                setLoader(false)
-                setRecentChats(data?.message);
-                scrollViewRef.current.scrollToEnd({ animated: true })
-            }
-            else {
-                if(readboollegth!=data?.message.length){
-                    setReadBoolLength(data?.message.length)
-                    setReadBool(!readbool)
-                }
-                setHasMoreContent(false)
-                setLoader(false)
-                setRecentChats(data?.message);
-                scrollViewRef.current.scrollToEnd({ animated: true })
-            }
-        }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('chatList')
+    
+        socket.on('connect', () => {
+          socket.emit('oldMessages', { "receiverUserId": route?.params?.receiverUserId });
+        });
+    
+        socket.on('message', (data) => {
+          if (data.message.filter(message => message.read_status === 'N').length > 0) {
+            console.log(data.message, "Unread messages detected")
+            socket.emit('readMessage', { receiverUserId: route?.params?.receiverUserId });
+          }
+          handleMessages(data);
+        });
+    
+        const handleMessages = (data) => {
+          if (data?.message.length >= 25) {
+            setLoader(false);
+            setRecentChats(data?.message);
+            scrollViewRef.current.scrollToEnd({ animated: true });
+          } else {
+            setHasMoreContent(false);
+            setLoader(false);
+            setRecentChats(data?.message);
+            scrollViewRef.current.scrollToEnd({ animated: true });
+          }
+        }
+    
+        return () => {
+          // Cleanup the socket when the component unmounts
+          socket.off('message');
+          socket.disconnect();
+        };
     }
     useEffect(() => {
         navigation.getParent()?.setOptions({
@@ -671,12 +678,8 @@ const Message = ({ route }) => {
                 },
             })
         }
-    }, []);
-    useEffect(() => {
-    
-        loadRecentChats()
-       
-    }, [readbool]);
+    }, [route?.params?.receiverUserId]);
+
 
 
     const addToQueue = (message) => {
