@@ -85,6 +85,7 @@ const Message = ({ route }) => {
             console.error("Failed to fetch user details:", error);
         }
     };
+
     const styles = StyleSheet.create({
         wrapper: {
             flexDirection: 'row',
@@ -213,14 +214,14 @@ const Message = ({ route }) => {
             borderTopLeftRadius: ResponsiveSize(10),
             borderBottomLeftRadius: ResponsiveSize(10),
             borderBottomRightRadius: ResponsiveSize(10),
-            backgroundColor:global.messageRgba
+            backgroundColor: global.messageRgba
         },
-        messageContainer1Selected:{
+        messageContainer1Selected: {
             flexDirection: "row",
             flex: 1,
             paddingVertical: ResponsiveSize(4),
             borderRadius: ResponsiveSize(10),
-            backgroundColor:global.messageRgba
+            backgroundColor: global.messageRgba
         },
         message: {
             fontSize: ResponsiveSize(12),
@@ -614,6 +615,7 @@ const Message = ({ route }) => {
         }
     };
     const loadRecentChats = async () => {
+        console.log("yahan tk asyayyayayayyayayayyayay")
         setLoader(true)
         const Token = await AsyncStorage.getItem('Token');
         const U_id = await AsyncStorage.getItem('U_id');
@@ -639,7 +641,7 @@ const Message = ({ route }) => {
                 setRecentChats(data?.message);
                 scrollViewRef.current.scrollToEnd({ animated: true })
             }
-        }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId })
+        }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('chatList')
     }
     useEffect(() => {
         navigation.getParent()?.setOptions({
@@ -658,7 +660,7 @@ const Message = ({ route }) => {
                 },
             })
         }
-    }, []);
+    }, [isOpenAction]);
 
 
     const addToQueue = (message) => {
@@ -712,7 +714,7 @@ const Message = ({ route }) => {
                 "message": message_Props,
                 "receiverUserId": route?.params?.receiverUserId,
                 "repliedMessageId": ReplyMessage?.message_id
-            }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
+            }).emit('oldMessages', {"receiverUserId": route?.params?.receiverUserId,}).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
                 CancelReply()
                 setRecentChats(data?.message);
                 setIsOpenAction(false)
@@ -746,12 +748,32 @@ const Message = ({ route }) => {
         })
     }
 
+    const [deleteMessageLoad, setDeleteMessageLoad] = useState(false)
+    const DeleteMessage = async () => {
+        setDeleteMessageLoad(true)
+        const Token = await AsyncStorage.getItem('Token');
+        const socket = io(`${baseUrl}/chat`, {
+            transports: ['websocket'],
+            extraHeaders: {
+                'x-api-key': "TwillioAPI",
+                'accesstoken': `Bearer ${Token}`
+            }
+        });
+        socket.on('connect').emit('deleteDirectMessage', {
+            "messageId": multiSelected,
+        }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
+            CancelReply()
+            setSendLocationLoading(false)
+            setRecentChats(data?.message);
+            setIsLocationModal(false)
+            setDeleteMessageLoad(false)
+        })
+    }
+
+
     const [ReplyMessage, setReplyMessage] = useState()
     const [isOpenAction, setIsOpenAction] = useState(false)
     const [multiSelected, setMultiSelected] = useState([])
-
-
-
 
     const OpenMessageAction = (Address) => {
         fadeIn()
@@ -771,7 +793,6 @@ const Message = ({ route }) => {
             }
         });
     }
-
 
     const addMore = (address) => {
         Vibration.vibrate(50)
@@ -1044,7 +1065,7 @@ const Message = ({ route }) => {
                                                     <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingTop: ResponsiveSize(5) }}>
                                                         <TextC text={"seen by"} font={'Montserrat-Medium'} size={ResponsiveSize(9)} style={{ color: global.black }} />
                                                         <FastImage
-                                                            source={{ uri: route?.params?.profile_picture_url, priority: FastImage.priority.high }}
+                                                            source={{ uri: userDetails?.profile_picture_url, priority: FastImage.priority.high }}
                                                             style={{
                                                                 height: ResponsiveSize(15),
                                                                 width: ResponsiveSize(15),
@@ -1095,7 +1116,7 @@ const Message = ({ route }) => {
                                                     <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingTop: ResponsiveSize(5) }}>
                                                         <TextC text={"seen by"} font={'Montserrat-Medium'} size={ResponsiveSize(9)} style={{ color: global.black }} />
                                                         <FastImage
-                                                            source={{ uri: route?.params?.profile_picture_url, priority: FastImage.priority.high }}
+                                                            source={{ uri: userDetails?.profile_picture_url, priority: FastImage.priority.high }}
                                                             style={{
                                                                 height: ResponsiveSize(15),
                                                                 width: ResponsiveSize(15),
@@ -1190,7 +1211,7 @@ const Message = ({ route }) => {
                                                     <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingTop: ResponsiveSize(5) }}>
                                                         <TextC text={"seen by"} font={'Montserrat-Medium'} size={ResponsiveSize(9)} style={{ color: global.black }} />
                                                         <FastImage
-                                                            source={{ uri: route?.params?.profile_picture_url, priority: FastImage.priority.high }}
+                                                            source={{ uri: userDetails?.profile_picture_url, priority: FastImage.priority.high }}
                                                             style={{
                                                                 height: ResponsiveSize(15),
                                                                 width: ResponsiveSize(15),
@@ -1213,9 +1234,9 @@ const Message = ({ route }) => {
                                 <>
                                     <ImageBackground
                                         source={
-                                            route?.params?.profile_picture_url == ''
+                                            userDetails?.profile_picture_url == ''
                                                 ? require('../assets/icons/avatar.png')
-                                                : { uri: route?.params?.profile_picture_url }
+                                                : { uri: userDetails?.profile_picture_url }
                                         }
                                         style={styles.PostProfileImage2}
                                         resizeMode="cover" />
@@ -1254,9 +1275,9 @@ const Message = ({ route }) => {
                                         <>
                                             <ImageBackground
                                                 source={
-                                                    route?.params?.profile_picture_url == ''
+                                                    userDetails?.profile_picture_url == ''
                                                         ? require('../assets/icons/avatar.png')
-                                                        : { uri: route?.params?.profile_picture_url }
+                                                        : { uri: userDetails?.profile_picture_url }
                                                 }
                                                 style={styles.PostProfileImage2}
                                                 resizeMode="cover" />
@@ -1344,9 +1365,9 @@ const Message = ({ route }) => {
                                             <>
                                                 <ImageBackground
                                                     source={
-                                                        route?.params?.profile_picture_url == ''
+                                                        userDetails?.profile_picture_url == ''
                                                             ? require('../assets/icons/avatar.png')
-                                                            : { uri: route?.params?.profile_picture_url }
+                                                            : { uri: userDetails?.profile_picture_url }
                                                     }
                                                     style={styles.PostProfileImage2}
                                                     resizeMode="cover" />
@@ -1374,9 +1395,9 @@ const Message = ({ route }) => {
                                             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                                 <ImageBackground
                                                     source={
-                                                        route?.params?.profile_picture_url == ''
+                                                        userDetails?.profile_picture_url == ''
                                                             ? require('../assets/icons/avatar.png')
-                                                            : { uri: route?.params?.profile_picture_url }
+                                                            : { uri: userDetails?.profile_picture_url }
                                                     }
                                                     style={styles.PostProfileImage2}
                                                     resizeMode="cover" />
@@ -1436,11 +1457,11 @@ const Message = ({ route }) => {
                 </View>
             </>
         );
-    }, [multiSelected,recentChats,isOpenAction,ReplyMessage]);
- 
- 
- 
- 
+    }, [multiSelected, recentChats, isOpenAction, ReplyMessage]);
+
+
+
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -1471,16 +1492,18 @@ const Message = ({ route }) => {
                             </Pressable>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 {multiSelected.length <= 1 &&
-                                <TouchableOpacity onPress={() => DoReply()}>
-                                    <Feather name="corner-up-left" size={ResponsiveSize(20)} color={global.primaryColor} />
-                                </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => DoReply()}>
+                                        <Feather name="corner-up-left" size={ResponsiveSize(20)} color={global.primaryColor} />
+                                    </TouchableOpacity>
                                 }
-
-
-                                <TouchableOpacity style={{ marginHorizontal: ResponsiveSize(10) }}>
-                                    <AntDesign name="delete" size={ResponsiveSize(20)} color={global.primaryColor} />
+                                <TouchableOpacity onPress={DeleteMessage} style={{ marginHorizontal: ResponsiveSize(10) }}>
+                                    {deleteMessageLoad ?
+                                        <ActivityIndicator size={"small"} color={global.primaryColor} />
+                                        :
+                                        <AntDesign name="delete" size={ResponsiveSize(20)} color={global.primaryColor} />
+                                    }
                                 </TouchableOpacity>
-{/* 
+                                {/* 
                                 <TouchableOpacity>
                                     <Feather name="corner-up-right" size={ResponsiveSize(20)} color={global.primaryColor} />
                                 </TouchableOpacity> */}

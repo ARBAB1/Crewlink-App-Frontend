@@ -62,24 +62,23 @@ const NewGroupScreen = ({ getAllConnections, AllConnectionsReducer }) => {
             paddingVertical: ResponsiveSize(5),
         },
         SearchInputWrapper: {
-            position: "relative",
+            position: 'relative',
         },
         SearchInput: {
             borderRadius: ResponsiveSize(20),
             paddingHorizontal: ResponsiveSize(10),
             paddingVertical: ResponsiveSize(5),
             fontSize: ResponsiveSize(12),
-            fontFamily: 'Montserrat-Regular',
+            fontFamily: 'Montserrat-Medium',
             borderColor: global.description,
             borderWidth: ResponsiveSize(1),
-            position: "relative",
+            position: 'relative',
             paddingLeft: ResponsiveSize(35),
-            height:ResponsiveSize(40)
         },
         SearchIcon: {
             position: 'absolute',
             top: ResponsiveSize(8),
-            left: ResponsiveSize(10)
+            left: ResponsiveSize(10),
         },
         PostHeader: {
             flexDirection: 'row',
@@ -179,10 +178,9 @@ const NewGroupScreen = ({ getAllConnections, AllConnectionsReducer }) => {
                 </View>
                 <View style={styles.bodyWrapper}>
                     <View style={styles.SearchInputWrapper}>
-                        <AntDesign style={styles.SearchIcon} name='search1' color={global.primaryColor} size={ResponsiveSize(18)} />
-                        <TextInput onChangeText={(e) => setSearchUser(e)} style={styles.SearchInput} placeholder="Search Your Connection" />
+                        <AntDesign style={styles.SearchIcon} name='search1' color={global.primaryColor} size={ResponsiveSize(20)} />
+                        <TextInput onChangeText={(e) => setSearchUser(e)} style={styles.SearchInput} placeholder="Search" />
                     </View>
-                  
                     {loader ?
                         <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: ResponsiveSize(50) }}>
                             <ActivityIndicator size={'large'} color={global.primaryColor} />

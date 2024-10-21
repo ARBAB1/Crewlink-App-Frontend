@@ -76,7 +76,7 @@ const MessageList = ({ GetProfileData }) => {
       paddingHorizontal: ResponsiveSize(10),
       paddingVertical: ResponsiveSize(5),
       fontSize: ResponsiveSize(12),
-      fontFamily: 'Montserrat-Regular',
+      fontFamily: 'Montserrat-Medium',
       borderColor: global.description,
       borderWidth: ResponsiveSize(1),
       position: 'relative',
@@ -109,10 +109,31 @@ const MessageList = ({ GetProfileData }) => {
       marginRight: ResponsiveSize(10),
       overflow: 'hidden',
     },
+    SearchInputWrapper: {
+      position: "relative",
+    },
     PostProfileImageBox: {
       flexDirection: 'column',
       alignItems: 'flex-start',
       justifyContent: 'center',
+    },
+    SearchInput: {
+      borderRadius: ResponsiveSize(20),
+      paddingHorizontal: ResponsiveSize(10),
+      paddingVertical: ResponsiveSize(5),
+      fontSize: ResponsiveSize(12),
+      fontFamily: 'Montserrat-Regular',
+      borderColor: global.description,
+      borderWidth: ResponsiveSize(1),
+      position: "relative",
+      paddingLeft: ResponsiveSize(40),
+      width: windowWidth - ResponsiveSize(30),
+      height: ResponsiveSize(40)
+    },
+    SearchIcon: {
+      position: 'absolute',
+      top: ResponsiveSize(10),
+      left: ResponsiveSize(10)
     },
   });
   const navigation = useNavigation();
@@ -191,17 +212,33 @@ const MessageList = ({ GetProfileData }) => {
         }}
         style={styles.PostHeader}>
         <View style={{ flexDirection: 'row' }}>
-          <ImageBackground
-            source={
-              item?.userDetails?.profile_picture_url == ''
-                ? require('../assets/icons/avatar.png')
-                : {
-                  uri: item?.userDetails
-                    ?.profile_picture_url,
-                }
+          <View style={{ position: 'relative' }}>
+            <ImageBackground
+              source={
+                item?.userDetails?.profile_picture_url == ''
+                  ? require('../assets/icons/avatar.png')
+                  : {
+                    uri: item?.userDetails
+                      ?.profile_picture_url,
+                  }
+              }
+              style={styles.PostProfileImage}
+              resizeMode="cover">
+            </ImageBackground>
+            {item?.userOnlineStatus?.isOnline == "Y" &&
+              <View style={{
+                height: ResponsiveSize(12),
+                width: ResponsiveSize(12),
+                borderRadius: ResponsiveSize(100),
+                backgroundColor: global.secondaryColor,
+                position: 'absolute',
+                top: ResponsiveSize(-2),
+                left: ResponsiveSize(2),
+                borderWidth: ResponsiveSize(2),
+                borderColor: global.white
+              }}></View>
             }
-            style={styles.PostProfileImage}
-            resizeMode="cover"></ImageBackground>
+          </View>
           <View style={styles.PostProfileImageBox}>
             <TextC
               size={ResponsiveSize(12)}
@@ -231,7 +268,7 @@ const MessageList = ({ GetProfileData }) => {
                   numberOfLines={1}
                 />
               </View>
-            ) : item?.is_location ?
+            ) : item?.is_location == "Y" ?
               <View
                 style={{
                   flexDirection: 'row',
@@ -310,7 +347,6 @@ const MessageList = ({ GetProfileData }) => {
           navigation.getParent()?.setOptions({
             tabBarStyle: { display: 'none' },
           });
-
           return navigation.navigate('GroupMessage', {
             group_id: item?.group?.group_id,
           })
@@ -406,7 +442,7 @@ const MessageList = ({ GetProfileData }) => {
         </View>
       </TouchableOpacity>
     );
-  }, []);
+  }, [filterText]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
@@ -452,6 +488,12 @@ const MessageList = ({ GetProfileData }) => {
           </TouchableOpacity>
         </View>
       </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+        <View style={styles.SearchInputWrapper}>
+          <AntDesign style={styles.SearchIcon} name='search1' color={global.primaryColor} size={ResponsiveSize(20)} />
+          <TextInput onChangeText={(e) => setFilterText(e)} style={styles.SearchInput} placeholder="Search" />
+        </View>
+      </View>
       {loader ?
         <View
           style={{
@@ -468,12 +510,14 @@ const MessageList = ({ GetProfileData }) => {
         <>
           {recentChats !== undefined &&
             recentChats !== '' &&
-            recentChats !== null &&
-            recentChats.length > 0 ?
+            recentChats !== null && recentChats.length > 0 ?
             <FlatList
               showsVerticalScrollIndicator={false}
               initialNumToRender={10}
-              data={recentChats}
+              data={recentChats.filter(item => 
+                (item?.userDetails?.user_name?.toLowerCase().includes(filterText.toLowerCase()) || 
+                 item?.group?.group_name?.toLowerCase().includes(filterText.toLowerCase()))
+              )}
               keyExtractor={(items, index) => index?.toString()}
               maxToRenderPerBatch={10}
               windowSize={10}
