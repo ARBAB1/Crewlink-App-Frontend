@@ -258,6 +258,7 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       alignItems: 'center',
       justifyContent: 'center'
     },
+    
     NotBlock: {
       width: ResponsiveSize(80),
       height: ResponsiveSize(38),
