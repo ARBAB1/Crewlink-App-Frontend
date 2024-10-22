@@ -10,9 +10,9 @@ import {
     TASK_GET_ALLPRIVACY_START,
     TASK_GET_ALLPRIVACY_END,
     TASK_GET_ALLPRIVACY_END_ERROR,
-  TASK_GET_PENDINGCONNECTIONS_START,
+    TASK_GET_PENDINGCONNECTIONS_START,
     TASK_GET_PENDINGCONNECTIONS_END,
-    TASK_GET_PENDINGCONNECTIONS_END_ERROR,  
+    TASK_GET_PENDINGCONNECTIONS_END_ERROR,
     TASK_CHECK_CUSTOMCONNECTIONS_START,
     TASK_CHECK_CUSTOMCONNECTIONS_END,
     TASK_CHECK_CUSTOMCONNECTIONS_END_ERROR,
@@ -43,10 +43,10 @@ export const getAllBlockedConnections = ({ page }) => async (dispatch, getState)
                 'accesstoken': `Bearer ${Token}`
             },
         });
-       
+
         if (response.ok === true) {
             const res = await response.json()
-        
+
             if (res?.blockedUsers) {
                 dispatch({
                     type: TASK_GET_ALLBLOCKEDCONNECTIONS_END,
@@ -98,7 +98,7 @@ export const getAllConnections = ({ page }) => async (dispatch, getState) => {
             type: TASK_GET_ALLCONNECTIONS_END_ERROR,
             networkError: false,
         });
-        const response = await fetch(`${baseUrl.baseUrl}/connect/get-my-connections-list/${page}/100`, {
+        const response = await fetch(`${baseUrl.baseUrl}/connect/get-my-connections-list/${page}/25`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ export const getPendingConnections = ({ page }) => async (dispatch, getState) =>
         });
         if (response.ok === true) {
             const res = await response.json()
-            console.log(res,'ahemd is Gay')
+            console.log(res, 'ahemd is Gay')
             if (res?.connectionRequests) {
                 dispatch({
                     type: TASK_GET_PENDINGCONNECTIONS_END,
@@ -262,13 +262,13 @@ export const RejectInvitation = (body) => async () => {
 export const CheckCustomConnections = () => async (dispatch, getState) => {
     const Token = await AsyncStorage.getItem('Token');
     try {
-     
-            dispatch({
-                type: TASK_CHECK_CUSTOMCONNECTIONS_START,
-                loading: true,
-            });
-        
-    
+
+        dispatch({
+            type: TASK_CHECK_CUSTOMCONNECTIONS_START,
+            loading: true,
+        });
+
+
         const response = await fetch(`${baseUrl.baseUrl}/privacy-setting/check-custom-settings-flag`, {
             method: "GET",
             headers: {
@@ -279,7 +279,7 @@ export const CheckCustomConnections = () => async (dispatch, getState) => {
         });
         if (response.ok === true) {
             const res = await response.json()
-            console.log(res,'"Response');
+            console.log(res, '"Response');
             if (res) {
                 dispatch({
                     type: TASK_CHECK_CUSTOMCONNECTIONS_END,
@@ -287,7 +287,7 @@ export const CheckCustomConnections = () => async (dispatch, getState) => {
                 });
                 return res
             }
-          
+
         }
         else {
             dispatch({
@@ -347,7 +347,7 @@ export const AddAccountPrivacy = (body) => async () => {
                 'accesstoken': `Bearer ${Token}`
             },
             body: JSON.stringify({
-              "profile_visibility": body,
+                "profile_visibility": body,
             })
         });
         if (response.ok === true) {
@@ -371,7 +371,7 @@ export const AddCheckInPrivacy = (body) => async () => {
                 'accesstoken': `Bearer ${Token}`
             },
             body: JSON.stringify({
-              "checkin_visibility":body,
+                "checkin_visibility": body,
             })
         });
         if (response.ok === true) {
@@ -395,7 +395,7 @@ export const AddGroupPrivacy = (body) => async () => {
                 'accesstoken': `Bearer ${Token}`
             },
             body: JSON.stringify({
-              "group_privacy":body,
+                "group_privacy": body,
             })
         });
         if (response.ok === true) {
@@ -408,16 +408,16 @@ export const AddGroupPrivacy = (body) => async () => {
     }
 }
 
-export const getAllPrivacy  = () => async (dispatch, getState) => {
+export const getAllPrivacy = () => async (dispatch, getState) => {
     const Token = await AsyncStorage.getItem('Token');
     try {
-        
-            dispatch({
-                type: TASK_GET_ALLPRIVACY_START,
-                loading: true,
-            });
-        
-       
+
+        dispatch({
+            type: TASK_GET_ALLPRIVACY_START,
+            loading: true,
+        });
+
+
         const response = await fetch(`${baseUrl.baseUrl}/privacy-setting/check-custom-privacy-by-userId`, {
             method: "GET",
             headers: {
@@ -428,7 +428,7 @@ export const getAllPrivacy  = () => async (dispatch, getState) => {
         });
         if (response.ok === true) {
             const res = await response.json()
-            console.log(res,'"Response');
+            console.log(res, '"Response');
             if (res?.statusCode == 200) {
                 dispatch({
                     type: TASK_GET_ALLPRIVACY_END,
@@ -470,14 +470,11 @@ export const getAllPrivacy  = () => async (dispatch, getState) => {
 export const getAllClosedConnections = () => async (dispatch, getState) => {
     const Token = await AsyncStorage.getItem('Token');
     try {
-      
-            dispatch({
-                type: TASK_GET_ALLCLOSEDCONNECTIONS_START,
-                loading: true,
-            });
-        
-        
-     
+
+        dispatch({
+            type: TASK_GET_ALLCLOSEDCONNECTIONS_START,
+            loading: true,
+        });
         const response = await fetch(`${baseUrl.baseUrl}/connect/get-my-connections-list/${page}/100`, {
             method: "GET",
             headers: {
@@ -488,7 +485,7 @@ export const getAllClosedConnections = () => async (dispatch, getState) => {
         });
         if (response.ok === true) {
             const res = await response.json()
-            console.log(res,'"Response');
+            console.log(res, '"Response');
             if (res?.data) {
                 dispatch({
                     type: TASK_GET_ALLCLOSEDCONNECTIONS_END,

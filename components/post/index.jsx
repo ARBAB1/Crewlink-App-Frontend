@@ -71,6 +71,7 @@ const Post = ({
   user_idIn,
   getNewPost,
 }) => {
+  const navigation = useNavigation();
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const [username, setUserName] = useState(false);
@@ -895,8 +896,6 @@ const Post = ({
   };
 
 
-
-
   const [Winheight, setHeight] = useState(windowHeight * 0.4);
   const handleSetHeight = useCallback(e => {
     const naturalRatio = 16 / 13;
@@ -1043,8 +1042,21 @@ const Post = ({
       borderRadius: ResponsiveSize(15),
       paddingRight: ResponsiveSize(2),
     },
-    modalTopLayer: {
-      height: windowHeight * 0.7,
+    modalTopLayerComment: {
+      height: windowHeight * 0.6,
+      width: windowWidth,
+      paddingTop: 10,
+      position: 'absolute',
+      backgroundColor: 'white',
+      bottom: ResponsiveSize(0),
+      borderTopLeftRadius: ResponsiveSize(15),
+      borderTopRightRadius: ResponsiveSize(15),
+      overflow: 'hidden',
+      zIndex: 999,
+    },
+
+    modalTopLayerShare: {
+      paddingBottom:ResponsiveSize(20),
       width: windowWidth,
       paddingTop: 10,
       position: 'absolute',
@@ -1056,7 +1068,7 @@ const Post = ({
       zIndex: 999,
     },
     modalTopLayerReport: {
-      height: windowHeight * 0.2,
+      paddingBottom:ResponsiveSize(20),
       width: windowWidth,
       paddingTop: 10,
       position: 'absolute',
@@ -1069,7 +1081,7 @@ const Post = ({
     },
 
     modalTopLayerReportSecond: {
-      height: windowHeight * 0.35,
+      paddingBottom:ResponsiveSize(20),
       width: windowWidth * 0.8,
       paddingTop: 10,
       backgroundColor: 'white',
@@ -1630,7 +1642,7 @@ const Post = ({
         avoidKeyboard={true}
         onBackdropPress={() => closeCommentFunction()}
         statusBarTranslucent={false}>
-        <View style={style.modalTopLayer}>
+        <View style={style.modalTopLayerComment}>
           <View style={style.TopIndicator}>
             <View style={style.modalIndicator}></View>
             <TextC
@@ -1867,11 +1879,6 @@ const Post = ({
       </Modal>
 
 
-
-
-
-
-
       <Modal
         isVisible={isShareModal}
         style={{margin: 0}}
@@ -1879,7 +1886,7 @@ const Post = ({
         avoidKeyboard={true}
         onBackdropPress={() => setIsShareModal(!isShareModal)}
         statusBarTranslucent={false}>
-        <View style={style.modalTopLayer}>
+        <View style={style.modalTopLayerShare}>
           <View style={style.TopIndicator}>
             <View style={style.modalIndicator}></View>
             <TextC
@@ -1949,6 +1956,9 @@ const Post = ({
                     paddingVertical: ResponsiveSize(5),
                     borderRadius: ResponsiveSize(20),
                     width: ResponsiveSize(100),
+                    flexDirection:'column',
+                    alignItems:'center',
+                    justifyContent:'center',
                   }}
                   disabled={reShareLoader}
                   onPress={() => ResharePost()}>
@@ -2055,6 +2065,9 @@ const Post = ({
           </View>
         </View>
       </Modal>
+
+
+
       <Modal
         isVisible={isReportVisible}
         style={{
@@ -2075,14 +2088,14 @@ const Post = ({
             }}>
             {canDeleteComment ? (
               <TextC
-                text={'Delete Post'}
+                text={'Delete post'}
                 style={{color: global.black, paddingTop: ResponsiveSize(3)}}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
               />
             ) : (
               <TextC
-                text={'Report Post'}
+                text={'Report post'}
                 style={{color: global.black, paddingTop: ResponsiveSize(3)}}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
@@ -2107,7 +2120,7 @@ const Post = ({
                 />
                 <TextC
                   text={'Delete your Post'}
-                  style={{color: global.red, padding: ResponsiveSize(3)}}
+                  style={{color: global.red, padding: ResponsiveSize(3),marginLeft:ResponsiveSize(3)}}
                   font={'Montserrat-Medium'}
                   size={ResponsiveSize(12)}
                 />
@@ -2127,7 +2140,7 @@ const Post = ({
                 />
                 <TextC
                   text={'Report this post for inappropriate content'}
-                  style={{color: global.red, padding: ResponsiveSize(3)}}
+                  style={{color: global.red, padding: ResponsiveSize(3),marginLeft:ResponsiveSize(3)}}
                   font={'Montserrat-Medium'}
                   size={ResponsiveSize(12)}
                 />
@@ -2198,6 +2211,8 @@ const Post = ({
           </View>
         </View>
       </Modal>
+
+
       <Modal
         isVisible={isDeleteSecondVisible}
         style={{

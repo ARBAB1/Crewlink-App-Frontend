@@ -33,7 +33,6 @@ const BlockedPrivacy = ({
   AddCheckInPrivacy,
   AddAccountPrivacy,
   getAllPrivacy,
-  getAllClosedConnections,
   DeleteCustomConnections,
   UpdateCustomConnections,
 }) => {
@@ -216,10 +215,6 @@ const BlockedPrivacy = ({
     setAllConnectionData(loadAllevent);
   };
 
-  const LoadClosedConnections = async () => {
-    const response = await getAllClosedConnections();
-    setClosedConnections(response.users);
-  };
 const LoadBlockedConnections = async () => {
   const response = await getAllBlockedConnections({ page });
   console.log(response, 'responsess')

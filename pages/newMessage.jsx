@@ -18,10 +18,6 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import TextC from "../components/text/text";
 import { FlatList, TextInput } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
-import io from "socket.io-client";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import TimeAgo from '@manu_omg/react-native-timeago';
-import { baseUrl } from '../store/config.json'
 import * as AllConnectionsAction from "../store/actions/Connections/index";
 import { connect } from "react-redux";
 
@@ -113,15 +109,29 @@ const NewMessage = ({ getAllConnections, AllConnectionsReducer }) => {
     const navigation = useNavigation();
     const [recentChats, setRecentChats] = useState([])
     const [loader, setLoader] = useState(false)
+    const [page, setPage] = useState(1)
 
+    const [hasMoreToLoad, setHasMoreToLoad] = useState(true)
     const allEventDataLoader = async () => {
-        const loadAllevent = await getAllConnections({ page: 1 })
-        setRecentChats(loadAllevent)
-        setLoader(false)
+        const loadAllevent = await getAllConnections({ page: page })
+        if (loadAllevent?.length >= 25) {
+            setRecentChats(loadAllevent)
+            setHasMoreToLoad(true)
+            setLoader(false)
+        }
+        else {
+            setRecentChats(loadAllevent)
+            setHasMoreToLoad(false)
+            setLoader(false)
+        }
     }
+
+
+
+
     useEffect(() => {
         setLoader(true)
-        allEventDataLoader({ refreshing: false })
+        allEventDataLoader()
     }, []);
 
     const renderItem = useCallback(({ item }) => {
@@ -157,6 +167,29 @@ const NewMessage = ({ getAllConnections, AllConnectionsReducer }) => {
             </TouchableOpacity>
         );
     }, []);
+
+
+
+    const [loadMoreLoading, setLoadMoreLoading] = useState(false)
+
+    const LoadMoreFunction = async () => {
+        setLoadMoreLoading(true)
+        const loadAllevent = await getAllConnections({ page: page + 1 })
+        if (loadAllevent?.length >= 25) {
+            setRecentChats(loadAllevent)
+            setHasMoreToLoad(true)
+            setLoader(false)
+            setPage(page + 1)
+            setLoadMoreLoading(false)
+        }
+        else {
+            setRecentChats(loadAllevent)
+            setHasMoreToLoad(false)
+            setLoader(false)
+            setLoadMoreLoading(false)
+        }
+    }
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
             <StatusBar
@@ -205,7 +238,14 @@ const NewMessage = ({ getAllConnections, AllConnectionsReducer }) => {
                             maxToRenderPerBatch={10}
                             windowSize={10}
                             renderItem={renderItem}
-                            contentContainerStyle={{paddingHorizontal:ResponsiveSize(15)}}
+                            contentContainerStyle={{ paddingHorizontal: ResponsiveSize(15) }}
+                            onEndReached={hasMoreToLoad && LoadMoreFunction}
+                            ListFooterComponent={
+                                loadMoreLoading &&
+                                <View style={{ width: windowWidth, paddingVertical: ResponsiveSize(10), flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                    <ActivityIndicator color={global.primaryColor} size={'small'} />
+                                </View>
+                            }
                         />
                         :
                         <View

@@ -22,7 +22,7 @@ import { FlatList, TextInput } from 'react-native-gesture-handler';
 import io from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TimeAgo from '@manu_omg/react-native-timeago';
-import { baseUrl } from '../store/config.json';
+import { baseUrl, apiKey } from '../store/config.json';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -89,9 +89,18 @@ const MessageList = ({ GetProfileData }) => {
     },
     PostHeader: {
       flexDirection: 'row',
-      paddingTop: ResponsiveSize(15),
+      paddingVertical: ResponsiveSize(8),
+      paddingHorizontal: ResponsiveSize(15),
       alignItems: 'center',
       justifyContent: 'space-between',
+    },
+    PostHeaderSelected: {
+      flexDirection: 'row',
+      paddingVertical: ResponsiveSize(8),
+      paddingHorizontal: ResponsiveSize(15),
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: global.messageRgba
     },
     PostProfileImage: {
       height: ResponsiveSize(45),
@@ -173,44 +182,81 @@ const MessageList = ({ GetProfileData }) => {
   }, []);
   useEffect(() => {
     loadRecentChats();
-    // navigation.getParent()?.setOptions({
-    //   tabBarStyle: {
-    //     display: 'flex',
-    //     backgroundColor: '#69BE25',
-    //     borderTopLeftRadius: ResponsiveSize(20),
-    //     borderTopRightRadius: ResponsiveSize(20),
-    //   },
-    // });
-
   }, [focus]);
 
   useEffect(() => {
-    // navigation.getParent()?.setOptions({
-    //   tabBarStyle: {
-    //     display: 'flex',
-    //     backgroundColor: '#69BE25',
-    //     borderTopLeftRadius: ResponsiveSize(20),
-    //     borderTopRightRadius: ResponsiveSize(20),
-    //   },
-    // });
     setLoader(true);
     loadRecentChats();
   }, []);
 
 
+  const [isSelectedUser, SetisSelectedUser] = useState()
+  const [isSelected, SetisSelected] = useState(false)
+
+
+
+  const SelectUser = async (e) => {
+    SetisSelectedUser((prev) => {
+      if (prev === e) {
+        SetisSelected(false)
+        return null;
+      } else {
+        SetisSelected(true)
+        return e;
+      }
+    });
+  }
+
+
+  const [deleteChatUser, setDeleteChatUser] = useState(false)
+
+  const deleteUserChat = async () => {
+    setDeleteChatUser(true)
+    const Token = await AsyncStorage.getItem('Token');
+    const response = await fetch(`${baseUrl}/clear-user-chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'accesstoken': `Bearer ${Token}`,
+      },
+      body: JSON.stringify({
+        chat_with_user_id: isSelectedUser,
+      }),
+    });
+    const result = await response.json();
+    const socket = io(`${baseUrl}/chat`, {
+      transports: ['websocket'],
+      extraHeaders: {
+        'x-api-key': 'TwillioAPI',
+        accesstoken: `Bearer ${Token}`,
+      },
+    });
+    socket.on('connect').on('chatList', data => {
+      setRecentChats(data);
+      setDeleteChatUser(false)
+    });
+  }
+
 
   const renderItem = useCallback(({ item }) => {
     return item.type == 'direct' ? (
       <TouchableOpacity
-        onPress={async () => {
-          await navigation.getParent()?.setOptions({
-            tabBarStyle: { display: 'none' },
-          });
-          return navigation.navigate('Message', {
-            receiverUserId: item?.userDetails?.user_id,
-          })
+        onPress={() => {
+          if (!isSelected) {
+            navigation.getParent()?.setOptions({
+              tabBarStyle: { display: 'none' },
+            });
+            return navigation.navigate('Message', {
+              receiverUserId: item?.userDetails?.user_id,
+            })
+          }
+          else {
+            SelectUser(item?.userDetails?.user_id)
+          }
         }}
-        style={styles.PostHeader}>
+        onLongPress={() => SelectUser(item?.userDetails?.user_id)}
+        style={isSelected == true && isSelectedUser == item?.userDetails?.user_id ? styles.PostHeaderSelected : styles.PostHeader}>
         <View style={{ flexDirection: 'row' }}>
           <View style={{ position: 'relative' }}>
             <ImageBackground
@@ -312,44 +358,58 @@ const MessageList = ({ GetProfileData }) => {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <TimeAgo
-            style={{
-              fontFamily: 'Montserrat-Medium',
-              fontSize: ResponsiveSize(8),
-            }}
-            time={item?.created_at}
-          />
-          {item?.unreadMessagesCount > 0 && (
-            <View
-              style={{
-                backgroundColor: global.secondaryColor,
-                height: ResponsiveSize(15),
-                width: ResponsiveSize(15),
-                borderRadius: ResponsiveSize(15),
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: ResponsiveSize(5),
-              }}>
-              <TextC
-                font={'Montserrat-Medium'}
-                size={ResponsiveSize(8)}
-                text={item?.unreadMessagesCount}
-                style={{ color: global.white }}
+          {isSelected == true && isSelectedUser == item?.userDetails?.user_id ?
+            <TouchableOpacity onPress={deleteUserChat}>
+              {deleteChatUser ?
+                <ActivityIndicator color={global.primaryColor} size={ResponsiveSize(18)} />
+                :
+                <AntDesign name='delete' color={global.primaryColor} size={ResponsiveSize(18)} />
+              }
+            </TouchableOpacity>
+            :
+            <>
+              <TimeAgo
+                style={{
+                  fontFamily: 'Montserrat-Medium',
+                  fontSize: ResponsiveSize(8),
+                }}
+                time={item?.created_at}
               />
-            </View>
-          )}
+              {item?.unreadMessagesCount > 0 && (
+                <View
+                  style={{
+                    backgroundColor: global.secondaryColor,
+                    height: ResponsiveSize(15),
+                    width: ResponsiveSize(15),
+                    borderRadius: ResponsiveSize(15),
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginTop: ResponsiveSize(5),
+                  }}>
+                  <TextC
+                    font={'Montserrat-Medium'}
+                    size={ResponsiveSize(8)}
+                    text={item?.unreadMessagesCount}
+                    style={{ color: global.white }}
+                  />
+                </View>
+              )}
+            </>
+          }
         </View>
       </TouchableOpacity>
     ) : (
       <TouchableOpacity
         onPress={() => {
-          navigation.getParent()?.setOptions({
-            tabBarStyle: { display: 'none' },
-          });
-          return navigation.navigate('GroupMessage', {
-            group_id: item?.group?.group_id,
-          })
+          if (!isSelected) {
+            navigation.getParent()?.setOptions({
+              tabBarStyle: { display: 'none' },
+            });
+            return navigation.navigate('GroupMessage', {
+              group_id: item?.group?.group_id,
+            })
+          }
         }
         }
         style={styles.PostHeader}>
@@ -442,7 +502,7 @@ const MessageList = ({ GetProfileData }) => {
         </View>
       </TouchableOpacity>
     );
-  }, [filterText]);
+  }, [filterText, isSelectedUser, deleteChatUser]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
@@ -514,15 +574,15 @@ const MessageList = ({ GetProfileData }) => {
             <FlatList
               showsVerticalScrollIndicator={false}
               initialNumToRender={10}
-              data={recentChats.filter(item => 
-                (item?.userDetails?.user_name?.toLowerCase().includes(filterText.toLowerCase()) || 
-                 item?.group?.group_name?.toLowerCase().includes(filterText.toLowerCase()))
+              data={recentChats.filter(item =>
+              (item?.userDetails?.user_name?.toLowerCase().includes(filterText.toLowerCase()) ||
+                item?.group?.group_name?.toLowerCase().includes(filterText.toLowerCase()))
               )}
               keyExtractor={(items, index) => index?.toString()}
               maxToRenderPerBatch={10}
               windowSize={10}
               renderItem={renderItem}
-              contentContainerStyle={{ paddingHorizontal: ResponsiveSize(15) }}
+              extraData={isSelectedUser}
             />
             : (
               <View

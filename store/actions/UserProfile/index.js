@@ -111,7 +111,7 @@ export const GetUserPosts = ({ city, page }) => async (dispatch) => {
         });
         if (response.ok == true) {
             const res = await response.json()
-            console.log(res,"resPost")
+            console.log(res, "resPost")
             if (res.statusCode == 200 && 201) {
                 return { ...res, status: 'Post_Found' }
             }
@@ -181,6 +181,27 @@ export const getAllCountries = (body) => async (dispatch) => {
         const res = await response.json()
         console.log(res, 'res')
         return res?.data
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+
+export const getPendingConnections = ({ page }) => async (dispatch, getState) => {
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+        const response = await fetch(`${baseUrl.baseUrl}/connect/get-connection-requests/${page}/100`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': baseUrl.apiKey,
+                'accesstoken': `Bearer ${Token}`
+            },
+        });
+        if (response.ok === true) {
+            const res = await response.json()
+            return res?.connectionRequests
+        }
     }
     catch (error) {
         console.log(error)

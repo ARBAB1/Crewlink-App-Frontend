@@ -614,49 +614,35 @@ const Message = ({ route }) => {
             })
         }
     };
-
     const loadRecentChats = async () => {
         setLoader(true)
         const Token = await AsyncStorage.getItem('Token');
         const U_id = await AsyncStorage.getItem('U_id');
         setUserId(U_id)
         const socket = io(`${baseUrl}/chat`, {
-          transports: ['websocket'],
-          extraHeaders: {
-            'x-api-key': "TwillioAPI",
-            'accesstoken': `Bearer ${Token}`
-          }
+            transports: ['websocket'],
+            extraHeaders: {
+                'x-api-key': "TwillioAPI",
+                'accesstoken': `Bearer ${Token}`
+            }
         });
-        socket.on('connect', () => {
-          socket.emit('oldMessages', { "receiverUserId": route?.params?.receiverUserId });
-        });
-    
-        socket.on('message', (data) => {
-        //   if (data.message.filter(message => message.read_status === 'N').length > 0) {
-        //     socket.emit('readMessage', { receiverUserId: route?.params?.receiverUserId });
-        //   }
-          handleMessages(data);
-        });
-    
-        const handleMessages = (data) => {
-          if (data?.message.length >= 25) {
-            setLoader(false);
-            setRecentChats(data?.message);
-            scrollViewRef.current.scrollToEnd({ animated: true });
-          } else {
-            setHasMoreContent(false);
-            setLoader(false);
-            setRecentChats(data?.message);
-            scrollViewRef.current.scrollToEnd({ animated: true });
-          }
-        }
-    
-        return () => {
-          // Cleanup the socket when the component unmounts
-          socket.off('message');
-          socket.disconnect();
-        };
+        socket.on('connect').emit('oldMessages', {
+            "receiverUserId": route?.params?.receiverUserId,
+        }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
+            if (data?.message.length >= 25) {
+                setLoader(false)
+                setRecentChats(data?.message);
+                scrollViewRef.current.scrollToEnd({ animated: true })
+            }
+            else {
+                setHasMoreContent(false)
+                setLoader(false)
+                setRecentChats(data?.message);
+                scrollViewRef.current.scrollToEnd({ animated: true })
+            }
+        }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('chatList')
     }
+
     useEffect(() => {
         navigation.getParent()?.setOptions({
             tabBarStyle: { display: 'none' },
@@ -674,8 +660,7 @@ const Message = ({ route }) => {
                 },
             })
         }
-    }, []);
-
+    }, [isOpenAction]);
 
 
     const addToQueue = (message) => {
@@ -729,7 +714,7 @@ const Message = ({ route }) => {
                 "message": message_Props,
                 "receiverUserId": route?.params?.receiverUserId,
                 "repliedMessageId": ReplyMessage?.message_id
-            }).emit('oldMessages', {"receiverUserId": route?.params?.receiverUserId,}).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
+            }).emit('oldMessages', { "receiverUserId": route?.params?.receiverUserId, }).emit('readMessage', { receiverUserId: route?.params?.receiverUserId }).on('message', (data) => {
                 CancelReply()
                 setRecentChats(data?.message);
                 setIsOpenAction(false)
@@ -764,6 +749,9 @@ const Message = ({ route }) => {
     }
 
     const [deleteMessageLoad, setDeleteMessageLoad] = useState(false)
+
+
+
     const DeleteMessage = async () => {
         setDeleteMessageLoad(true)
         const Token = await AsyncStorage.getItem('Token');
@@ -808,6 +796,8 @@ const Message = ({ route }) => {
             }
         });
     }
+
+    
 
     const addMore = (address) => {
         Vibration.vibrate(50)
@@ -885,6 +875,8 @@ const Message = ({ route }) => {
             setLoadMoreLoader(false)
         }
     }
+
+    
     const OpenLocationShareModal = () => {
         setIsLocationModal(true)
     }

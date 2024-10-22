@@ -534,16 +534,16 @@ const GroupMessage = ({route}) => {
         group_id: route?.params?.group_id,
       })
       .on('groupMessages', data => {
-        // if (data?.message.length >= 25) {
+        if (data?.message.length >= 25) {
           setLoader(false);
           setRecentChats(data?.message);
           scrollViewRef.current.scrollToEnd({animated: true});
-        // } else {
-        //   setHasMoreContent(false);
-        //   setLoader(false);
-        //   setRecentChats(data?.message);
-        //   scrollViewRef.current.scrollToEnd({animated: true});
-        // }
+        } else {
+          setHasMoreContent(false);
+          setLoader(false);
+          setRecentChats(data?.message);
+          scrollViewRef.current.scrollToEnd({animated: true});
+        }
       });
   };
 
@@ -624,7 +624,6 @@ const GroupMessage = ({route}) => {
           group_id: route?.params?.group_id,
         })
         .on('groupMessages', data => {
-            console.log(data,'kkkkk7898')
           setRecentChats(data);
           scrollViewRef.current.scrollToEnd({animated: true});
           CancelReply();
@@ -1224,42 +1223,40 @@ const GroupMessage = ({route}) => {
 
   const [page, setPage] = useState(2);
   const [loadMoreLoader, setLoadMoreLoader] = useState(false);
-//   const [hasMoreContent, setHasMoreContent] = useState(true);
+  const [hasMoreContent, setHasMoreContent] = useState(true);
 
-//   const GetChatHistory = async () => {
-//     setLoadMoreLoader(true);
-//     const Token = await AsyncStorage.getItem('Token');
-//     try {
-//       const response = await fetch(
-//         `${baseUrl}/messages/get-old-messages/${page}/25`,
-//         {
-//           method: 'POST',
-//           headers: {
-//             'Content-Type': 'application/json',
-//             'x-api-key': apiKey,
-//             accesstoken: `Bearer ${Token}`,
-//           },
-//           body: JSON.stringify({
-//             receiverUserId: groupDetails?.receiverUserId,
-//           }),
-//         },
-//       );
-//       const dataRe = await response.json();
-//       if (dataRe?.message.length >= 25) {
-//         setRecentChats(prevMessages => [...dataRe?.message, ...prevMessages]);
-//         setPage(page + 1);
-//         setLoadMoreLoader(false);
-//       } else {
-//         setHasMoreContent(false);
-//         setRecentChats(prevMessages => [...dataRe?.message, ...prevMessages]);
-//         setPage(page + 1);
-//         setLoadMoreLoader(false);
-//       }
-//     } catch (error) {
-//       Alert.alert('Error', error.message);
-//       setLoadMoreLoader(false);
-//     }
-//   };
+  const GetChatHistory = async () => {
+    setLoadMoreLoader(true);
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+      const response = await fetch(
+        `${baseUrl}/messages/get-old-group-messages/${groupDetails?.group_id}/${page}/25`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            accesstoken: `Bearer ${Token}`,
+          },
+        },
+      );
+      const dataRe = await response.json();
+      console.log(dataRe,'holllllllllla')
+      if (dataRe?.message.length >= 25) {
+        setRecentChats(prevMessages => [...dataRe?.message, ...prevMessages]);
+        setPage(page + 1);
+        setLoadMoreLoader(false);
+      } else {
+        setHasMoreContent(false);
+        setRecentChats(prevMessages => [...dataRe?.message, ...prevMessages]);
+        setPage(page + 1);
+        setLoadMoreLoader(false);
+      }
+    } catch (error) {
+      Alert.alert('Error', error.message);
+      setLoadMoreLoader(false);
+    }
+  };
 
   const [deleteMessageLoad, setDeleteMessageLoad] = useState(false);
   const DeleteMessage = async () => {
@@ -1405,7 +1402,7 @@ const GroupMessage = ({route}) => {
             paddingTop: ResponsiveSize(10),
             paddingBottom: ResponsiveSize(ReplyMessage?.message_id ? 100 : 65),
           }}>
-          {/* {hasMoreContent && (
+          {hasMoreContent && (
             <>
               {!loader && (
                 <>
@@ -1435,7 +1432,7 @@ const GroupMessage = ({route}) => {
                 </>
               )}
             </>
-          )} */}
+          )}
           {loader ? (
             <View
               style={{

@@ -1033,8 +1033,21 @@ const PostReshare = ({
       borderRadius: ResponsiveSize(15),
       paddingRight: ResponsiveSize(2),
     },
-    modalTopLayer: {
-      height: windowHeight * 0.7,
+    modalTopLayerComment: {
+      height: windowHeight * 0.6,
+      width: windowWidth,
+      paddingTop: 10,
+      position: 'absolute',
+      backgroundColor: 'white',
+      bottom: ResponsiveSize(0),
+      borderTopLeftRadius: ResponsiveSize(15),
+      borderTopRightRadius: ResponsiveSize(15),
+      overflow: 'hidden',
+      zIndex: 999,
+    },
+
+    modalTopLayerShare: {
+      paddingBottom:ResponsiveSize(20),
       width: windowWidth,
       paddingTop: 10,
       position: 'absolute',
@@ -1046,7 +1059,7 @@ const PostReshare = ({
       zIndex: 999,
     },
     modalTopLayerReport: {
-      height: windowHeight * 0.2,
+      paddingBottom:ResponsiveSize(20),
       width: windowWidth,
       paddingTop: 10,
       position: 'absolute',
@@ -1059,7 +1072,7 @@ const PostReshare = ({
     },
 
     modalTopLayerReportSecond: {
-      height: windowHeight * 0.35,
+      paddingBottom:ResponsiveSize(20),
       width: windowWidth * 0.8,
       paddingTop: 10,
       backgroundColor: 'white',
@@ -1204,13 +1217,6 @@ const PostReshare = ({
       flexDirection: 'row',
       alignItems: 'center',
     },
-    ResharePostHeader2: {
-      width: windowWidth,
-      paddingBottom: ResponsiveSize(10),
-      zIndex: 10000,
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
     ResharePostFooter: {
       position: 'absolute',
       bottom: 0,
@@ -1228,16 +1234,6 @@ const PostReshare = ({
       backgroundColor: 'gray',
       borderRadius: ResponsiveSize(50),
       overflow: 'hidden',
-    },
-    ConnectionIconCheck: {
-      display:"flex",
-      position: 'absolute',
-      top: 10,
-      left: 10,
-      right: 10,
-      bottom: 10,
-      justifyContent: 'center',
-      alignItems: 'center',
     },
   });
 
@@ -1863,7 +1859,7 @@ console.log(res,"deletePostReshare")
         avoidKeyboard={true}
         onBackdropPress={() => closeCommentFunction()}
         statusBarTranslucent={false}>
-        <View style={style.modalTopLayer}>
+        <View style={style.modalTopLayerComment}>
           <View style={style.TopIndicator}>
             <View style={style.modalIndicator}></View>
             <TextC
@@ -2098,6 +2094,7 @@ console.log(res,"deletePostReshare")
           </View>
         </View>
       </Modal>
+
       <Modal
         isVisible={isShareModal}
         style={{margin: 0}}
@@ -2105,7 +2102,7 @@ console.log(res,"deletePostReshare")
         avoidKeyboard={true}
         onBackdropPress={() => setIsShareModal(!isShareModal)}
         statusBarTranslucent={false}>
-        <View style={style.modalTopLayer}>
+        <View style={style.modalTopLayerShare}>
           <View style={style.TopIndicator}>
             <View style={style.modalIndicator}></View>
             <TextC
@@ -2136,9 +2133,12 @@ console.log(res,"deletePostReshare")
                   paddingHorizontal: ResponsiveSize(10),
                   paddingTop: ResponsiveSize(10),
                 }}>
+                  {
+                    
+                  }
                 <FastImage
                   source={
-                     myuser?.profile_picture_url === ''
+                    myuser?.profile_picture_url == ''
                       ? require('../../assets/icons/avatar.png')
                       : {uri: myuser?.profile_picture_url, priority: FastImage.priority.high}
                   }
@@ -2172,6 +2172,9 @@ console.log(res,"deletePostReshare")
                     paddingVertical: ResponsiveSize(5),
                     borderRadius: ResponsiveSize(20),
                     width: ResponsiveSize(100),
+                    flexDirection:'column',
+                    alignItems:'center',
+                    justifyContent:'center',
                   }}
                   disabled={reShareLoader}
                   onPress={() => ResharePost()}>
@@ -2212,11 +2215,12 @@ console.log(res,"deletePostReshare")
                     <TouchableOpacity
                       disabled={MsgReShareLoader?.value}
                       style={style.ConnectionListIcon}
-                      onPress={() => {
-                       // Store selected user
-                       toggleUserSelection(data?.user_id); 
-                        sendMessage(postId, data?.user_id); 
-                      }}>
+                      onPress={() => 
+                        { 
+                           toggleUserSelection(data?.user_id) 
+                        sendMessage(postId, data?.user_id)
+                      }}
+                        >
                       <View style={style.ConnectionIconDpAbdolute}>
                         <FastImage
                           source={
@@ -2230,7 +2234,6 @@ console.log(res,"deletePostReshare")
                           style={style.ConnectionIconDp}
                           resizeMode="cover"
                         />
-
                         {MsgReShareLoader?.user_Id == data?.user_id &&
                         MsgReShareLoader?.value == true ? (
                           <ActivityIndicator
@@ -2243,7 +2246,7 @@ console.log(res,"deletePostReshare")
                             }}
                           />
                         ) : (
-                      ""
+                          ''
                         )}
                       </View>
                       {selectedUsers.includes(data?.user_id) && (
@@ -2265,12 +2268,20 @@ console.log(res,"deletePostReshare")
                       />
                     </TouchableOpacity>
                   ))
-                : ''}
-               
+                : (
+                  <View style={{display: 'flex', justifyContent: 'center', alignItems: 'center', width:windowWidth*0.9 }}>
+                    <TextC
+                      text={'No connections found'}
+                      font={'Montserrat-Medium'}
+                      size={ResponsiveSize(11)}
+                    />
+                  </View>
+                )}
             </ScrollView>
           </View>
         </View>
       </Modal>
+
       <Modal
         isVisible={isReportVisible}
         style={{
@@ -2291,14 +2302,14 @@ console.log(res,"deletePostReshare")
             }}>
             {canDeleteComment ? (
               <TextC
-                text={'Delete Post'}
+                text={'Delete post'}
                 style={{color: global.black, paddingTop: ResponsiveSize(3)}}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
               />
             ) : (
               <TextC
-                text={'Report Post'}
+                text={'Report post'}
                 style={{color: global.black, paddingTop: ResponsiveSize(3)}}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
@@ -2323,7 +2334,7 @@ console.log(res,"deletePostReshare")
                 />
                 <TextC
                   text={'Delete your Post'}
-                  style={{color: global.red, padding: ResponsiveSize(3)}}
+                  style={{color: global.red, padding: ResponsiveSize(3),marginLeft:ResponsiveSize(3)}}
                   font={'Montserrat-Medium'}
                   size={ResponsiveSize(12)}
                 />
@@ -2343,7 +2354,7 @@ console.log(res,"deletePostReshare")
                 />
                 <TextC
                   text={'Report this post for inappropriate content'}
-                  style={{color: global.red, padding: ResponsiveSize(3)}}
+                  style={{color: global.red, padding: ResponsiveSize(3),marginLeft:ResponsiveSize(3)}}
                   font={'Montserrat-Medium'}
                   size={ResponsiveSize(12)}
                 />
@@ -2414,6 +2425,7 @@ console.log(res,"deletePostReshare")
           </View>
         </View>
       </Modal>
+
       <Modal
         isVisible={isDeleteSecondVisible}
         style={{

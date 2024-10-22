@@ -892,9 +892,6 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
         </View>
       </Modal>
 
-
-
-
       <Modal
         isVisible={isBlockModalConfirm}
         style={{ margin: 0, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
@@ -919,9 +916,6 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
           </View>
         </View>
       </Modal>
-
-
-
 
       <Modal
         isVisible={isReportSecondVisible}
