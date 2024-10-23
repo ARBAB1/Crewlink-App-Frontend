@@ -32,6 +32,7 @@
 		8FE571BFC846463EAA1B2EE4 /* Inter-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2F20634364754EE69370D718 /* Inter-Black.ttf */; };
 		92F2A5EE14F444E3898176FC /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 89B443B0D42F4CD896C38BCE /* Inter-Medium.ttf */; };
 		93419EC2EE04441BA4C10551 /* Montserrat-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 71646B3039754E85BA27A99E /* Montserrat-Medium.ttf */; };
+		9489EA2D2CC9523400D43F5C /* tapnotification.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 9489EA2C2CC9523400D43F5C /* tapnotification.mp3 */; };
 		98D54691533F4FA7BCC9DF28 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E5BA5E7CC3314C94A56C7019 /* Inter-SemiBold.ttf */; };
 		9E1583F12C53ED6E0087723E /* Stickers.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9E1583F02C53ED6E0087723E /* Stickers.bundle */; };
 		9E1583F32C53EE170087723E /* LUTs.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9E1583F22C53EE170087723E /* LUTs.bundle */; };
@@ -104,6 +105,7 @@
 		89B443B0D42F4CD896C38BCE /* Inter-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Medium.ttf"; path = "../assets/fonts/Inter-Medium.ttf"; sourceTree = "<group>"; };
 		91411F8C39893451C81C13C2 /* Pods_Crewlink.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Crewlink.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		92D22A51ADDD4173B766C5E6 /* Inter-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Bold.ttf"; path = "../assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; };
+		9489EA2C2CC9523400D43F5C /* tapnotification.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = tapnotification.mp3; sourceTree = "<group>"; };
 		9834D7AB8AD244249A37602E /* Montserrat-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Light.ttf"; path = "../assets/fonts/Montserrat-Light.ttf"; sourceTree = "<group>"; };
 		99C7828E6A9F4565BBD14AB8 /* Montserrat-ExtraLightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraLightItalic.ttf"; path = "../assets/fonts/Montserrat-ExtraLightItalic.ttf"; sourceTree = "<group>"; };
 		9E1583F02C53ED6E0087723E /* Stickers.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Stickers.bundle; sourceTree = "<group>"; };
@@ -221,6 +223,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				9489EA2C2CC9523400D43F5C /* tapnotification.mp3 */,
 				9E53BFDE2CA18DCB003AB4CD /* GoogleService-Info.plist */,
 				9E1583F22C53EE170087723E /* LUTs.bundle */,
 				9E1583F02C53ED6E0087723E /* Stickers.bundle */,
@@ -422,6 +425,7 @@
 				026D346C43C283F5F8F59C09 /* PrivacyInfo.xcprivacy in Resources */,
 				9EC5C6522C1917F000373A89 /* Zocial.ttf in Resources */,
 				E4B815473EF34089B0B53ADC /* Montserrat-Black.ttf in Resources */,
+				9489EA2D2CC9523400D43F5C /* tapnotification.mp3 in Resources */,
 				9EC5C64B2C1917F000373A89 /* Fontisto.ttf in Resources */,
 				DB7DEC49DAB5468DAC47DCCA /* Montserrat-BlackItalic.ttf in Resources */,
 				9EC5C64A2C1917F000373A89 /* FontAwesome6_Solid.ttf in Resources */,

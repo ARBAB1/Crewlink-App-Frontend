@@ -183,7 +183,6 @@ const ProfileScreen = ({ GetUserProfileReducer, GetProfileData, getPendingConnec
 
 
   const [isPending, setIsPending] = useState(false);
- 
   const [viewProfile, setViewProfile] = useState(false);
   return (
     <>

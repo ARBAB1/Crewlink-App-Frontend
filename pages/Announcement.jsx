@@ -349,7 +349,9 @@ const Announcement = ({GetUserProfileReducer}) => {
   }, []);
 
   const handleLike = async (Like_id, isLiked) => {
-    SoundPlayer.playSoundFile('tapnotification', 'mp3')
+    if (GetUserProfileReducer?.data?.isMute == 'N') {
+      SoundPlayer.playSoundFile('tapnotification', 'mp3');
+    }
     const Token = await AsyncStorage.getItem('Token');
     const updatedAnnouncements = announcement.map(comment => {
       if (comment.announcement_id === Like_id) {

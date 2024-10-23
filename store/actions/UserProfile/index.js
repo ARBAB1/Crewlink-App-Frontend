@@ -9,6 +9,35 @@ import {
 } from '../types'
 
 
+
+export const GetProfileDataNoReload = () => async (dispatch) => {
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+        const response = await fetch(`${baseUrl.baseUrl}/users/user-details`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': baseUrl.apiKey,
+                'accesstoken': `Bearer ${Token}`
+            },
+        });
+        const res = await response.json()
+        console.log(res, 'rest')
+        dispatch({
+            type: TASK_GET_PROFILE_DETAIL_END,
+            payload: res?.data,
+            loading: false,
+        });
+        return res
+    }
+    catch (error) {
+        dispatch({
+            type: TASK_GET_PROFILE_DETAIL_ERROR,
+            loading: false,
+        });
+        console.log(error)
+    }
+}
 export const GetProfileData = () => async (dispatch) => {
     const Token = await AsyncStorage.getItem('Token');
     try {

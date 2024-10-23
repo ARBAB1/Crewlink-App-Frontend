@@ -31,9 +31,10 @@ import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
 import ButtonC from '../components/button';
 import Modal from 'react-native-modal'
 import SoundPlayer from 'react-native-sound-player'
+import * as UserProfile from '../store/actions/UserProfile/index';
+import {connect} from 'react-redux';
 
-
-const SkeletonPlaceholder = ({ style, refreshing }) => {
+const SkeletonPlaceholder = ({ style, refreshing, }) => {
   const translateX = new Animated.Value(-350);
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -149,7 +150,7 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
   );
 };
 
-const AnnouncementDetail = ({ route }) => {
+const AnnouncementDetail = ({ route ,GetUserProfileReducer}) => {
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const scheme = useColorScheme();
@@ -396,7 +397,9 @@ const AnnouncementDetail = ({ route }) => {
   }, []);
 
   const handleLike = async (commentId, isLiked) => {
-    SoundPlayer.playSoundFile('tapnotification', 'mp3')
+    if (GetUserProfileReducer?.data?.isMute == 'N') {
+      SoundPlayer.playSoundFile('tapnotification', 'mp3');
+    }
     const Token = await AsyncStorage.getItem('Token');
     const updatedComments = announcement.map(comment => {
       if (comment.comment_id === commentId) {
@@ -638,4 +641,7 @@ const AnnouncementDetail = ({ route }) => {
   );
 };
 
-export default AnnouncementDetail;
+function mapStateToProps({GetUserProfileReducer}) {
+  return {GetUserProfileReducer};
+}
+export default connect(mapStateToProps, UserProfile)(AnnouncementDetail);

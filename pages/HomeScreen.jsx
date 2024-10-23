@@ -1,5 +1,9 @@
-import { DarkTheme, useNavigation, CommonActions } from '@react-navigation/native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  DarkTheme,
+  useNavigation,
+  CommonActions,
+} from '@react-navigation/native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -15,26 +19,24 @@ import {
   RefreshControl,
   FlatList,
   ScrollView,
-  Image
+  Image,
 } from 'react-native';
 import CityScroll from '../components/citiesScroll';
 import Post from '../components/post/index';
 import PostReshare from '../components/postReshare/index';
 import * as UserProfile from '../store/actions/UserProfile/index';
-import { connect } from 'react-redux';
-import { global, ResponsiveSize } from '../components/constant';
+import {connect} from 'react-redux';
+import {global, ResponsiveSize} from '../components/constant';
 import TextC from '../components/text/text';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import LinearGradient from 'react-native-linear-gradient';
-import { Easing } from 'react-native-reanimated';
-import { useHeaderHeight } from "@react-navigation/elements";
+import {Easing} from 'react-native-reanimated';
+import {useHeaderHeight} from '@react-navigation/elements';
 import MainHeader from '../components/mainHeader';
-import { useSWRConfig } from 'swr';
-import { useToast } from "react-native-toast-notifications";
+import {useSWRConfig} from 'swr';
+import {useToast} from 'react-native-toast-notifications';
 
-
-
-const SkeletonPlaceholder = ({ style, refreshing }) => {
+const SkeletonPlaceholder = ({style, refreshing}) => {
   const translateX = new Animated.Value(-350);
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -107,34 +109,34 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
     <View style={[styles.container, style]}>
       <View style={styles.textWrapper}>
         <View style={styles.profileImageSkelton}>
-          <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
+          <Animated.View style={[styles.gradient, {transform: [{translateX}]}]}>
             <LinearGradient
               colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
               style={styles.linearGradientLine}
             />
           </Animated.View>
         </View>
-        <View style={{ marginLeft: ResponsiveSize(10) }}>
+        <View style={{marginLeft: ResponsiveSize(10)}}>
           <View style={styles.titleStripe}>
             <Animated.View
-              style={[styles.gradient, { transform: [{ translateX }] }]}>
+              style={[styles.gradient, {transform: [{translateX}]}]}>
               <LinearGradient
                 colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}
                 style={styles.linearGradientLine}
               />
             </Animated.View>
           </View>
           <View style={styles.descriptionStripe}>
             <Animated.View
-              style={[styles.gradient, { transform: [{ translateX }] }]}>
+              style={[styles.gradient, {transform: [{translateX}]}]}>
               <LinearGradient
                 colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}
                 style={styles.linearGradientLine}
               />
             </Animated.View>
@@ -143,11 +145,11 @@ const SkeletonPlaceholder = ({ style, refreshing }) => {
       </View>
 
       <View style={styles.imageWrapper}>
-        <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
+        <Animated.View style={[styles.gradient, {transform: [{translateX}]}]}>
           <LinearGradient
             colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}
             style={styles.linearGradient}
           />
         </Animated.View>
@@ -161,7 +163,7 @@ const HomeScreen = ({
   GetProfileData,
   GetUserPosts,
   PostCreationReducer,
-  route
+  route,
 }) => {
   const headerHeight = useHeaderHeight();
   const scheme = useColorScheme();
@@ -173,113 +175,93 @@ const HomeScreen = ({
   const [refreshing, setRefreshing] = useState(false);
   const toast = useToast();
 
-
-  const handleCitySelect = (city) => {
-    console.log(city, 'city')
+  const handleCitySelect = city => {
+    console.log(city, 'city');
     setSelectedCity(city);
   };
   const getFeeds = async () => {
-    console.log(selectedCity,"bydefaultcity")
-    
     setLoading(true);
-    const result = await GetUserPosts({ city: selectedCity, page: page });
-
-    if (result?.status == "No_Post_Found") {
-      toast.show("No Posts Found ")
-      setLoading(false)
-      setPost([])
-    }
-    else if (result?.status == "something_Went_Wrong") {
-      toast.show("Something Went Wrong")
-      setLoading(false)
-      setPost([])
-    }
-    else if (result?.status == "Post_Found") {
+    const result = await GetUserPosts({city: selectedCity, page: page});
+    if (result?.status == 'No_Post_Found') {
+      toast.show('No Posts Found ');
+      setLoading(false);
+      setPost([]);
+    } else if (result?.status == 'something_Went_Wrong') {
+      toast.show('Something Went Wrong');
+      setLoading(false);
+      setPost([]);
+    } else if (result?.status == 'Post_Found') {
       if (result?.data?.length >= 15) {
-        cacheloader(result?.data)
+        cacheloader(result?.data);
         navigation.dispatch(
           CommonActions.navigate({
             index: 0,
-            routes: [
-              { name: 'Home' },
-            ],
-          })
+            routes: [{name: 'Home'}],
+          }),
         );
-      }
-      else {
-        cacheloader(result?.data)
-        setHasMoreContent(false)
+      } else {
+        cacheloader(result?.data);
+        setHasMoreContent(false);
         navigation.dispatch(
           CommonActions.navigate({
             index: 0,
-            routes: [
-              { name: 'Home' },
-            ],
-          })
+            routes: [{name: 'Home'}],
+          }),
         );
       }
     }
-
   };
-
 
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMoreContent, setHasMoreContent] = useState(true);
 
-
-
   const getMoreFeeds = async () => {
     setLoadingMore(true);
-    const result = await GetUserPosts({ city: selectedCity, page: page });
-    if (result?.status == "No_Post_Found") {
-      toast.show("No Posts Found")
-      setLoading(false)
-      setPost([])
-    }
-    else if (result?.status == "something_Went_Wrong") {
-      toast.show("Something Went Wrong")
-      setLoading(false)
-      setPost([])
-    }
-    else if (result?.status == "Post_Found") {
+    const result = await GetUserPosts({city: selectedCity, page: page});
+    if (result?.status == 'No_Post_Found') {
+      toast.show('No Posts Found');
+      setLoading(false);
+      setPost([]);
+    } else if (result?.status == 'something_Went_Wrong') {
+      toast.show('Something Went Wrong');
+      setLoading(false);
+      setPost([]);
+    } else if (result?.status == 'Post_Found') {
       if (result?.data?.length >= 15) {
-        cacheloader(result?.data)
+        cacheloader(result?.data);
         navigation.dispatch(
           CommonActions.navigate({
             index: 0,
-            routes: [
-              { name: 'Home' },
-            ],
-          })
+            routes: [{name: 'Home'}],
+          }),
         );
-      }
-      else {
-        cacheloader(result?.data)
-        setHasMoreContent(false)
+      } else {
+        cacheloader(result?.data);
+        setHasMoreContent(false);
         navigation.dispatch(
           CommonActions.navigate({
             index: 0,
-            routes: [
-              { name: 'Home' },
-            ],
-          })
+            routes: [{name: 'Home'}],
+          }),
         );
       }
     }
   };
 
-
   useEffect(() => {
     getMoreFeeds();
   }, [page]);
-
 
   useEffect(() => {
     GetProfileData();
     if (PostCreationReducer?.uploadLoading == false) {
       getFeeds();
     }
-  }, [PostCreationReducer?.uploadLoading, route.params?.CheckInCity, selectedCity]);
+  }, [
+    PostCreationReducer?.uploadLoading,
+    route.params?.CheckInCity,
+    selectedCity,
+  ]);
 
   const styles = StyleSheet.create({
     UploadingLoader: {
@@ -307,41 +289,37 @@ const HomeScreen = ({
   });
 
   const onRefresh = async () => {
-    cache.delete('UserFeed')
+    cache.delete('UserFeed');
     setRefreshing(true);
-    getFeeds()
-    setPage(1)
-    setHasMoreContent(true)
+    getFeeds();
+    setPage(1);
+    setHasMoreContent(true);
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
-  }
-  const { cache } = useSWRConfig()
-  const cacheloader = async (loadAllFeed) => {
-    const preLoad = cache.get('UserFeed')
-    const combinedData = [...preLoad || [], ...(loadAllFeed || [])];
+  };
+  const {cache} = useSWRConfig();
+  const cacheloader = async loadAllFeed => {
+    const preLoad = cache.get('UserFeed');
+    const combinedData = [...(preLoad || []), ...(loadAllFeed || [])];
     const uniqueData = Array.from(
-      combinedData.reduce((map, item) => {
-        map.set(item?.post_id, item);
-        return map;
-      }, new Map()).values()
+      combinedData
+        .reduce((map, item) => {
+          map.set(item?.post_id, item);
+          return map;
+        }, new Map())
+        .values(),
     );
-    cache.set("UserFeed", uniqueData)
-    setPost(cache.get('UserFeed'))
-    setLoadingMore(false)
-    setLoading(false)
-  }
+    cache.set('UserFeed', uniqueData);
+    setPost(cache.get('UserFeed'));
+    setLoadingMore(false);
+    setLoading(false);
+  };
 
-
-
-
-
-
-
-  const renderItem = useCallback((items) => {
+  const renderItem = useCallback(items => {
     return (
       <>
-        {items?.item?.content_type == "POST_RESHARE" ?
+        {items?.item?.content_type == 'POST_RESHARE' ? (
           <PostReshare
             key={items?.item?.post_id}
             selfLiked={items?.item?.selfLiked}
@@ -361,10 +339,8 @@ const HomeScreen = ({
             reshareUserDetails={items?.item?.reshareUserDetails}
             user_idIn={items?.item?.user_id}
           />
-          :
+        ) : (
           <Post
-
-            
             getNewPost={onRefresh}
             key={items?.item?.post_id}
             selfLiked={items?.item?.selfLiked}
@@ -383,20 +359,19 @@ const HomeScreen = ({
             content_type={items?.item?.content_type}
             user_idIn={items?.item?.user_id}
           />
-        }
+        )}
       </>
     );
   }, []);
 
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flexGrow: 1 }}
+      style={{flexGrow: 1}}
       keyboardVerticalOffset={
         Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0
       }>
-      <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
+      <SafeAreaView style={{flex: 1, backgroundColor: global.white}}>
         <StatusBar
           backgroundColor={
             scheme === 'dark' ? DarkTheme.colors.background : 'white'
@@ -405,7 +380,7 @@ const HomeScreen = ({
         />
         <MainHeader loading={loading} />
         {loading ? (
-          <View style={{ paddingTop: ResponsiveSize(10) }}>
+          <View style={{paddingTop: ResponsiveSize(10)}}>
             <SkeletonPlaceholder />
             <SkeletonPlaceholder />
             <SkeletonPlaceholder />
@@ -413,9 +388,9 @@ const HomeScreen = ({
         ) : (
           <>
             {post !== undefined &&
-              post !== null &&
-              post !== '' &&
-              post.length > 0 ?
+            post !== null &&
+            post !== '' &&
+            post.length > 0 ? (
               <FlatList
                 showsVerticalScrollIndicator={false}
                 initialNumToRender={10}
@@ -433,12 +408,17 @@ const HomeScreen = ({
                       <CityScroll onCitySelect={handleCitySelect} />
                     </View>
                     {PostCreationReducer?.uploadLoading && (
-                      <View style={styles.UploadingLoader} >
+                      <View style={styles.UploadingLoader}>
                         <TouchableOpacity>
                           <ImageBackground
                             style={styles.profileImageUpload}
-                            source={{ uri: `file://${PostCreationReducer?.uploadFiles}` }}>
-                            <ActivityIndicator size={'small'} color={global.white} />
+                            source={{
+                              uri: `file://${PostCreationReducer?.uploadFiles}`,
+                            }}>
+                            <ActivityIndicator
+                              size={'small'}
+                              color={global.white}
+                            />
                           </ImageBackground>
                         </TouchableOpacity>
                         <View style={styles.PostDescription}>
@@ -446,7 +426,7 @@ const HomeScreen = ({
                             text={'Finishing up'}
                             font={'Montserrat-SemiBold'}
                             size={ResponsiveSize(12)}
-                            style={{ color: global.black }}
+                            style={{color: global.black}}
                           />
                           <AntDesign
                             name="checkcircleo"
@@ -462,54 +442,121 @@ const HomeScreen = ({
                   </>
                 }
                 ListFooterComponent={
-                  hasMoreContent &&
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: ResponsiveSize(30), paddingTop: ResponsiveSize(10) }}>
-                    {loadingMore ?
-                      <ActivityIndicator size={ResponsiveSize(21)} color={global.primaryColor} />
-                      :
-                      <TouchableOpacity onPress={() => setPage(page + 1)} style={{ backgroundColor: global.secondaryColor, paddingHorizontal: ResponsiveSize(20), paddingVertical: ResponsiveSize(8), borderRadius: ResponsiveSize(30) }}>
-                        <TextC
-                          text={'Load more'}
-                          font={'Montserrat-SemiBold'}
-                          size={ResponsiveSize(11)}
-                          style={{ color: global.primaryColor }}
+                  hasMoreContent && (
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingBottom: ResponsiveSize(30),
+                        paddingTop: ResponsiveSize(10),
+                      }}>
+                      {loadingMore ? (
+                        <ActivityIndicator
+                          size={ResponsiveSize(21)}
+                          color={global.primaryColor}
                         />
-                      </TouchableOpacity>
-                    }
-                  </View>
+                      ) : (
+                        <TouchableOpacity
+                          onPress={() => setPage(page + 1)}
+                          style={{
+                            backgroundColor: global.secondaryColor,
+                            paddingHorizontal: ResponsiveSize(20),
+                            paddingVertical: ResponsiveSize(8),
+                            borderRadius: ResponsiveSize(30),
+                          }}>
+                          <TextC
+                            text={'Load more'}
+                            font={'Montserrat-SemiBold'}
+                            size={ResponsiveSize(11)}
+                            style={{color: global.primaryColor}}
+                          />
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  )
                 }
               />
-              :
+            ) : (
               <>
                 <View>
                   <CityScroll onCitySelect={handleCitySelect} />
                 </View>
-                <ScrollView refreshControl={
-                  <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                } contentContainerStyle={{ flex: 1, paddingHorizontal: ResponsiveSize(30), flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                {PostCreationReducer?.uploadLoading && (
+                  <View style={styles.UploadingLoader}>
+                    <TouchableOpacity>
+                      <ImageBackground
+                        style={styles.profileImageUpload}
+                        source={{
+                          uri: `file://${PostCreationReducer?.uploadFiles}`,
+                        }}>
+                        <ActivityIndicator
+                          size={'small'}
+                          color={global.white}
+                        />
+                      </ImageBackground>
+                    </TouchableOpacity>
+                    <View style={styles.PostDescription}>
+                      <TextC
+                        text={'Finishing up'}
+                        font={'Montserrat-SemiBold'}
+                        size={ResponsiveSize(12)}
+                        style={{color: global.black}}
+                      />
+                      <AntDesign
+                        name="checkcircleo"
+                        color={global.secondaryColor}
+                        style={{
+                          marginTop: ResponsiveSize(3),
+                          marginLeft: ResponsiveSize(5),
+                        }}
+                      />
+                    </View>
+                  </View>
+                )}
+                <ScrollView
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                    />
+                  }
+                  contentContainerStyle={{
+                    flex: 1,
+                    paddingHorizontal: ResponsiveSize(30),
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
                   <TextC
                     text={'No posts found'}
                     font={'Montserrat-Bold'}
                     size={ResponsiveSize(18)}
-                    style={{ color: global.primaryColor }}
+                    style={{color: global.primaryColor}}
                   />
                   <TextC
-                    text={'No posts available to display. Check back later for updates or new content!'}
+                    text={
+                      'No posts available to display. Check back later for updates or new content!'
+                    }
                     font={'Montserrat-Medium'}
                     size={ResponsiveSize(11)}
-                    style={{ color: global.placeholderColor, textAlign: 'center', paddingTop: ResponsiveSize(5) }}
+                    style={{
+                      color: global.placeholderColor,
+                      textAlign: 'center',
+                      paddingTop: ResponsiveSize(5),
+                    }}
                   />
                 </ScrollView>
               </>
-            }
+            )}
           </>
         )}
-      </SafeAreaView >
+      </SafeAreaView>
     </KeyboardAvoidingView>
   );
 };
 
-function mapStateToProps({ GetUserProfileReducer, PostCreationReducer }) {
-  return { GetUserProfileReducer, PostCreationReducer };
+function mapStateToProps({GetUserProfileReducer, PostCreationReducer}) {
+  return {GetUserProfileReducer, PostCreationReducer};
 }
 export default connect(mapStateToProps, UserProfile)(HomeScreen);
