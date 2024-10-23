@@ -34,6 +34,7 @@ import * as UserProfile from '../store/actions/UserProfile/index';
 
 const MessageList = ({ GetProfileData }) => {
   const focus = useIsFocused();
+  console.log(focus,"focusfocusfocusfocusfocus")
   const scheme = useColorScheme();
   const windowWidth = Dimensions.get('window').width;
   const styles = StyleSheet.create({
@@ -180,14 +181,14 @@ const MessageList = ({ GetProfileData }) => {
     });
 
   }, []);
-  useEffect(() => {
-    loadRecentChats();
-  }, [focus]);
+  // useEffect(() => {
+  //   loadRecentChats();
+  // }, [focus]);
 
   useEffect(() => {
     setLoader(true);
     loadRecentChats();
-  }, []);
+  }, [focus]);
 
 
   const [isSelectedUser, SetisSelectedUser] = useState()
