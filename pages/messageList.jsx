@@ -213,7 +213,7 @@ const MessageList = ({ GetProfileData }) => {
   const deleteUserChat = async () => {
     setDeleteChatUser(true)
     const Token = await AsyncStorage.getItem('Token');
-    const response = await fetch(`${baseUrl}/clear-user-chat`, {
+    const response = await fetch(`${baseUrl}/messages/clear-user-chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

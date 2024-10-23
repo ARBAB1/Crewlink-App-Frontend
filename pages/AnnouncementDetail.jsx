@@ -30,6 +30,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useBottomSheet } from '../components/bottomSheet/BottomSheet';
 import ButtonC from '../components/button';
 import Modal from 'react-native-modal'
+import SoundPlayer from 'react-native-sound-player'
 
 
 const SkeletonPlaceholder = ({ style, refreshing }) => {
@@ -395,6 +396,7 @@ const AnnouncementDetail = ({ route }) => {
   }, []);
 
   const handleLike = async (commentId, isLiked) => {
+    SoundPlayer.playSoundFile('tapnotification', 'mp3')
     const Token = await AsyncStorage.getItem('Token');
     const updatedComments = announcement.map(comment => {
       if (comment.comment_id === commentId) {

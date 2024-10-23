@@ -17,6 +17,9 @@ import TextC from '../text/text';
 import {connect} from 'react-redux';
 import * as PostCreationAction from '../../store/actions/PostCreation/index';
 import FastImage from 'react-native-fast-image';
+import SoundPlayer from 'react-native-sound-player'
+
+
 
 const Comments = ({
   likeLoader,
@@ -216,6 +219,10 @@ const Comments = ({
       zIndex: 9999,
     },
   });
+
+
+
+  
   return (
     <>
       <View

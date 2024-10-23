@@ -35,6 +35,9 @@ import {useBottomSheet} from '../components/bottomSheet/BottomSheet';
 import ButtonC from '../components/button';
 import Modal from 'react-native-modal';
 import {baseUrl, apiKey} from '../store/config.json';
+import SoundPlayer from 'react-native-sound-player'
+
+
 
 const SkeletonPlaceholder = ({style, refreshing}) => {
   const translateX = new Animated.Value(-350);
@@ -346,6 +349,7 @@ const Announcement = ({GetUserProfileReducer}) => {
   }, []);
 
   const handleLike = async (Like_id, isLiked) => {
+    SoundPlayer.playSoundFile('tapnotification', 'mp3')
     const Token = await AsyncStorage.getItem('Token');
     const updatedAnnouncements = announcement.map(comment => {
       if (comment.announcement_id === Like_id) {

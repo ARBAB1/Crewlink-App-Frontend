@@ -1,7 +1,7 @@
 import ReadMore from '@fawazahmed/react-native-read-more';
 import TimeAgo from '@manu_omg/react-native-timeago';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -23,20 +23,21 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Feather from 'react-native-vector-icons/Feather';
 import Video from 'react-native-video';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import CommnetLight from '../../assets/icons/Comment.png';
 import ShareLight from '../../assets/icons/Share.png';
 import * as PostCreationAction from '../../store/actions/PostCreation/index';
-import {ResponsiveSize, global, notificationTypes} from '../constant';
+import { ResponsiveSize, global, notificationTypes } from '../constant';
 import TextC from '../text/text';
 import Comments from './comment';
 import Reply from './Reply';
 import FastImage from 'react-native-fast-image';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import baseUrl from '../../store/config.json';
-
 import io from 'socket.io-client';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
+import SoundPlayer from 'react-native-sound-player'
+
 
 const PostReshare = ({
   userName,
@@ -224,19 +225,21 @@ const PostReshare = ({
   };
 
   const handleLike = async () => {
+    SoundPlayer.playSoundFile('tapnotification', 'mp3')
     try {
       setLike(true);
       setLikeCountPre(prev => prev + 1);
-      await LikeFunc({post_id: postId});
+      await LikeFunc({ post_id: postId });
     } catch (error) {
       console.error('Error liking the post:', error);
     }
   };
   const handleDislike = async () => {
+    SoundPlayer.playSoundFile('tapnotification', 'mp3')
     try {
       setLike(false);
       setLikeCountPre(prev => prev - 1);
-      await DisLikeFunc({post_id: postId});
+      await DisLikeFunc({ post_id: postId });
     } catch (error) {
       console.error('Error disliking the post:', error);
     }
@@ -333,6 +336,7 @@ const PostReshare = ({
 
   // like unlike comment and reply functionality
   const LikeComment = async comment_id => {
+    SoundPlayer.playSoundFile('tapnotification', 'mp3')
     setLikeLoader(true);
     const filterCommentData = commentList.map(comment => {
       if (comment.comment_id == comment_id) {
@@ -358,6 +362,7 @@ const PostReshare = ({
     setLikeLoader(false);
   };
   const DisLikeComment = async comment_id => {
+    SoundPlayer.playSoundFile('tapnotification', 'mp3')
     setLikeLoader(true);
     const filterCommentData = commentList.map(comment => {
       if (comment.comment_id == comment_id) {
@@ -383,6 +388,7 @@ const PostReshare = ({
     setLikeLoader(false);
   };
   const LikeReply = async (reply_id, comment_id) => {
+    SoundPlayer.playSoundFile('tapnotification', 'mp3')
     setLikeLoader(true);
     const updatedComment = commentList.find(
       comment => comment.comment_id === comment_id,
@@ -423,6 +429,7 @@ const PostReshare = ({
     setLikeLoader(false);
   };
   const DisLikeReply = async (reply_id, comment_id) => {
+    SoundPlayer.playSoundFile('tapnotification', 'mp3')
     setLikeLoader(true);
     const updatedComment = commentList.find(
       comment => comment.comment_id === comment_id,
@@ -1047,7 +1054,7 @@ const PostReshare = ({
     },
 
     modalTopLayerShare: {
-      paddingBottom:ResponsiveSize(20),
+      paddingBottom: ResponsiveSize(20),
       width: windowWidth,
       paddingTop: 10,
       position: 'absolute',
@@ -1059,7 +1066,7 @@ const PostReshare = ({
       zIndex: 999,
     },
     modalTopLayerReport: {
-      paddingBottom:ResponsiveSize(20),
+      paddingBottom: ResponsiveSize(20),
       width: windowWidth,
       paddingTop: 10,
       position: 'absolute',
@@ -1072,7 +1079,7 @@ const PostReshare = ({
     },
 
     modalTopLayerReportSecond: {
-      paddingBottom:ResponsiveSize(20),
+      paddingBottom: ResponsiveSize(20),
       width: windowWidth * 0.8,
       paddingTop: 10,
       backgroundColor: 'white',
@@ -1113,7 +1120,7 @@ const PostReshare = ({
       paddingHorizontal: ResponsiveSize(15),
       elevation: 5,
       shadowColor: 'black',
-      shadowOffset: {width: -2, height: 4},
+      shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
       flexDirection: 'row',
@@ -1267,7 +1274,7 @@ const PostReshare = ({
     setIsShareModal(false);
   };
   const sendMessage = async (message_Props, user_Id) => {
-    setMsgReshareLoader({user_Id: user_Id, value: true});
+    setMsgReshareLoader({ user_Id: user_Id, value: true });
 
     const Token = await AsyncStorage.getItem('Token');
 
@@ -1284,8 +1291,8 @@ const PostReshare = ({
       post_id: message_Props,
     });
     setTimeout(() => {
-      
-      setMsgReshareLoader({user_Id: user_Id, value: false});
+
+      setMsgReshareLoader({ user_Id: user_Id, value: false });
     }, 2000);
   };
 
@@ -1351,7 +1358,7 @@ const PostReshare = ({
       }),
     });
     const res = await response?.json();
-console.log(res,"deletePostReshare")
+    console.log(res, "deletePostReshare")
     if (res?.statusCode) {
       setDeleteLoading(false);
 
@@ -1362,6 +1369,10 @@ console.log(res,"deletePostReshare")
       }, 1000);
     }
   };
+
+
+  const [currentIndex, setCurrentIndex] = useState(1)
+  const [totolIndex, setTotolIndex] = useState(0)
   return (
     <>
       {reportedPostId == postId ? (
@@ -1377,7 +1388,7 @@ console.log(res,"deletePostReshare")
           {content?.length > 0 ? (
             <View>
               <View style={style.PostHeader}>
-                <View style={{flexDirection: 'row'}}>
+                <View style={{ flexDirection: 'row' }}>
                   <TouchableOpacity
                     onPress={() =>
                       navigation.navigate('UserProfileScreen', {
@@ -1389,9 +1400,9 @@ console.log(res,"deletePostReshare")
                         profileImage == ''
                           ? require('../../assets/icons/avatar.png')
                           : {
-                              uri: profileImage,
-                              priority: FastImage.priority.high,
-                            }
+                            uri: profileImage,
+                            priority: FastImage.priority.high,
+                          }
                       }
                       style={style.PostProfileImage}
                       resizeMode="cover"
@@ -1431,7 +1442,7 @@ console.log(res,"deletePostReshare")
                 </View>
               </View>
               {content?.length > 1 ? (
-                <View style={{position: 'relative'}}>
+                <View style={{ position: 'relative' }}>
                   <View style={style.ResharePostHeader}>
                     <FastImage
                       source={{
@@ -1456,10 +1467,12 @@ console.log(res,"deletePostReshare")
                     autoPlay={false}
                     data={content}
                     scrollAnimationDuration={1000}
-                    renderItem={items => {
+                    onSnapToItem={(index) => setCurrentIndex(index + 1)}
+                    renderItem={({ item, index }) => {
+                      setTotolIndex(index + 1)
                       return (
                         <>
-                          {items.item?.attachment_url.endsWith('.mp4') ? (
+                          {item?.attachment_url.endsWith('.mp4') ? (
                             <View
                               style={{
                                 height: windowHeight * 0.4,
@@ -1469,11 +1482,11 @@ console.log(res,"deletePostReshare")
                               }}>
                               <Pressable
                                 onPress={() => setPause(!paused)}
-                                style={{position: 'relative'}}>
+                                style={{ position: 'relative' }}>
                                 <Video
                                   repeat={true}
                                   source={{
-                                    uri: items.item?.attachment_thumbnail_url,
+                                    uri: item?.attachment_thumbnail_url,
                                   }}
                                   ref={videoRef}
                                   paused={paused}
@@ -1496,7 +1509,7 @@ console.log(res,"deletePostReshare")
                           ) : (
                             <FastImage
                               source={{
-                                uri: items.item?.attachment_thumbnail_url,
+                                uri: item?.attachment_thumbnail_url,
                                 priority: FastImage.priority.high,
                               }}
                               resizeMode="cover"
@@ -1507,6 +1520,22 @@ console.log(res,"deletePostReshare")
                       );
                     }}
                   />
+                  <View style={{
+                    position: 'absolute',
+                    height: ResponsiveSize(25),
+                    width: ResponsiveSize(50),
+                    backgroundColor: global.placeholderColor,
+                    borderRadius: ResponsiveSize(40),
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    top: ResponsiveSize(15),
+                    right: ResponsiveSize(15),
+                  }}>
+                    <TextC text={currentIndex} style={{ color: global.white }} font={"Montserrat-Bold"} />
+                    <TextC text={'/'} style={{ color: global.white, marginHorizontal: ResponsiveSize(1) }} font={"Montserrat-Bold"} />
+                    <TextC text={totolIndex} style={{ color: global.white }} font={"Montserrat-Bold"} />
+                  </View>
                   <View style={style.ResharePostFooter}>
                     <TextC
                       text={reshareUserDetails?.old_caption}
@@ -1553,7 +1582,7 @@ console.log(res,"deletePostReshare")
                         }}
                         ref={videoRef}
                         paused={false}
-                        style={{height: Winheight, width: windowWidth}}
+                        style={{ height: Winheight, width: windowWidth }}
                       />
                       <View style={style.ResharePostFooter}>
                         <TextC
@@ -1567,7 +1596,7 @@ console.log(res,"deletePostReshare")
                       </View>
                     </View>
                   ) : (
-                    <View style={{position: 'relative'}}>
+                    <View style={{ position: 'relative' }}>
                       <View style={style.ResharePostHeader}>
                         <FastImage
                           source={{
@@ -1651,7 +1680,7 @@ console.log(res,"deletePostReshare")
                   />
                 )}
                 {description !== '' ? (
-                  <View style={{paddingVertical: ResponsiveSize(3)}}>
+                  <View style={{ paddingVertical: ResponsiveSize(3) }}>
                     <ReadMore
                       seeLessStyle={{
                         fontFamily: 'Montserrat-Bold',
@@ -1672,7 +1701,7 @@ console.log(res,"deletePostReshare")
                 {allow_comments_flag == 'Y' ? (
                   <></>
                 ) : (
-                  <TouchableOpacity style={{paddingTop: ResponsiveSize(3)}}>
+                  <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
                     <TextC
                       size={ResponsiveSize(10)}
                       text={'Comments are turned off'}
@@ -1686,7 +1715,7 @@ console.log(res,"deletePostReshare")
           ) : (
             <View>
               <View style={style.PostHeader}>
-                <View style={{flexDirection: 'row'}}>
+                <View style={{ flexDirection: 'row' }}>
                   <TouchableOpacity
                     onPress={() =>
                       navigation.navigate('UserProfileScreen', {
@@ -1698,9 +1727,9 @@ console.log(res,"deletePostReshare")
                         profileImage == ''
                           ? require('../../assets/icons/avatar.png')
                           : {
-                              uri: profileImage,
-                              priority: FastImage.priority.high,
-                            }
+                            uri: profileImage,
+                            priority: FastImage.priority.high,
+                          }
                       }
                       style={style.PostProfileImage}
                       resizeMode="cover"
@@ -1759,7 +1788,7 @@ console.log(res,"deletePostReshare")
                   <TextC
                     text={reshareUserDetails?.user_name}
                     font={'Montserrat-Bold'}
-                    style={{marginLeft: ResponsiveSize(8), color: global.black}}
+                    style={{ marginLeft: ResponsiveSize(8), color: global.black }}
                   />
                 </View>
                 <TextC
@@ -1817,7 +1846,7 @@ console.log(res,"deletePostReshare")
                   />
                 )}
                 {description !== '' ? (
-                  <View style={{paddingVertical: ResponsiveSize(3)}}>
+                  <View style={{ paddingVertical: ResponsiveSize(3) }}>
                     <ReadMore
                       seeLessStyle={{
                         fontFamily: 'Montserrat-Bold',
@@ -1838,7 +1867,7 @@ console.log(res,"deletePostReshare")
                 {allow_comments_flag == 'Y' ? (
                   <></>
                 ) : (
-                  <TouchableOpacity style={{paddingTop: ResponsiveSize(3)}}>
+                  <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
                     <TextC
                       size={ResponsiveSize(10)}
                       text={'Comments are turned off'}
@@ -1854,7 +1883,7 @@ console.log(res,"deletePostReshare")
       )}
       <Modal
         isVisible={isModalVisible}
-        style={{margin: 0}}
+        style={{ margin: 0 }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
         onBackdropPress={() => closeCommentFunction()}
@@ -1864,7 +1893,7 @@ console.log(res,"deletePostReshare")
             <View style={style.modalIndicator}></View>
             <TextC
               text={'Comments'}
-              style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
               font={'Montserrat-Bold'}
               size={ResponsiveSize(12)}
             />
@@ -2041,7 +2070,7 @@ console.log(res,"deletePostReshare")
                 <View style={style.ProfileReplyBox}>
                   <Image
                     style={style.ProfileReplyBoxProfile}
-                    source={{uri: replyComment?.user?.profile_picture_url}}
+                    source={{ uri: replyComment?.user?.profile_picture_url }}
                   />
                   <TextC
                     font={'Montserrat-Medium'}
@@ -2060,7 +2089,7 @@ console.log(res,"deletePostReshare")
             )}
             <View
               keyboardShouldPersistTaps="handled"
-              style={{width: windowWidth, position: 'relative'}}>
+              style={{ width: windowWidth, position: 'relative' }}>
               <TextInput
                 editable={!commentAddLoading && !replyAddLoader}
                 value={commentInfo}
@@ -2097,7 +2126,7 @@ console.log(res,"deletePostReshare")
 
       <Modal
         isVisible={isShareModal}
-        style={{margin: 0}}
+        style={{ margin: 0 }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
         onBackdropPress={() => setIsShareModal(!isShareModal)}
@@ -2107,7 +2136,7 @@ console.log(res,"deletePostReshare")
             <View style={style.modalIndicator}></View>
             <TextC
               text={'Share Post'}
-              style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
               font={'Montserrat-Bold'}
               size={ResponsiveSize(12)}
             />
@@ -2120,7 +2149,7 @@ console.log(res,"deletePostReshare")
             }}>
             <TextC
               text={'Share in community'}
-              style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
               font={'Montserrat-Bold'}
               size={ResponsiveSize(12)}
             />
@@ -2133,14 +2162,14 @@ console.log(res,"deletePostReshare")
                   paddingHorizontal: ResponsiveSize(10),
                   paddingTop: ResponsiveSize(10),
                 }}>
-                  {
-                    
-                  }
+                {
+
+                }
                 <FastImage
                   source={
                     myuser?.profile_picture_url == ''
                       ? require('../../assets/icons/avatar.png')
-                      : {uri: myuser?.profile_picture_url, priority: FastImage.priority.high}
+                      : { uri: myuser?.profile_picture_url, priority: FastImage.priority.high }
                   }
                   style={style.PostProfileImage}
                   resizeMode="cover"
@@ -2149,7 +2178,7 @@ console.log(res,"deletePostReshare")
                   text={myuser?.user_name}
                   font={'Montserrat-Bold'}
                   size={ResponsiveSize(14)}
-                  style={{color: global.black}}
+                  style={{ color: global.black }}
                 />
               </View>
               <TextInput
@@ -2172,9 +2201,9 @@ console.log(res,"deletePostReshare")
                     paddingVertical: ResponsiveSize(5),
                     borderRadius: ResponsiveSize(20),
                     width: ResponsiveSize(100),
-                    flexDirection:'column',
-                    alignItems:'center',
-                    justifyContent:'center',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                   disabled={reShareLoader}
                   onPress={() => ResharePost()}>
@@ -2186,7 +2215,7 @@ console.log(res,"deletePostReshare")
                   ) : (
                     <TextC
                       text={'Share now'}
-                      style={{color: global.white}}
+                      style={{ color: global.white }}
                       font={'Montserrat-Medium'}
                       size={ResponsiveSize(12)}
                     />
@@ -2195,10 +2224,10 @@ console.log(res,"deletePostReshare")
               </View>
             </View>
 
-            <View style={{paddingTop: ResponsiveSize(15)}}>
+            <View style={{ paddingTop: ResponsiveSize(15) }}>
               <TextC
                 text={'Share in message'}
-                style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+                style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
               />
@@ -2208,68 +2237,67 @@ console.log(res,"deletePostReshare")
               horizontal={true}
               contentContainerStyle={style.ConnectionList}>
               {getLatestConnection !== undefined &&
-              getLatestConnection !== null &&
-              getLatestConnection !== '' &&
-              getLatestConnection?.length > 0
+                getLatestConnection !== null &&
+                getLatestConnection !== '' &&
+                getLatestConnection?.length > 0
                 ? getLatestConnection?.map(data => (
-                    <TouchableOpacity
-                      disabled={MsgReShareLoader?.value}
-                      style={style.ConnectionListIcon}
-                      onPress={() => 
-                        { 
-                           toggleUserSelection(data?.user_id) 
-                        sendMessage(postId, data?.user_id)
-                      }}
-                        >
-                      <View style={style.ConnectionIconDpAbdolute}>
-                        <FastImage
-                          source={
-                            data?.profile_picture_url == ''
-                              ? require('../../assets/icons/avatar.png')
-                              : {
-                                  uri: data?.profile_picture_url,
-                                  priority: FastImage.priority.high,
-                                }
-                          }
-                          style={style.ConnectionIconDp}
-                          resizeMode="cover"
-                        />
-                        {MsgReShareLoader?.user_Id == data?.user_id &&
-                        MsgReShareLoader?.value == true ? (
-                          <ActivityIndicator
-                            size={ResponsiveSize(40)}
-                            color={global.white}
-                            style={{
-                              position: 'absolute',
-                              top: ResponsiveSize(3),
-                              left: ResponsiveSize(7),
-                            }}
-                          />
-                        ) : (
-                          ''
-                        )}
-                      </View>
-                      {selectedUsers.includes(data?.user_id) && (
-  <Feather
-    name="check"
-    style = {{position: 'absolute', top: ResponsiveSize(1), left: ResponsiveSize(43)}}
-    size={ResponsiveSize(25)}
-    color={global.secondaryColor}
- 
-  />
-)}
-                      <TextC
-                        text={data?.user_name}
-                        font={'Montserrat-Bold'}
-                        size={ResponsiveSize(11)}
-                        style={{width: ResponsiveSize(50), textAlign: 'center'}}
-                        ellipsizeMode={'tail'}
-                        numberOfLines={1}
+                  <TouchableOpacity
+                    disabled={MsgReShareLoader?.value}
+                    style={style.ConnectionListIcon}
+                    onPress={() => {
+                      toggleUserSelection(data?.user_id)
+                      sendMessage(postId, data?.user_id)
+                    }}
+                  >
+                    <View style={style.ConnectionIconDpAbdolute}>
+                      <FastImage
+                        source={
+                          data?.profile_picture_url == ''
+                            ? require('../../assets/icons/avatar.png')
+                            : {
+                              uri: data?.profile_picture_url,
+                              priority: FastImage.priority.high,
+                            }
+                        }
+                        style={style.ConnectionIconDp}
+                        resizeMode="cover"
                       />
-                    </TouchableOpacity>
-                  ))
+                      {MsgReShareLoader?.user_Id == data?.user_id &&
+                        MsgReShareLoader?.value == true ? (
+                        <ActivityIndicator
+                          size={ResponsiveSize(40)}
+                          color={global.white}
+                          style={{
+                            position: 'absolute',
+                            top: ResponsiveSize(3),
+                            left: ResponsiveSize(7),
+                          }}
+                        />
+                      ) : (
+                        ''
+                      )}
+                    </View>
+                    {selectedUsers.includes(data?.user_id) && (
+                      <Feather
+                        name="check"
+                        style={{ position: 'absolute', top: ResponsiveSize(1), left: ResponsiveSize(43) }}
+                        size={ResponsiveSize(25)}
+                        color={global.secondaryColor}
+
+                      />
+                    )}
+                    <TextC
+                      text={data?.user_name}
+                      font={'Montserrat-Bold'}
+                      size={ResponsiveSize(11)}
+                      style={{ width: ResponsiveSize(50), textAlign: 'center' }}
+                      ellipsizeMode={'tail'}
+                      numberOfLines={1}
+                    />
+                  </TouchableOpacity>
+                ))
                 : (
-                  <View style={{display: 'flex', justifyContent: 'center', alignItems: 'center', width:windowWidth*0.9 }}>
+                  <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: windowWidth * 0.9 }}>
                     <TextC
                       text={'No connections found'}
                       font={'Montserrat-Medium'}
@@ -2303,14 +2331,14 @@ console.log(res,"deletePostReshare")
             {canDeleteComment ? (
               <TextC
                 text={'Delete post'}
-                style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+                style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
               />
             ) : (
               <TextC
                 text={'Report post'}
-                style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+                style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
               />
@@ -2326,7 +2354,7 @@ console.log(res,"deletePostReshare")
             {canDeleteComment ? (
               <TouchableOpacity
                 onPress={OpenDeleteModal}
-                style={{flexDirection: 'row', paddingTop: ResponsiveSize(10)}}>
+                style={{ flexDirection: 'row', paddingTop: ResponsiveSize(10) }}>
                 <AntDesign
                   name="delete"
                   size={ResponsiveSize(20)}
@@ -2334,7 +2362,7 @@ console.log(res,"deletePostReshare")
                 />
                 <TextC
                   text={'Delete your Post'}
-                  style={{color: global.red, padding: ResponsiveSize(3),marginLeft:ResponsiveSize(3)}}
+                  style={{ color: global.red, padding: ResponsiveSize(3), marginLeft: ResponsiveSize(3) }}
                   font={'Montserrat-Medium'}
                   size={ResponsiveSize(12)}
                 />
@@ -2354,7 +2382,7 @@ console.log(res,"deletePostReshare")
                 />
                 <TextC
                   text={'Report this post for inappropriate content'}
-                  style={{color: global.red, padding: ResponsiveSize(3),marginLeft:ResponsiveSize(3)}}
+                  style={{ color: global.red, padding: ResponsiveSize(3), marginLeft: ResponsiveSize(3) }}
                   font={'Montserrat-Medium'}
                   size={ResponsiveSize(12)}
                 />
@@ -2384,7 +2412,7 @@ console.log(res,"deletePostReshare")
             }}>
             <TextC text={'Report'} font={'Montserrat-Bold'} />
           </View>
-          <View style={{paddingTop: ResponsiveSize(20)}}>
+          <View style={{ paddingTop: ResponsiveSize(20) }}>
             <TextInput
               onChangeText={e => setReportPostDescription(e)}
               placeholder="Enter some description about post"
@@ -2400,7 +2428,7 @@ console.log(res,"deletePostReshare")
               }}
             />
           </View>
-          <View style={{paddingTop: ResponsiveSize(20)}}>
+          <View style={{ paddingTop: ResponsiveSize(20) }}>
             <TouchableOpacity
               onPress={addReportPost}
               style={{
@@ -2418,7 +2446,7 @@ console.log(res,"deletePostReshare")
                   text={'Submit'}
                   font={'Montserrat-Bold'}
                   size={ResponsiveSize(11)}
-                  style={{color: global.white}}
+                  style={{ color: global.white }}
                 />
               )}
             </TouchableOpacity>
@@ -2486,7 +2514,7 @@ console.log(res,"deletePostReshare")
                   text={'Delete'}
                   font={'Montserrat-Bold'}
                   size={ResponsiveSize(11)}
-                  style={{color: global.white}}
+                  style={{ color: global.white }}
                 />
               )}
             </TouchableOpacity>
@@ -2504,7 +2532,7 @@ console.log(res,"deletePostReshare")
                 text={'Cancel'}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(11)}
-                style={{color: global.white}}
+                style={{ color: global.white }}
               />
             </TouchableOpacity>
           </View>
@@ -2514,7 +2542,7 @@ console.log(res,"deletePostReshare")
   );
 };
 
-function mapStateToProps({PostCreationReducer}) {
-  return {PostCreationReducer};
+function mapStateToProps({ PostCreationReducer }) {
+  return { PostCreationReducer };
 }
 export default connect(mapStateToProps, PostCreationAction)(PostReshare);
