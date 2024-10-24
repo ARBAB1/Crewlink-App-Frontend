@@ -26,7 +26,6 @@ export const getAllCountries = (body) => async (dispatch) => {
 }
 
 export const getAllStates = (body) => async () => {
-    console.log(body, 'body')
     const Token = await AsyncStorage.getItem('Token');
     try {
         const response = await fetch(`${baseUrl.baseUrl}/check-in/get-all-states/${body?.country}`, {
@@ -47,7 +46,6 @@ export const getAllStates = (body) => async () => {
 }
 
 export const getAllCities = (body) => async (dispatch) => {
-    console.log(body, 'body')
     const Token = await AsyncStorage.getItem('Token');
     try {
         const response = await fetch(`${baseUrl.baseUrl}/check-in/get-all-cities/${body?.state}`, {
@@ -59,7 +57,6 @@ export const getAllCities = (body) => async (dispatch) => {
             },
         });
         const res = await response.json()
-        console.log(res, 'res')
         return res?.data
     }
     catch (error) {

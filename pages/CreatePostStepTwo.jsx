@@ -250,7 +250,6 @@ const CreatePostTwo = ({
       setCanPost(
         res?.data?.last_checkin == 'No last check-in available' ? true : false,
       );
-      console.log(res?.data?.last_checkin)
     } catch (error) {
       console.log(error);
     }

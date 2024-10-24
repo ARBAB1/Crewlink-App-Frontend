@@ -130,7 +130,6 @@ const PostReshare = ({
       const res = await response.json();
       setCanDeleteComment(res?.data?.user_id == user_idIn ? true : false);
       setMyuser(res?.data);
-      // console.log(res?.data?.last_checkin)
     } catch (error) {
       console.log(error);
     }
@@ -141,7 +140,6 @@ const PostReshare = ({
   }, [commentList, isReportVisible]);
 
   const [getLatestConnection, setGetLatestConnection] = useState([]);
-  console.log(GetUserProfileReducer?.data?.isMute);
   const getAllConnectionsFunc = async () => {
     const Token = await AsyncStorage.getItem('Token');
     try {
@@ -1266,7 +1264,6 @@ const PostReshare = ({
 
   const ResharePost = async () => {
     setReshareLoader(true);
-    console.log('step1');
     const Token = await AsyncStorage.getItem('Token');
     const formData = new FormData();
     formData.append('caption', reShareCaption);
@@ -1314,7 +1311,6 @@ const PostReshare = ({
     }, 500); // A slight delay to ensure the first modal is fully closed
   };
 
-  console.log(description);
   const [reportedPostId, setReportedPostId] = useState();
   const addReportPost = async () => {
     setReportLoading(true);
@@ -1354,7 +1350,6 @@ const PostReshare = ({
     });
   };
   const addDeletePost = async () => {
-    console.log(postId, 'postId');
     setDeleteLoading(true);
     const Token = await AsyncStorage.getItem('Token');
     const response = await fetch(`${baseUrl.baseUrl}/posts/deletePost`, {
@@ -1369,7 +1364,6 @@ const PostReshare = ({
       }),
     });
     const res = await response?.json();
-    console.log(res, 'deletePostReshare');
     if (res?.statusCode) {
       setDeleteLoading(false);
 

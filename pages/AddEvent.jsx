@@ -265,7 +265,6 @@ const AddEvent = ({
           });
         }
         const Responce = await CreateEvent(formData);
-        console.log(Responce, 'Responce');
         if (Responce == true) {
           toast.show(
           'Event created successfully',

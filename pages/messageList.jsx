@@ -34,7 +34,6 @@ import * as UserProfile from '../store/actions/UserProfile/index';
 
 const MessageList = ({ GetProfileData }) => {
   const focus = useIsFocused();
-  console.log(focus,"focusfocusfocusfocusfocus")
   const scheme = useColorScheme();
   const windowWidth = Dimensions.get('window').width;
   const styles = StyleSheet.create({

@@ -168,11 +168,6 @@ const MessageMedia = ({ route }) => {
                 }
             });
 
-            console.log(response.fileUrl,'fileKaURL',{
-                "message": description,
-                "receiverUserId": route?.params?.receiverUserId,
-                "media_url": response.fileUrl
-            })
             socket.on('connect').emit('createDirectMessage', {
                 "message": description,
                 "receiverUserId": route?.params?.receiverUserId,
@@ -188,7 +183,6 @@ const MessageMedia = ({ route }) => {
             })
         }
         else {
-            console.log(uploadImage, 'error Response')
             alert("Failed to send message")
             setLoading(false)
             navigation.goBack()

@@ -170,7 +170,6 @@ export const getPendingConnections = ({ page }) => async (dispatch, getState) =>
         });
         if (response.ok === true) {
             const res = await response.json()
-            console.log(res, 'ahemd is Gay')
             if (res?.connectionRequests) {
                 dispatch({
                     type: TASK_GET_PENDINGCONNECTIONS_END,
@@ -279,7 +278,6 @@ export const CheckCustomConnections = () => async (dispatch, getState) => {
         });
         if (response.ok === true) {
             const res = await response.json()
-            console.log(res, '"Response');
             if (res) {
                 dispatch({
                     type: TASK_CHECK_CUSTOMCONNECTIONS_END,
@@ -336,7 +334,6 @@ export const AddCustomConnections = (body) => async () => {
     }
 }
 export const AddAccountPrivacy = (body) => async () => {
-    console.log(body, 'body')
     const Token = await AsyncStorage.getItem('Token');
     try {
         const response = await fetch(`${baseUrl.baseUrl}/privacy-setting/profile_privacy`, {
@@ -360,7 +357,6 @@ export const AddAccountPrivacy = (body) => async () => {
     }
 }
 export const AddCheckInPrivacy = (body) => async () => {
-    console.log(body, 'body')
     const Token = await AsyncStorage.getItem('Token');
     try {
         const response = await fetch(`${baseUrl.baseUrl}/privacy-setting/profile_privacy`, {
@@ -384,7 +380,6 @@ export const AddCheckInPrivacy = (body) => async () => {
     }
 }
 export const AddGroupPrivacy = (body) => async () => {
-    console.log(body, 'body')
     const Token = await AsyncStorage.getItem('Token');
     try {
         const response = await fetch(`${baseUrl.baseUrl}/privacy-setting/profile_privacy`, {
@@ -428,7 +423,6 @@ export const getAllPrivacy = () => async (dispatch, getState) => {
         });
         if (response.ok === true) {
             const res = await response.json()
-            console.log(res, '"Response');
             if (res?.statusCode == 200) {
                 dispatch({
                     type: TASK_GET_ALLPRIVACY_END,
@@ -485,7 +479,6 @@ export const getAllClosedConnections = () => async (dispatch, getState) => {
         });
         if (response.ok === true) {
             const res = await response.json()
-            console.log(res, '"Response');
             if (res?.data) {
                 dispatch({
                     type: TASK_GET_ALLCLOSEDCONNECTIONS_END,
@@ -525,7 +518,6 @@ export const getAllClosedConnections = () => async (dispatch, getState) => {
     }
 }
 export const DeleteCustomConnections = (body) => async () => {
-    console.log(body, 'body')
     const Token = await AsyncStorage.getItem('Token');
     try {
         const response = await fetch(`${baseUrl.baseUrl}/privacy-setting/remove-custom-users`, {
@@ -540,7 +532,6 @@ export const DeleteCustomConnections = (body) => async () => {
             })
         });
         if (response.ok === true) {
-            console.log(response, 'response')
             const res = await response.json()
             return res
         }

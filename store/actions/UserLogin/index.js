@@ -22,7 +22,6 @@ export const loginUser = (body) => async (dispatch) => {
             body: JSON.stringify(body)
         });
         const res = await response.json()
-        console.log(res)
         dispatch({
             type: TASK_LOGIN_END,
             token: res?.access_token,
@@ -35,7 +34,7 @@ export const loginUser = (body) => async (dispatch) => {
             type: TASK_LOGIN_END,
             loading: false,
         });
-        console.log(error,'ok error login')
+        console.log(error)
     }
 }
 

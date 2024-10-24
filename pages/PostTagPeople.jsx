@@ -90,7 +90,6 @@ const TagPeople = ({ PostCreationReducer, SearchConnection,ExludeConnection }) =
         ExludeConnection(r)
     }
 
-    // console.log(PostCreationReducer?.searchConnectionData,'Search results 21211')
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
             <StatusBar backgroundColor={'white'} barStyle={'dark-content'} />

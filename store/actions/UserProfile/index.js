@@ -22,7 +22,7 @@ export const GetProfileDataNoReload = () => async (dispatch) => {
             },
         });
         const res = await response.json()
-        console.log(res, 'rest')
+        (res, 'rest')
         dispatch({
             type: TASK_GET_PROFILE_DETAIL_END,
             payload: res?.data,
@@ -54,7 +54,6 @@ export const GetProfileData = () => async (dispatch) => {
             },
         });
         const res = await response.json()
-        console.log(res, 'rest')
         dispatch({
             type: TASK_GET_PROFILE_DETAIL_END,
             payload: res?.data,
@@ -140,7 +139,6 @@ export const GetUserPosts = ({ city, page }) => async (dispatch) => {
         });
         if (response.ok == true) {
             const res = await response.json()
-            console.log(res, "resPost")
             if (res.statusCode == 200 && 201) {
                 return { ...res, status: 'Post_Found' }
             }
@@ -208,7 +206,6 @@ export const getAllCountries = (body) => async (dispatch) => {
             },
         });
         const res = await response.json()
-        console.log(res, 'res')
         return res?.data
     }
     catch (error) {

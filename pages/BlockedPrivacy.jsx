@@ -217,7 +217,6 @@ const BlockedPrivacy = ({
 
 const LoadBlockedConnections = async () => {
   const response = await getAllBlockedConnections({ page });
-  console.log(response, 'responsess')
   setBlockedConnections(response);
 }
   const LoadPrivacy = async () => {
@@ -274,7 +273,6 @@ const LoadBlockedConnections = async () => {
             body: JSON.stringify({ blocked_id: user_id }),
         });
         const result = await response.json();
-        console.log(result, "BlockUser");
         if (result.statusCode === 201) {
           LoadBlockedConnections()
   // setBlocked(!blocked)

@@ -33,7 +33,6 @@ import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 
 
 const NewGroupSecondScreen = ({ route }) => {
-    console.log(route.params,"iop")
     const scheme = useColorScheme();
     const windowWidth = Dimensions.get('window').width;
     const styles = StyleSheet.create({

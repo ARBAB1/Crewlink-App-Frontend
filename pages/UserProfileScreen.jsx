@@ -312,7 +312,6 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       },
     );
     const result = await response.json();
-    console.log(result)
     if (result.statusCode === 200) {
       setAcceptLoader(false)
       setUserProfile((prev) => ({
@@ -342,7 +341,6 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       },
     );
     const result = await response.json();
-    console.log(result)
     if (result.statusCode === 200) {
       setConnectLoading(false)
       setUserProfile((prev) => ({
@@ -369,7 +367,6 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
       },
     );
     const result = await response.json();
-    console.log(result)
     if (result.statusCode === 200) {
       setConnectLoading(false)
       setUserProfile((prev) => ({
@@ -398,7 +395,6 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
     const result = await response.json();
     if (result.statusCode === 200) {
       setConnectLoading(false)
-      console.log(result)
       setUserProfile((prev) => ({
         ...prev,
         status: "Connect",
@@ -430,7 +426,6 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
     const result = await response.json();
     if (result.statusCode === 200) {
       setrejectUserLoading(false)
-      console.log(result)
       setUserProfile((prev) => ({
         ...prev,
         status: "Connect",
@@ -488,7 +483,6 @@ const UserProfileScreen = ({ GetUserProfileReducer, route, LoadUserProfile }) =>
 
   const addReportPost = async () => {
     setReportLoading(true)
-    console.log(user_id,reportPostDescription)
     const Token = await AsyncStorage.getItem('Token');
     const response = await fetch(`${baseUrl.baseUrl}/report/report-user`, {
       method: "POST",

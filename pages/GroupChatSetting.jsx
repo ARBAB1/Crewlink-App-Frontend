@@ -38,7 +38,6 @@ import {set} from 'react-hook-form';
 import * as UserProfile from '../store/actions/UserProfile/index';
 
 const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
-  console.log(route.params, 'iop');
   const group_id = route?.params?.group_id;
   const scheme = useColorScheme();
   const windowWidth = Dimensions.get('window').width;
@@ -241,7 +240,6 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
   const [selectedMember, setSelectedMember] = useState(null); // Store selected member
   const [isModalVisible, setIsModalVisible] = useState(false); // Control modal visibility
   const handleUpdateGroupName = async () => {
-    console.log(GroupName, 'GroupName');
     setEditVisible(!EditVisible);
     const Token = await AsyncStorage.getItem('Token');
     const socket = io(`${baseUrl}/chat`, {
@@ -261,13 +259,11 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
         group_id: group_id,
       })
       .on('getGroupMemberDetails', data => {
-        console.log(data, 'data');
         setGroupDetail(data?.groupDetails);
         setGroupMember(data?.groupMembers);
       });
   };
   const handleUpdateGroup = async imageUri => {
-    console.log(imageUri, 'imageUri');
     const Token = await AsyncStorage.getItem('Token');
     const socket = io(`${baseUrl}/chat`, {
       transports: ['websocket'],
@@ -287,7 +283,6 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
         group_id: group_id,
       })
       .on('getGroupMemberDetails', data => {
-        console.log(data, 'data');
         setGroupDetail(data?.groupDetails);
         setGroupMember(data?.groupMembers);
       });
@@ -311,7 +306,6 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
         group_id: group_id,
       })
       .on('getGroupMemberDetails', data => {
-        console.log(data, 'data');
         setGroupDetail(data?.groupDetails);
         setGroupMember(data?.groupMembers);
         closeModal();
@@ -336,7 +330,6 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
         group_id: group_id,
       })
       .on('getGroupMemberDetails', data => {
-        console.log(data, 'data');
         setGroupDetail(data?.groupDetails);
         setGroupMember(data?.groupMembers);
         closeModal();
@@ -415,7 +408,6 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
           // navigation.navigate('Message')
         });
 
-      // console.log(groupMemberId, 'groupMemberId', "more than one admin");
     } else {
       return Alert.alert(
         'Alert',
@@ -432,8 +424,6 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
     setIsModalVisible(false); // Hide modal
   };
   const GroupDetails = async group_id => {
-    console.log(group_id, 'grouid');
-
     const Token = await AsyncStorage.getItem('Token');
     const socket = io(`${baseUrl}/chat`, {
       transports: ['websocket'],
@@ -449,12 +439,10 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
         group_id: group_id,
       })
       .on('getGroupMemberDetails', data => {
-        console.log(data, 'data');
         setGroupDetail(data?.groupDetails);
         setGroupMember(data?.groupMembers);
       });
   };
-  console.log(GetUserProfileReducer?.data, 'GetUserProfileReducer');
   useEffect(() => {
     const group_id = route?.params?.group_id;
 
@@ -527,7 +515,6 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
   filterAdmin =
     GroupMember &&
     GroupMember?.filter(x => {
-      console.log(x.user_id);
       return x.user_id === GetUserProfileReducer.data.user_id;
     });
 
@@ -535,10 +522,8 @@ const GroupChatSetting = ({route, GetUserProfileReducer, GetProfileData}) => {
   filterCheckAdminList =
     GroupMember &&
     GroupMember?.filter(x => {
-      console.log(x.user_id);
       return x.isAdmin === true;
     });
-  console.log(filterCheckAdminList, 'filterCheckAdminList');
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -812,7 +797,6 @@ filterAdmin[0]?.isAdmin === true ? (
         </View>
       </ScrollView>
       {/* Modal for Member Options */}
-      {console.log(selectedMember, 'selectedMember')}
       <Modal
         transparent={true}
         visible={isModalVisible}

@@ -120,7 +120,6 @@ const ChangeAirline = ({ getAllAirline, ChangeAirline }) => {
                 type: 'image/jpeg',
             });
             const Responce = await ChangeAirline(formData)
-            console.log(Responce, 'res')
             if (Responce.statusCode == 200) {
                 // showToast({
                 //     message: "Successfully applied for airline change",
@@ -274,7 +273,6 @@ const ChangeAirline = ({ getAllAirline, ChangeAirline }) => {
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <TextC text={(value && new Date(value).toDateString()) || "Expiry Date"} style={{ color: global.placeholderColor, marginLeft: ResponsiveSize(10), width: ResponsiveSize(200) }} size={ResponsiveSize(11)} font={"Montserrat-Regular"} ellipsizeMode={"tail"} numberOfLines={1} />
                                     </View>
-                                    {console.log(value ,"value")}
                                 </TouchableOpacity>
                                 <DatePicker
                                     modal

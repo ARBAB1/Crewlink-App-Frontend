@@ -163,7 +163,7 @@ export const LikeFunc = (body) => async () => {
         const res = await response?.json();
     }
     catch (error) {
-        console.log(error.message, "oken")
+        console.log(error.message)
         return "Internal Server Error"
     }
 }
@@ -183,12 +183,11 @@ export const DisLikeFunc = (body) => async () => {
         const res = await response?.json();
     }
     catch (error) {
-        console.log(error.message, "oken")
+        console.log(error.message)
         return "Internal Server Error"
     }
 }
 export const LoadComments = (body) => async () => {
-    console.log(body, 'bodyCommentBody')
     const Token = await AsyncStorage.getItem('Token');
     try {
         const response = await fetch(`${baseUrl.baseUrl}/posts/get-posts-comment/${body?.post_id}/${body?.page}/${body?.limit}`, {
@@ -201,7 +200,6 @@ export const LoadComments = (body) => async () => {
         });
         if (response.ok) {
             const res = await response.json()
-            // console.log(res,body,baseUrl.baseUrl,'comment responce')
             return res;
         }
         else {
@@ -214,7 +212,6 @@ export const LoadComments = (body) => async () => {
 }
 export const LoadReplies = (body) => async () => {
     const Token = await AsyncStorage.getItem('Token');
-    console.log(body)
     try {
         const response = await fetch(`${baseUrl.baseUrl}/posts/get-comment-replies/${body?.comment_id}/${body?.page}/${body?.limit}`, {
             method: "GET",
@@ -275,11 +272,10 @@ export const LikeCommentFunc = (body) => async () => {
 
         });
         const res = await response?.json();
-        console.log(res, 'like comment')
         return res
     }
     catch (error) {
-        console.log(error.message, "oken")
+        console.log(error.message)
         return "Internal Server Error"
     }
 }
@@ -297,10 +293,9 @@ export const DisLikeCommentFunc = (body) => async () => {
 
         });
         const res = await response?.json();
-        console.log(res, 'unlike comment')
     }
     catch (error) {
-        console.log(error.message, "oken")
+        console.log(error.message)
         return "Internal Server Error"
     }
 }

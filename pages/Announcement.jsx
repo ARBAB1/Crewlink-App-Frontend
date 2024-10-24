@@ -405,7 +405,6 @@ const Announcement = ({GetUserProfileReducer}) => {
   //       setPage(page + 1)
   //       setLoadMoreLoader(false)
   //   }
-  //     console.log(result?.announcements[0], "userDetails211211k");
   //   } catch (error) {
   //     console.error("Failed to fetch user details:", error);
   //   }

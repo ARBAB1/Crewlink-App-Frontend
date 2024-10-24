@@ -176,7 +176,6 @@ const HomeScreen = ({
   const toast = useToast();
 
   const handleCitySelect = city => {
-    console.log(city, 'city');
     setSelectedCity(city);
   };
   const getFeeds = async () => {

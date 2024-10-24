@@ -85,7 +85,6 @@ const InappCheckin = ({
         setAllCityData(loadAllCityDetail);
     };
     const onSubmit = async () => {
-        console.log('okokokokokok')
         if (currentCountry && currentState && currentCity && layoverTime) {
             const checkInLoad = await CheckInInApp({
                 country: currentCountry,

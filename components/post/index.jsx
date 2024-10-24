@@ -142,7 +142,7 @@ const Post = ({
         setGetLatestConnection(res?.data?.connections);
       }
     } catch (error) {
-      console.log(error, 'aq');
+      console.log(error);
     }
   };
 
@@ -189,8 +189,6 @@ const Post = ({
       page: 1,
       limit: 10,
     });
-    console.log(result, 'resultComment');
-
     if (result?.comments) {
       setCommentList(result?.comments);
       setCommentLoading(false);
@@ -211,7 +209,6 @@ const Post = ({
       page: commentPage,
       limit: 10,
     });
-    console.log(result, 'resultComment');
     if (result?.comments) {
       setCommentList(prev => [...prev, ...result?.comments]);
       if (result.comments.length < 10) {
@@ -1296,7 +1293,6 @@ const Post = ({
     setIsShareModal(false);
   };
   const sendMessage = async (message_Props, user_Id) => {
-    console.log(message_Props, user_Id);
     setMsgReshareLoader({user_Id: user_Id, value: true});
     const Token = await AsyncStorage.getItem('Token');
 

@@ -1241,7 +1241,6 @@ const GroupMessage = ({route}) => {
         },
       );
       const dataRe = await response.json();
-      console.log(dataRe,'holllllllllla')
       if (dataRe?.message.length >= 25) {
         setRecentChats(prevMessages => [...dataRe?.message, ...prevMessages]);
         setPage(page + 1);

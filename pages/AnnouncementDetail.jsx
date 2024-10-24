@@ -316,7 +316,6 @@ const AnnouncementDetail = ({ route ,GetUserProfileReducer}) => {
       });
       const result = await response.json();
       if (result.statusCode === 200) {
-        console.log(result.announcement, "userDetails");
         setAnnouncementDetails(result.announcement);
       }
     } catch (error) {

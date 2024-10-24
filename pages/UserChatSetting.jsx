@@ -269,7 +269,6 @@ const UserChatSetting = ({ route }) => {
             });
             const result = await response.json();
             if (result.statusCode === 200) {
-                console.log(result.data, "userDetails");
                 setUserDetails(result.data);
                 if (result.data?.blocked_by_me === "true") {
                     setBlocked(true)
@@ -373,7 +372,6 @@ const UserChatSetting = ({ route }) => {
 
         });
         const res = await response?.json();
-        console.log(res);
         if (res?.statusCode == 200) {
             toast.show("User report submitted successfully.")
             setReportLoading(false)
@@ -433,7 +431,6 @@ const UserChatSetting = ({ route }) => {
     }
 
 
-    console.log(storedId, route?.params?.user_id)
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <StatusBar

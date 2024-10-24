@@ -365,19 +365,6 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
   const SearchUsersDirect = async (e) => {
     setLoading(true);
     const Token = await AsyncStorage.getItem('Token');
-    console.log({
-      airline_ids: [],
-      check_in_cities: [],
-      user_types: [],
-      time_left: [],
-      countries: [],
-      states: [],
-      states: state,
-      user_search: e,
-      post_search: e,
-      is_user_search: true,
-      is_post_search: true
-    })
     const response = await fetch(
       `${baseUrl.baseUrl}/users/get-all-users-filter`,
       {
@@ -403,7 +390,6 @@ const SearchUser = ({ getAllAirline, getAllCountries, getAllStates, getAllCities
       },
     );
     const result = await response.json();
-    console.log(result, 'result')
     setSearchedUser(result?.users);
     setSearchedPost(result?.posts);
     setLoading(false);

@@ -900,7 +900,6 @@ const Message = ({ route }) => {
             timeout: 60000,
         })
             .then(location => {
-                console.log(location, 'lllocataiojn');
                 sendLocation({ longi: location?.longitude, leti: location?.latitude })
             })
             .catch(error => {

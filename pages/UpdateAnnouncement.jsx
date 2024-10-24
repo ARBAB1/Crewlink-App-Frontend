@@ -121,7 +121,6 @@ const UpdateAnnouncement = ({ route }) => {
         }
         else {
             if (ShareText !== "") {
-                console.log(route.params?.announcement_id,ShareText,'update KAr')
                 setLoading(true)
                 const Token = await AsyncStorage.getItem('Token');
                 const socket = io(`${baseUrl}/chat`, {

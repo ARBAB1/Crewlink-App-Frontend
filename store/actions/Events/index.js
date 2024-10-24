@@ -145,7 +145,7 @@ export const getJoinedEvents = ({ page, refreash }) => async (dispatch, getState
             type: TASK_GET_JOINED_EVENTS_END,
             loading: false,
         });
-        console.log(error, 'lol')
+        console.log(error)
     }
 }
 
@@ -299,7 +299,6 @@ export const CreateEvent = (FormData) => async (dispatch, getState) => {
             body: FormData
         });
         const res = await response.json()
-        console.log(res, 'res')
         if (res.statusCode == 201) {
             dispatch({
                 type: TASK_CREATE_EVENT_END,

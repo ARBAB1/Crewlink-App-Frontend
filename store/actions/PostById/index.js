@@ -7,7 +7,6 @@ import {
 } from '../types';
 
 export const getPostDetail = ({ post_id }) => async (dispatch) => {
-    console.log(post_id, 'post_id')
     const Token = await AsyncStorage.getItem('Token');
     try {
         // Dispatch the start action to indicate the loading state

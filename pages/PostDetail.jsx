@@ -9,7 +9,6 @@ import { connect } from 'react-redux';
 import Post from "../components/post";
 
 const PostDetail = ({ route, getPostDetail }) => {
-    console.log(route?.params, 'route')
     let params
     let type
     if (!route?.params?.content_id) {
@@ -26,7 +25,6 @@ const PostDetail = ({ route, getPostDetail }) => {
     const windowWidth = Dimensions.get('window').width;
     const [post, setPost] = useState([]);
     const [loading, setLoading] = useState(false);
-console.log(post, 'post112')
     const styles = StyleSheet.create({
         wrapper: {
             flexDirection: 'row',
@@ -62,7 +60,6 @@ console.log(post, 'post112')
         const result = await getPostDetail({
             post_id: params
         })
-        console.log(result, 'result')
         setPost([result?.data])
 
         setLoading(false)

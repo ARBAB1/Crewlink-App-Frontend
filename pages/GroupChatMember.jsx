@@ -131,7 +131,6 @@ const GroupChatMember = ({ getAllConnections,route, AllConnectionsReducer }) => 
         }
     });
     const addGroupMember=async()=>{
-        console.log(membersList,route?.params?.groupId, 'mem')
         const Token = await AsyncStorage.getItem('Token');
         const socket = io(`${baseUrl}/chat`, {
           transports: ['websocket'],
@@ -182,8 +181,6 @@ const GroupChatMember = ({ getAllConnections,route, AllConnectionsReducer }) => 
            const GroupMember = data?.groupMembers
             const loadAllEvent = await getAllConnections({ page: 1 });
             const filteredEvents = GroupMember && loadAllEvent && loadAllEvent.filter(event =>  !GroupMember.some(member => member.user_id == event.user_id));
-    
-            console.log(filteredEvents, 'filteredEvents');
             setRecentChats(filteredEvents);
             setLoader(false);
           });
