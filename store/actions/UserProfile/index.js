@@ -22,7 +22,6 @@ export const GetProfileDataNoReload = () => async (dispatch) => {
             },
         });
         const res = await response.json()
-        (res, 'rest')
         dispatch({
             type: TASK_GET_PROFILE_DETAIL_END,
             payload: res?.data,

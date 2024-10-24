@@ -17,17 +17,10 @@ import baseUrl from '../../config.json'
 
 
 export const SearchConnection = (body) => async (dispatch) => {
+    console.log(body,'searchBody')
     const Token = await AsyncStorage.getItem('Token');
     try {
-        dispatch({
-            type: TASK_GET_CONNECTION_SEARCH_END,
-        });
-        dispatch({
-            type: TASK_GET_CONNECTION_SEARCH_START,
-            searchConnectionLoading: true,
-            searchConnectionError: false
-        });
-        const response = await fetch(`${baseUrl.baseUrl}/connect/get-my-connections?search=${body}`, {
+        const response = await fetch(`${baseUrl.baseUrl}/connect/get-my-connections-list/${body?.page}/25`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -38,26 +31,10 @@ export const SearchConnection = (body) => async (dispatch) => {
         });
         if (response.ok) {
             const res = await response.json()
-            dispatch({
-                type: TASK_GET_CONNECTION_SEARCH_END,
-                searchConnectionLoading: false,
-            });
-            return res?.connections;
-        }
-        else {
-            dispatch({
-                type: TASK_GET_CONNECTION_SEARCH_ERROR,
-                searchConnectionLoading: false,
-                searchConnectionError: true
-            });
+            return res?.data?.connections;
         }
     }
     catch (error) {
-        dispatch({
-            type: TASK_GET_CONNECTION_SEARCH_ERROR,
-            searchConnectionLoading: false,
-            searchConnectionError: true
-        });
         console.log(error)
     }
 }
@@ -223,7 +200,7 @@ export const LoadReplies = (body) => async () => {
         });
         if (response.ok) {
             const res = await response.json()
-            
+
             return res;
         }
         else {
@@ -322,10 +299,7 @@ export const DeletComments = (body) => async () => {
         return "Internal Server Error"
     }
 }
-
-
-
-export const getAllConnections = async () => {
+export const getAllConnections = (body) => async () => {
     const Token = await AsyncStorage.getItem('Token');
     try {
         const response = await fetch(`${baseUrl.baseUrl}/connect/get-my-connections-list/1/10`, {
@@ -338,9 +312,7 @@ export const getAllConnections = async () => {
         });
         if (response.ok === true) {
             const res = await response.json()
-            if (res?.data) {
-                return res?.data?.connections
-            }
+            return res?.data?.connections
         }
     }
     catch (error) {

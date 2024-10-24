@@ -1,7 +1,7 @@
 import ReadMore from '@fawazahmed/react-native-read-more';
 import TimeAgo from '@manu_omg/react-native-timeago';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -25,20 +25,20 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Feather from 'react-native-vector-icons/Feather';
 import Video from 'react-native-video';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import CommnetLight from '../../assets/icons/Comment.png';
 import ShareLight from '../../assets/icons/Share.png';
 import * as PostCreationAction from '../../store/actions/PostCreation/index';
-import {ResponsiveSize, global, notificationTypes} from '../constant';
+import { ResponsiveSize, global, notificationTypes } from '../constant';
 import TextC from '../text/text';
 import Comments from './comment';
 import Reply from './Reply';
 import FastImage from 'react-native-fast-image';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import baseUrl from '../../store/config.json';
 import io from 'socket.io-client';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {useToast} from 'react-native-toast-notifications';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { useToast } from 'react-native-toast-notifications';
 import SoundPlayer from 'react-native-sound-player';
 
 const Post = ({
@@ -70,6 +70,7 @@ const Post = ({
   GetUserProfileReducer,
   user_idIn,
   getNewPost,
+  taggedPeople
 }) => {
   const navigation = useNavigation();
   const windowWidth = Dimensions.get('window').width;
@@ -105,6 +106,7 @@ const Post = ({
   const [deleteLoader, setDeleteLoader] = useState(false);
   const [likeLoader, setLikeLoader] = useState(false);
   const [isShareModal, setIsShareModal] = useState(false);
+  const [isLikeModal, setIsLikeModal] = useState(false);
 
   const toast = useToast();
   const [isReportVisible, setIsReportVisible] = useState(false);
@@ -228,7 +230,7 @@ const Post = ({
       }
       setLike(true);
       setLikeCountPre(prev => prev + 1);
-      await LikeFunc({post_id: postId});
+      await LikeFunc({ post_id: postId });
     } catch (error) {
       console.error('Error liking the post:', error);
     }
@@ -240,7 +242,7 @@ const Post = ({
     try {
       setLike(false);
       setLikeCountPre(prev => prev - 1);
-      await DisLikeFunc({post_id: postId});
+      await DisLikeFunc({ post_id: postId });
     } catch (error) {
       console.error('Error disliking the post:', error);
     }
@@ -1076,6 +1078,19 @@ const Post = ({
       overflow: 'hidden',
       zIndex: 999,
     },
+    modalTopLayerLike: {
+      height: windowHeight * 0.4,
+      paddingBottom: ResponsiveSize(20),
+      width: windowWidth,
+      paddingTop: 10,
+      position: 'absolute',
+      backgroundColor: 'white',
+      bottom: ResponsiveSize(0),
+      borderTopLeftRadius: ResponsiveSize(15),
+      borderTopRightRadius: ResponsiveSize(15),
+      overflow: 'hidden',
+      zIndex: 999,
+    },
     modalTopLayerReport: {
       paddingBottom: ResponsiveSize(20),
       width: windowWidth,
@@ -1131,7 +1146,7 @@ const Post = ({
       paddingHorizontal: ResponsiveSize(15),
       elevation: 5,
       shadowColor: 'black',
-      shadowOffset: {width: -2, height: 4},
+      shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
       flexDirection: 'row',
@@ -1293,7 +1308,7 @@ const Post = ({
     setIsShareModal(false);
   };
   const sendMessage = async (message_Props, user_Id) => {
-    setMsgReshareLoader({user_Id: user_Id, value: true});
+    setMsgReshareLoader({ user_Id: user_Id, value: true });
     const Token = await AsyncStorage.getItem('Token');
 
     const socket = io(`${baseUrl.baseUrl}/chat`, {
@@ -1310,7 +1325,7 @@ const Post = ({
     });
 
     setTimeout(() => {
-      setMsgReshareLoader({user_Id: user_Id, value: false});
+      setMsgReshareLoader({ user_Id: user_Id, value: false });
     }, 2000);
   };
 
@@ -1380,9 +1395,32 @@ const Post = ({
       }, 1000);
     }
   };
-
   const [currentIndex, setCurrentIndex] = useState(1);
   const [totolIndex, setTotolIndex] = useState(0);
+
+  const [likesData, setLikesData] = useState([]);
+  const [loadLikes, setLoadLikes] = useState(false);
+
+  const LoadLikes = async () => {
+    setLoadLikes(true);
+    setIsLikeModal(true)
+    const Token = await AsyncStorage.getItem('Token');
+    const response = await fetch(`${baseUrl.baseUrl}/posts/get-post-details-with-likes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': baseUrl.apiKey,
+        accesstoken: `Bearer ${Token}`,
+      },
+      body: JSON.stringify({
+        post_id: postId,
+      }),
+    });
+    const res = await response?.json();
+    setLikesData(res?.data?.likedUsers)
+    setLoadLikes(false);
+  }
+
   return (
     <>
       {reportedPostId == postId ? (
@@ -1394,111 +1432,121 @@ const Post = ({
           />
         </View>
       ) : (
-        <>
-          <View style={{borderBottomWidth:ResponsiveSize(1),borderBottomColor:"#EEEEEE"}}>
-            <View style={style.PostHeader}>
-              <View style={{flexDirection: 'row'}}>
+        <View style={{ borderBottomWidth: ResponsiveSize(1), borderBottomColor: "#EEEEEE" }}>
+          <View style={style.PostHeader}>
+            <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('UserProfileScreen', {
+                    user_id: user_idIn,
+                  })
+                }>
+                <FastImage
+                  source={
+                    profileImage == ''
+                      ? require('../../assets/icons/avatar.png')
+                      : { uri: profileImage, priority: FastImage.priority.high }
+                  }
+                  style={style.PostProfileImage}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+              <View style={style.PostProfileImageBox}>
                 <TouchableOpacity
                   onPress={() =>
                     navigation.navigate('UserProfileScreen', {
                       user_id: user_idIn,
                     })
                   }>
-                  <FastImage
-                    source={
-                      profileImage == ''
-                        ? require('../../assets/icons/avatar.png')
-                        : {uri: profileImage, priority: FastImage.priority.high}
-                    }
-                    style={style.PostProfileImage}
-                    resizeMode="cover"
+                  <TextC
+                    size={ResponsiveSize(12)}
+                    text={userName}
+                    font={'Montserrat-Bold'}
                   />
                 </TouchableOpacity>
-                <View style={style.PostProfileImageBox}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('UserProfileScreen', {
-                        user_id: user_idIn,
-                      })
-                    }>
-                    <TextC
-                      size={ResponsiveSize(12)}
-                      text={userName}
-                      font={'Montserrat-Bold'}
-                    />
-                  </TouchableOpacity>
-                  <TimeAgo
-                    style={{
-                      fontFamily: 'Montserrat-Medium',
-                      fontSize: ResponsiveSize(8),
-                      color: global.description,
-                    }}
-                    time={timeAgo}
-                  />
-                </View>
-              </View>
-              <View>
-                <TouchableOpacity onPress={() => setIsReportVisible(true)}>
-                  <Entypo
-                    color={global.primaryColor}
-                    size={ResponsiveSize(17)}
-                    name="dots-three-vertical"
-                  />
-                </TouchableOpacity>
+                <TimeAgo
+                  style={{
+                    fontFamily: 'Montserrat-Medium',
+                    fontSize: ResponsiveSize(8),
+                    color: global.description,
+                  }}
+                  time={timeAgo}
+                />
               </View>
             </View>
-            {content?.length > 0 ? (
-              <>
-                {content?.length > 1 ? (
-                  <View style={{position: 'relative'}}>
-                    <Carousel
-                      loop={false}
-                      width={windowWidth}
-                      height={windowHeight * 0.4}
-                      autoPlay={false}
-                      data={content}
-                      scrollAnimationDuration={1000}
-                      onSnapToItem={index => setCurrentIndex(index + 1)}
-                      style={{position: 'relative'}}
-                      renderItem={({item, index}) => {
-                        setTotolIndex(index + 1);
-                        return (
-                          <>
-                            {item?.attachment_url.endsWith('.mp4') ? (
-                              <View
-                                style={{
-                                  height: windowHeight * 0.4,
-                                  width: windowWidth,
-                                  backgroundColor: 'red',
-                                  backgroundColor: global.description,
-                                }}>
-                                <Pressable
-                                  onPress={() => setPause(!paused)}
-                                  style={{position: 'relative'}}>
-                                  <Video
-                                    repeat={true}
-                                    source={{
-                                      uri: item?.attachment_thumbnail_url,
-                                    }}
-                                    ref={videoRef}
-                                    paused={paused}
-                                    style={{
-                                      height: windowHeight * 0.4,
-                                      width: windowWidth,
-                                    }}
-                                  />
-                                  {paused && (
-                                    <View style={style.playPaused}>
-                                      <Entypo
-                                        size={ResponsiveSize(50)}
-                                        name="controller-play"
-                                        color={'white'}
-                                      />
-                                    </View>
-                                  )}
-                                </Pressable>
-                              </View>
-                            ) : (
+            <View>
+              <TouchableOpacity onPress={() => setIsReportVisible(true)}>
+                <Entypo
+                  color={global.primaryColor}
+                  size={ResponsiveSize(17)}
+                  name="dots-three-vertical"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          {content?.length > 0 ? (
+            <>
+              {content?.length > 1 ? (
+                <View style={{ position: 'relative' }}>
+                  <Carousel
+                    loop={false}
+                    width={windowWidth}
+                    height={windowHeight * 0.4}
+                    autoPlay={false}
+                    data={content}
+                    scrollAnimationDuration={1000}
+                    onSnapToItem={index => setCurrentIndex(index + 1)}
+                    style={{ position: 'relative' }}
+                    renderItem={({ item, index }) => {
+                      setTotolIndex(index + 1);
+                      return (
+                        <>
+                          {item?.attachment_url.endsWith('.mp4') ? (
+                            <Pressable
+                              style={{
+                                height: windowHeight * 0.4,
+                                width: windowWidth,
+                                backgroundColor: 'red',
+                                backgroundColor: global.description,
+                              }}
+                              onPress={() => {
+                                navigation.navigate('PostDetail', {
+                                  content_id: postId,
+                                })
+                              }}>
+                              <Pressable
+                                onPress={() => setPause(!paused)}
+                                style={{ position: 'relative' }}>
+                                <Video
+                                  repeat={true}
+                                  source={{
+                                    uri: item?.attachment_thumbnail_url,
+                                  }}
+                                  ref={videoRef}
+                                  paused={paused}
+                                  style={{
+                                    height: windowHeight * 0.4,
+                                    width: windowWidth,
+                                  }}
+                                />
+                                {paused && (
+                                  <View style={style.playPaused}>
+                                    <Entypo
+                                      size={ResponsiveSize(50)}
+                                      name="controller-play"
+                                      color={'white'}
+                                    />
+                                  </View>
+                                )}
+                              </Pressable>
+                            </Pressable>
+                          ) : (
+                            <Pressable
+                              onPress={() => {
+                                navigation.navigate('PostDetail', {
+                                  content_id: postId,
+                                })
+                              }}>
                               <FastImage
                                 source={{
                                   uri: item?.attachment_thumbnail_url,
@@ -1507,158 +1555,210 @@ const Post = ({
                                 resizeMode="cover"
                                 style={style.ActuallPost}
                               />
-                            )}
-                          </>
-                        );
-                      }}
-                    />
-                    <View
-                      style={{
-                        position: 'absolute',
-                        height: ResponsiveSize(25),
-                        width: ResponsiveSize(50),
-                        backgroundColor: global.placeholderColor,
-                        borderRadius: ResponsiveSize(40),
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        top: ResponsiveSize(15),
-                        right: ResponsiveSize(15),
-                      }}>
-                      <TextC
-                        text={currentIndex}
-                        style={{color: global.white}}
-                        font={'Montserrat-Bold'}
-                      />
-                      <TextC
-                        text={'/'}
-                        style={{
-                          color: global.white,
-                          marginHorizontal: ResponsiveSize(1),
-                        }}
-                        font={'Montserrat-Bold'}
-                      />
-                      <TextC
-                        text={totolIndex}
-                        style={{color: global.white}}
-                        font={'Montserrat-Bold'}
-                      />
-                    </View>
-                  </View>
-                ) : (
-                  <>
-                    {content[0]?.attachment_url.endsWith('.mp4') ? (
-                      <View
-                        style={{
-                          height: Winheight,
-                          width: windowWidth,
-                          backgroundColor: 'red',
-                        }}>
-                        <Video
-                          onLoad={handleSetHeight}
-                          repeat={true}
-                          source={{
-                            uri: content[0]?.attachment_thumbnail_url,
-                          }}
-                          ref={videoRef}
-                          paused={false}
-                          style={{height: Winheight, width: windowWidth}}
-                        />
-                      </View>
-                    ) : (
-                      <View style={{position: 'relative'}}>
-                        <FastImage
-                          source={{
-                            uri: content[0]?.attachment_thumbnail_url,
-                            priority: FastImage.priority.high,
-                          }}
-                          resizeMode="cover"
-                          style={style.ActuallPost}
-                        />
-                      </View>
-                    )}
-                  </>
-                )}
-              </>
-            ) : (
-              <View
-                style={{
-                  paddingVertical: ResponsiveSize(5),
-                  paddingHorizontal: ResponsiveSize(15),
-                }}>
-                <TextC
-                  size={ResponsiveSize(13)}
-                  text={description}
-                  font={'Montserrat-SemiBold'}
-                  style={{
-                    color: global.placeholderColor,
-                    width: windowWidth - ResponsiveSize(30),
-                  }}
-                />
-              </View>
-            )}
-
-            <View style={style.postActionSection}>
-              <Pressable
-                onPress={liked ? handleDislike : handleLike}
-                style={style.PostIcons1}>
-                <AntDesign
-                  name={liked ? 'heart' : 'hearto'}
-                  color={liked ? global.red : global.primaryColor}
-                  size={ResponsiveSize(22)}
-                />
-              </Pressable>
-              {allow_comments_flag == 'Y' && (
-                <Pressable
-                  onPress={() => toggleModal()}
-                  style={style.PostIcons}>
-                  <Image
-                    source={CommnetLight}
-                    style={{
-                      height: ResponsiveSize(20),
-                      width: ResponsiveSize(20),
+                            </Pressable>
+                          )}
+                        </>
+                      );
                     }}
                   />
-                </Pressable>
+                  <View
+                    style={{
+                      position: 'absolute',
+                      height: ResponsiveSize(25),
+                      width: ResponsiveSize(50),
+                      backgroundColor: global.placeholderColor,
+                      borderRadius: ResponsiveSize(40),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      top: ResponsiveSize(15),
+                      right: ResponsiveSize(15),
+                    }}>
+                    <TextC
+                      text={currentIndex}
+                      style={{ color: global.white }}
+                      font={'Montserrat-Bold'}
+                    />
+                    <TextC
+                      text={'/'}
+                      style={{
+                        color: global.white,
+                        marginHorizontal: ResponsiveSize(1),
+                      }}
+                      font={'Montserrat-Bold'}
+                    />
+                    <TextC
+                      text={totolIndex}
+                      style={{ color: global.white }}
+                      font={'Montserrat-Bold'}
+                    />
+                  </View>
+                </View>
+              ) : (
+                <>
+                  {content[0]?.attachment_url.endsWith('.mp4') ? (
+                    <Pressable
+                      style={{
+                        height: Winheight,
+                        width: windowWidth,
+                        backgroundColor: 'red',
+                      }}
+                      onPress={() => {
+                        navigation.navigate('PostDetail', {
+                          content_id: postId,
+                        })
+                      }}>
+                      <Video
+                        onLoad={handleSetHeight}
+                        repeat={true}
+                        source={{
+                          uri: content[0]?.attachment_thumbnail_url,
+                        }}
+                        ref={videoRef}
+                        paused={false}
+                        style={{ height: Winheight, width: windowWidth }}
+                      />
+                    </Pressable>
+                  ) : (
+                    <Pressable
+                      style={{ position: 'relative' }}
+                      onPress={() => {
+                        navigation.navigate('PostDetail', {
+                          content_id: postId,
+                        })
+                      }}>
+                      <FastImage
+                        source={{
+                          uri: content[0]?.attachment_thumbnail_url,
+                          priority: FastImage.priority.high,
+                        }}
+                        resizeMode="cover"
+                        style={style.ActuallPost}
+                      />
+                    </Pressable>
+                  )}
+                </>
               )}
-              <Pressable onPress={() => toggleShare()} style={style.PostIcons}>
+            </>
+          ) : (
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('PostDetail', {
+                  content_id: postId,
+                })
+              }}
+              style={{
+                paddingVertical: ResponsiveSize(5),
+                paddingHorizontal: ResponsiveSize(15),
+              }}>
+              <TextC
+                size={ResponsiveSize(13)}
+                text={description}
+                font={'Montserrat-SemiBold'}
+                style={{
+                  color: global.placeholderColor,
+                  width: windowWidth - ResponsiveSize(30),
+                }}
+              />
+            </TouchableOpacity>
+          )}
+
+          <View style={style.postActionSection}>
+            <Pressable
+              onPress={liked ? handleDislike : handleLike}
+              style={style.PostIcons1}>
+              <AntDesign
+                name={liked ? 'heart' : 'hearto'}
+                color={liked ? global.red : global.primaryColor}
+                size={ResponsiveSize(22)}
+              />
+            </Pressable>
+            {allow_comments_flag == 'Y' && (
+              <Pressable
+                onPress={() => toggleModal()}
+                style={style.PostIcons}>
                 <Image
-                  source={ShareLight}
+                  source={CommnetLight}
                   style={{
                     height: ResponsiveSize(20),
                     width: ResponsiveSize(20),
-                    marginTop: 1,
                   }}
                 />
               </Pressable>
-            </View>
-            <View style={style.PostDetail}>
-              {likes_show_flag == 'Y' && (
+            )}
+            <Pressable onPress={() => toggleShare()} style={style.PostIcons}>
+              <Image
+                source={ShareLight}
+                style={{
+                  height: ResponsiveSize(20),
+                  width: ResponsiveSize(20),
+                  marginTop: 1,
+                }}
+              />
+            </Pressable>
+          </View>
+          <View style={style.PostDetail}>
+            {likes_show_flag == 'Y' && (
+              <TouchableOpacity onPress={() => LoadLikes()}>
                 <TextC
-                  size={ResponsiveSize(10)}
+                  size={ResponsiveSize(11)}
                   text={`${likeCountPre} likes`}
                   font={'Montserrat-Medium'}
+                  style={{ marginBottom: ResponsiveSize(5) }}
                 />
-              )}
-              {allow_comments_flag == 'Y' ? (
-                <></>
-              ) : (
-                <TouchableOpacity style={{paddingTop: ResponsiveSize(3)}}>
+              </TouchableOpacity>
+            )}
+            {allow_comments_flag == 'Y' ? (
+              <TouchableOpacity style={{ paddingVertical: ResponsiveSize(3) }}>
+                {comments_show_flag == 'Y' ? (
                   <TextC
-                    size={ResponsiveSize(10)}
-                    text={'Comments are turned off'}
+                    size={ResponsiveSize(11)}
+                    text={`View all ${commnetCount} comments`}
                     font={'Montserrat-Medium'}
                   />
-                </TouchableOpacity>
-              )}
-            </View>
-            <View style={style.PostDate}></View>
+                ) : (
+                  <TextC
+                    size={ResponsiveSize(11)}
+                    text={`View all comments`}
+                    font={'Montserrat-Medium'}
+                  />
+                )}
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
+                <TextC
+                  size={ResponsiveSize(10)}
+                  text={'Comments are turned off'}
+                  font={'Montserrat-Medium'}
+                />
+              </TouchableOpacity>
+            )}
+            {description !== '' ? (
+              <View style={{ paddingVertical: ResponsiveSize(3) }}>
+                <ReadMore
+                  seeLessStyle={{
+                    fontFamily: 'Montserrat-Bold',
+                    color: global.primaryColor,
+                  }}
+                  seeMoreStyle={{
+                    fontFamily: 'Montserrat-Bold',
+                    color: global.primaryColor,
+                  }}
+                  numberOfLines={2}
+                  style={style.DescriptionStyle}>
+                  {description}
+                </ReadMore>
+              </View>
+            ) : (
+              ''
+            )}
           </View>
-        </>
+          <View style={style.PostDate}></View>
+        </View >
       )}
       <Modal
         isVisible={isModalVisible}
-        style={{margin: 0}}
+        style={{ margin: 0 }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
         onBackdropPress={() => closeCommentFunction()}
@@ -1668,7 +1768,7 @@ const Post = ({
             <View style={style.modalIndicator}></View>
             <TextC
               text={'Comments'}
-              style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
               font={'Montserrat-Bold'}
               size={ResponsiveSize(12)}
             />
@@ -1845,7 +1945,7 @@ const Post = ({
                 <View style={style.ProfileReplyBox}>
                   <Image
                     style={style.ProfileReplyBoxProfile}
-                    source={{uri: replyComment?.user?.profile_picture_url}}
+                    source={{ uri: replyComment?.user?.profile_picture_url }}
                   />
                   <TextC
                     font={'Montserrat-Medium'}
@@ -1864,7 +1964,7 @@ const Post = ({
             )}
             <View
               keyboardShouldPersistTaps="handled"
-              style={{width: windowWidth, position: 'relative'}}>
+              style={{ width: windowWidth, position: 'relative' }}>
               <TextInput
                 editable={!commentAddLoading && !replyAddLoader}
                 value={commentInfo}
@@ -1900,7 +2000,7 @@ const Post = ({
       </Modal>
       <Modal
         isVisible={isShareModal}
-        style={{margin: 0}}
+        style={{ margin: 0 }}
         animationIn={'bounceInUp'}
         avoidKeyboard={true}
         onBackdropPress={() => setIsShareModal(!isShareModal)}
@@ -1910,7 +2010,7 @@ const Post = ({
             <View style={style.modalIndicator}></View>
             <TextC
               text={'Share Post'}
-              style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
               font={'Montserrat-Bold'}
               size={ResponsiveSize(12)}
             />
@@ -1923,7 +2023,7 @@ const Post = ({
             }}>
             <TextC
               text={'Share in community'}
-              style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
               font={'Montserrat-Bold'}
               size={ResponsiveSize(12)}
             />
@@ -1936,15 +2036,15 @@ const Post = ({
                   paddingHorizontal: ResponsiveSize(10),
                   paddingTop: ResponsiveSize(10),
                 }}>
-                {}
+                { }
                 <FastImage
                   source={
                     myuser?.profile_picture_url == ''
                       ? require('../../assets/icons/avatar.png')
                       : {
-                          uri: myuser?.profile_picture_url,
-                          priority: FastImage.priority.high,
-                        }
+                        uri: myuser?.profile_picture_url,
+                        priority: FastImage.priority.high,
+                      }
                   }
                   style={style.PostProfileImage}
                   resizeMode="cover"
@@ -1953,7 +2053,7 @@ const Post = ({
                   text={myuser?.user_name}
                   font={'Montserrat-Bold'}
                   size={ResponsiveSize(14)}
-                  style={{color: global.black}}
+                  style={{ color: global.black }}
                 />
               </View>
               <TextInput
@@ -1990,7 +2090,7 @@ const Post = ({
                   ) : (
                     <TextC
                       text={'Share now'}
-                      style={{color: global.white}}
+                      style={{ color: global.white }}
                       font={'Montserrat-Medium'}
                       size={ResponsiveSize(12)}
                     />
@@ -1999,10 +2099,10 @@ const Post = ({
               </View>
             </View>
 
-            <View style={{paddingTop: ResponsiveSize(15)}}>
+            <View style={{ paddingTop: ResponsiveSize(15) }}>
               <TextC
                 text={'Share in message'}
-                style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+                style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
               />
@@ -2012,9 +2112,9 @@ const Post = ({
               horizontal={true}
               contentContainerStyle={style.ConnectionList}>
               {getLatestConnection !== undefined &&
-              getLatestConnection !== null &&
-              getLatestConnection !== '' &&
-              getLatestConnection?.length > 0 ? (
+                getLatestConnection !== null &&
+                getLatestConnection !== '' &&
+                getLatestConnection?.length > 0 ? (
                 getLatestConnection?.map(data => (
                   <TouchableOpacity
                     disabled={MsgReShareLoader?.value}
@@ -2029,15 +2129,15 @@ const Post = ({
                           data?.profile_picture_url == ''
                             ? require('../../assets/icons/avatar.png')
                             : {
-                                uri: data?.profile_picture_url,
-                                priority: FastImage.priority.high,
-                              }
+                              uri: data?.profile_picture_url,
+                              priority: FastImage.priority.high,
+                            }
                         }
                         style={style.ConnectionIconDp}
                         resizeMode="cover"
                       />
                       {MsgReShareLoader?.user_Id == data?.user_id &&
-                      MsgReShareLoader?.value == true ? (
+                        MsgReShareLoader?.value == true ? (
                         <ActivityIndicator
                           size={ResponsiveSize(40)}
                           color={global.white}
@@ -2067,7 +2167,7 @@ const Post = ({
                       text={data?.user_name}
                       font={'Montserrat-Bold'}
                       size={ResponsiveSize(11)}
-                      style={{width: ResponsiveSize(50), textAlign: 'center'}}
+                      style={{ width: ResponsiveSize(50), textAlign: 'center' }}
                       ellipsizeMode={'tail'}
                       numberOfLines={1}
                     />
@@ -2113,14 +2213,14 @@ const Post = ({
             {canDeleteComment ? (
               <TextC
                 text={'Delete post'}
-                style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+                style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
               />
             ) : (
               <TextC
                 text={'Report post'}
-                style={{color: global.black, paddingTop: ResponsiveSize(3)}}
+                style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(12)}
               />
@@ -2136,7 +2236,7 @@ const Post = ({
             {canDeleteComment ? (
               <TouchableOpacity
                 onPress={OpenDeleteModal}
-                style={{flexDirection: 'row', paddingTop: ResponsiveSize(10)}}>
+                style={{ flexDirection: 'row', paddingTop: ResponsiveSize(10) }}>
                 <AntDesign
                   name="delete"
                   size={ResponsiveSize(20)}
@@ -2201,7 +2301,7 @@ const Post = ({
             }}>
             <TextC text={'Report'} font={'Montserrat-Bold'} />
           </View>
-          <View style={{paddingTop: ResponsiveSize(20)}}>
+          <View style={{ paddingTop: ResponsiveSize(20) }}>
             <TextInput
               onChangeText={e => setReportPostDescription(e)}
               placeholder="Enter some description about post"
@@ -2217,7 +2317,7 @@ const Post = ({
               }}
             />
           </View>
-          <View style={{paddingTop: ResponsiveSize(20)}}>
+          <View style={{ paddingTop: ResponsiveSize(20) }}>
             <TouchableOpacity
               onPress={addReportPost}
               style={{
@@ -2235,7 +2335,7 @@ const Post = ({
                   text={'Submit'}
                   font={'Montserrat-Bold'}
                   size={ResponsiveSize(11)}
-                  style={{color: global.white}}
+                  style={{ color: global.white }}
                 />
               )}
             </TouchableOpacity>
@@ -2302,7 +2402,7 @@ const Post = ({
                   text={'Delete'}
                   font={'Montserrat-Bold'}
                   size={ResponsiveSize(11)}
-                  style={{color: global.white}}
+                  style={{ color: global.white }}
                 />
               )}
             </TouchableOpacity>
@@ -2320,17 +2420,62 @@ const Post = ({
                 text={'Cancel'}
                 font={'Montserrat-Bold'}
                 size={ResponsiveSize(11)}
-                style={{color: global.white}}
+                style={{ color: global.white }}
               />
             </TouchableOpacity>
           </View>
+        </View>
+      </Modal>
+      <Modal
+        isVisible={isLikeModal}
+        style={{ margin: 0 }}
+        animationIn={'bounceInUp'}
+        avoidKeyboard={true}
+        onBackdropPress={() => setIsLikeModal(!isLikeModal)}
+        statusBarTranslucent={false}>
+        <View style={style.modalTopLayerLike}>
+          <View style={style.TopIndicator}>
+            <View style={style.modalIndicator}></View>
+            <TextC
+              text={'Likes'}
+              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
+              font={'Montserrat-Bold'}
+              size={ResponsiveSize(12)}
+            />
+          </View>
+          <ScrollView contentContainerStyle={{ padding: ResponsiveSize(15) }}>
+            {likesData !== undefined && likesData !== null && likesData !== "" && likesData?.length > 0 ? likesData.map((likes) => {
+              return (
+                <TouchableOpacity onPress={() => {
+                  setIsLikeModal(!isLikeModal)
+                  navigation.navigate('UserProfileScreen', {
+                    user_id: likes?.user_id,
+                  })
+                }} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: ResponsiveSize(8), width: windowWidth - ResponsiveSize(30) }}>
+                  <FastImage
+                    source={
+                      likes?.profile_picture_url === ''
+                        ? require('../../assets/icons/avatar.png')
+                        : {
+                          uri: likes?.profile_picture_url,
+                          priority: FastImage.priority.high,
+                        }
+                    }
+                    style={{ height: ResponsiveSize(40), width: ResponsiveSize(40), borderRadius: ResponsiveSize(40) }}
+                    resizeMode="cover"
+                  />
+                  <TextC text={likes?.user_name} font={"Montserrat-Bold"} size={ResponsiveSize(12)} style={{ marginLeft: ResponsiveSize(8) }} />
+                </TouchableOpacity >
+              )
+            }) : ""}
+          </ScrollView>
         </View>
       </Modal>
     </>
   );
 };
 
-function mapStateToProps({PostCreationReducer, GetUserProfileReducer}) {
-  return {PostCreationReducer, GetUserProfileReducer};
+function mapStateToProps({ PostCreationReducer, GetUserProfileReducer }) {
+  return { PostCreationReducer, GetUserProfileReducer };
 }
 export default connect(mapStateToProps, PostCreationAction)(Post);

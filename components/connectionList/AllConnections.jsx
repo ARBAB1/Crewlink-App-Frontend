@@ -31,7 +31,7 @@ const AllConnections = ({ getAllConnections, AllConnectionsReducer }) => {
         if (refreshing) {
             const loadAllevent = await getAllConnections({ page: pageRe })
             cacheloader(loadAllevent)
-   
+
         }
         else if (!refreshing) {
             const loadAllevent = await getAllConnections({ page: page })
@@ -231,23 +231,21 @@ const AllConnections = ({ getAllConnections, AllConnectionsReducer }) => {
                     </View>
                 </ScrollView>
             ) : (
-                <>
-                    <FlatList
-                        onRefresh={onRefresh}
-                        showsVerticalScrollIndicator={false}
-                        initialNumToRender={10}
-                        refreshing={refreshing}
-                        data={dataList?.slice(0, renderLength)}
-                        keyExtractor={(items, index) => index?.toString()}
-                        maxToRenderPerBatch={10}
-                        windowSize={10}
-                        onEndReached={() => {
-                            setRenderLength(renderLength + 10)
-                        }}
-                        onEndReachedThreshold={0.5}
-                        renderItem={renderItem}
-                    />
-                </>
+                <FlatList
+                    onRefresh={onRefresh}
+                    showsVerticalScrollIndicator={false}
+                    initialNumToRender={10}
+                    refreshing={refreshing}
+                    data={dataList?.slice(0, renderLength)}
+                    keyExtractor={(items, index) => index?.toString()}
+                    maxToRenderPerBatch={10}
+                    windowSize={10}
+                    onEndReached={() => {
+                        setRenderLength(renderLength + 10)
+                    }}
+                    onEndReachedThreshold={0.5}
+                    renderItem={renderItem}
+                />
             )}
         </>
     );

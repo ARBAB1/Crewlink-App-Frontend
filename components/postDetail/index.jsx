@@ -16,8 +16,10 @@ import {
   View,
   Text,
   TouchableWithoutFeedback,
+  Alert,
 } from 'react-native';
 import Modal from 'react-native-modal';
+import * as UserProfile from '../../store/actions/UserProfile/index';
 import Carousel from 'react-native-reanimated-carousel';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -36,12 +38,10 @@ import { useNavigation } from '@react-navigation/native';
 import baseUrl from '../../store/config.json';
 import io from 'socket.io-client';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { useToast } from 'react-native-toast-notifications';
 import SoundPlayer from 'react-native-sound-player';
-import LinearGradient from 'react-native-linear-gradient';
 
-
-
-const PostReshare = ({
+const PostDetailComponent = ({
   userName,
   profileImage,
   selfLiked,
@@ -66,23 +66,23 @@ const PostReshare = ({
   type,
   userLocation,
   getAllConnections,
-  reshareUserDetails,
   content_type,
+  GetUserProfileReducer,
   user_idIn,
   getNewPost,
-  GetUserProfileReducer,
-  reshared_post_id
 }) => {
   const navigation = useNavigation();
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
+  const [username, setUserName] = useState(false);
   const [liked, setLike] = useState(selfLiked);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [myuser, setMyuser] = useState();
   const [likeCountPre, setLikeCountPre] = useState(likeCount);
   const videoRef = useRef(null);
   const commentScrollRef = useRef(null);
   const commentSectioLength = windowWidth - ResponsiveSize(30);
   const [commentLoading, setCommentLoading] = useState(false);
-  const [myuser, setMyuser] = useState();
   const [commentCrash, setCommentCrash] = useState(false);
   const [commentList, setCommentList] = useState([]);
   const [tempReplyId, setTempReplyId] = useState();
@@ -105,11 +105,12 @@ const PostReshare = ({
   const [deleteLoader, setDeleteLoader] = useState(false);
   const [likeLoader, setLikeLoader] = useState(false);
   const [isShareModal, setIsShareModal] = useState(false);
+
+  const toast = useToast();
   const [isReportVisible, setIsReportVisible] = useState(false);
   const [isReportSecondVisible, setIsReportSecondVisible] = useState(false);
   const [isDeleteSecondVisible, setIsDeleteSecondVisible] = useState(false);
   const [canDeleteComment, setCanDeleteComment] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     if (
@@ -120,35 +121,13 @@ const PostReshare = ({
     }
   }, [type]);
 
-  const getDetailUser = async () => {
-    const Token = await AsyncStorage.getItem('Token');
-    try {
-      const response = await fetch(`${baseUrl.baseUrl}/users/user-details`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': baseUrl.apiKey,
-          accesstoken: `Bearer ${Token}`,
-        },
-      });
-      const res = await response.json();
-      setCanDeleteComment(res?.data?.user_id == user_idIn ? true : false);
-      setMyuser(res?.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getDetailUser();
-  }, [commentList, isReportVisible]);
-
   const [getLatestConnection, setGetLatestConnection] = useState([]);
+
   const getAllConnectionsFunc = async () => {
     const Token = await AsyncStorage.getItem('Token');
     try {
       const response = await fetch(
-        `${baseUrl.baseUrl}/connect/get-my-connections-list/1/10`,
+        `${baseUrl.baseUrl}/connect/get-my-connections-list/1/100`,
         {
           method: 'GET',
           headers: {
@@ -166,6 +145,29 @@ const PostReshare = ({
       console.log(error);
     }
   };
+
+  const getDetailUser = async () => {
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+      const response = await fetch(`${baseUrl.baseUrl}/users/user-details`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': baseUrl.apiKey,
+          accesstoken: `Bearer ${Token}`,
+        },
+      });
+      const res = await response.json();
+      setMyuser(res?.data);
+      setCanDeleteComment(res?.data?.user_id == user_idIn ? true : false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getDetailUser();
+  }, [commentList, isReportVisible]);
 
   useEffect(() => {
     getAllConnectionsFunc();
@@ -187,7 +189,6 @@ const PostReshare = ({
       page: 1,
       limit: 10,
     });
-
     if (result?.comments) {
       setCommentList(result?.comments);
       setCommentLoading(false);
@@ -198,12 +199,6 @@ const PostReshare = ({
       setCommentCrash(true);
       setCommentLoading(false);
     }
-  };
-  const OpenDeleteModal = () => {
-    setIsReportVisible(false);
-    setTimeout(() => {
-      setIsDeleteSecondVisible(true);
-    }, 500); // A slight delay to ensure the first modal is fully closed
   };
   const openCommentSectionPagination = async () => {
     if (allDataLoaded) return;
@@ -227,10 +222,10 @@ const PostReshare = ({
   };
 
   const handleLike = async () => {
-    if (GetUserProfileReducer?.data?.isMute == 'N') {
-      SoundPlayer.playSoundFile('tapnotification', 'mp3');
-    }
     try {
+      if (GetUserProfileReducer?.data?.isMute == 'N') {
+        SoundPlayer.playSoundFile('tapnotification', 'mp3');
+      }
       setLike(true);
       setLikeCountPre(prev => prev + 1);
       await LikeFunc({ post_id: postId });
@@ -250,9 +245,11 @@ const PostReshare = ({
       console.error('Error disliking the post:', error);
     }
   };
+  useEffect(() => {
+    openCommentSection(true)
+  }, [])
   const toggleModal = () => {
     openCommentSection(true);
-    setModalVisible(!isModalVisible);
   };
 
   const closeCommentFunction = () => {
@@ -695,6 +692,7 @@ const PostReshare = ({
   // Loading comments Replies
 
   // commment add funtion
+
   const commentAdder = async () => {
     setCommentAddLoading(true);
     commentScrollRef.current.scrollTo(0);
@@ -908,6 +906,7 @@ const PostReshare = ({
     setIsShareModal(!isShareModal);
     setSelectedUsers([]);
   };
+
   const [Winheight, setHeight] = useState(windowHeight * 0.4);
   const handleSetHeight = useCallback(e => {
     const naturalRatio = 16 / 13;
@@ -958,10 +957,9 @@ const PostReshare = ({
     },
     postActionSection: {
       flexDirection: 'row',
-      paddingVertical: ResponsiveSize(15),
+      paddingVertical: ResponsiveSize(12),
       paddingHorizontal: ResponsiveSize(15),
       width: windowWidth,
-      alignItems: 'center'
     },
     PostDetail: {
       textAlign: 'left',
@@ -977,14 +975,10 @@ const PostReshare = ({
     },
     PostIcons: {
       paddingHorizontal: ResponsiveSize(5),
-      flexDirection: 'row',
-      alignItems: 'center',
     },
     PostIcons1: {
       paddingLeft: 0,
       paddingRight: ResponsiveSize(5),
-      flexDirection: 'row',
-      alignItems: 'center',
     },
     CommnetAdd: {
       flexDirection: 'row',
@@ -1038,12 +1032,10 @@ const PostReshare = ({
     },
     commentInput: {
       backgroundColor: '#EEEEEE',
-      borderTopColor: '#cccccc',
-      borderTopWidth: 1,
       paddingLeft: ResponsiveSize(15),
-      paddingVertical: ResponsiveSize(10),
+      paddingVertical: ResponsiveSize(12),
       fontFamily: 'Montserrat-Medium',
-      height: ResponsiveSize(45),
+      height: ResponsiveSize(50),
     },
     sendCommentBtn: {
       backgroundColor: global.secondaryColor,
@@ -1071,7 +1063,6 @@ const PostReshare = ({
       overflow: 'hidden',
       zIndex: 999,
     },
-
     modalTopLayerShare: {
       paddingBottom: ResponsiveSize(20),
       width: windowWidth,
@@ -1096,7 +1087,6 @@ const PostReshare = ({
       overflow: 'hidden',
       zIndex: 999,
     },
-
     modalTopLayerReportSecond: {
       paddingBottom: ResponsiveSize(20),
       width: windowWidth * 0.8,
@@ -1268,9 +1258,18 @@ const PostReshare = ({
   const [reShareCaption, setReShareCaption] = useState('');
   const [reportPostDescription, setReportPostDescription] = useState('');
   const [reportLoading, setReportLoading] = useState(false);
-
-  const [selectedUsers, setSelectedUsers] = useState([]);
-
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const toggleUserSelection = userId => {
+    setSelectedUsers(prevSelectedUsers => {
+      if (prevSelectedUsers.includes(userId)) {
+        // If the user is already selected, remove them
+        return prevSelectedUsers.filter(id => id !== userId);
+      } else {
+        // If the user is not selected, add them
+        return [...prevSelectedUsers, userId];
+      }
+    });
+  };
   const ResharePost = async () => {
     setReshareLoader(true);
     const Token = await AsyncStorage.getItem('Token');
@@ -1293,7 +1292,6 @@ const PostReshare = ({
   };
   const sendMessage = async (message_Props, user_Id) => {
     setMsgReshareLoader({ user_Id: user_Id, value: true });
-
     const Token = await AsyncStorage.getItem('Token');
 
     const socket = io(`${baseUrl.baseUrl}/chat`, {
@@ -1308,6 +1306,7 @@ const PostReshare = ({
       receiverUserId: user_Id,
       post_id: message_Props,
     });
+
     setTimeout(() => {
       setMsgReshareLoader({ user_Id: user_Id, value: false });
     }, 2000);
@@ -1317,6 +1316,12 @@ const PostReshare = ({
     setIsReportVisible(false);
     setTimeout(() => {
       setIsReportSecondVisible(true);
+    }, 500); // A slight delay to ensure the first modal is fully closed
+  };
+  const OpenDeleteModal = () => {
+    setIsReportVisible(false);
+    setTimeout(() => {
+      setIsDeleteSecondVisible(true);
     }, 500); // A slight delay to ensure the first modal is fully closed
   };
 
@@ -1340,23 +1345,12 @@ const PostReshare = ({
     if (res?.statusCode) {
       setReportLoading(false);
       setIsReportSecondVisible(false);
+      setIsDeleteSecondVisible(false);
       setReportedPostId(postId);
       setTimeout(() => {
         setReportedPostId('');
       }, 5000);
     }
-  };
-
-  const toggleUserSelection = userId => {
-    setSelectedUsers(prevSelectedUsers => {
-      if (prevSelectedUsers.includes(userId)) {
-        // If the user is already selected, remove them
-        return prevSelectedUsers.filter(id => id !== userId);
-      } else {
-        // If the user is not selected, add them
-        return [...prevSelectedUsers, userId];
-      }
-    });
   };
   const addDeletePost = async () => {
     setDeleteLoading(true);
@@ -1373,8 +1367,10 @@ const PostReshare = ({
       }),
     });
     const res = await response?.json();
+
     if (res?.statusCode) {
       setDeleteLoading(false);
+
       setIsDeleteSecondVisible(false);
       setTimeout(() => {
         toast.show('Post Deleted Successfully');
@@ -1382,9 +1378,9 @@ const PostReshare = ({
       }, 1000);
     }
   };
-
   const [currentIndex, setCurrentIndex] = useState(1);
   const [totolIndex, setTotolIndex] = useState(0);
+
 
   return (
     <>
@@ -1397,135 +1393,92 @@ const PostReshare = ({
           />
         </View>
       ) : (
-        <View
-          style={{
-            borderBottomWidth: ResponsiveSize(1),
-            borderBottomColor: '#EEEEEE',
-          }}>
-          {content?.length > 0 ? (
-            <View>
-              <View style={style.PostHeader}>
-                <View style={{ flexDirection: 'row' }}>
+        <View>
+          <View style={{ borderBottomWidth: ResponsiveSize(1), borderBottomColor: "#EEEEEE" }}>
+            <View style={style.PostHeader}>
+              <View style={{ flexDirection: 'row' }}>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('UserProfileScreen', {
+                      user_id: user_idIn,
+                    })
+                  }>
+                  <FastImage
+                    source={
+                      profileImage == ''
+                        ? require('../../assets/icons/avatar.png')
+                        : { uri: profileImage, priority: FastImage.priority.high }
+                    }
+                    style={style.PostProfileImage}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+                <View style={style.PostProfileImageBox}>
                   <TouchableOpacity
                     onPress={() =>
                       navigation.navigate('UserProfileScreen', {
                         user_id: user_idIn,
                       })
                     }>
-                    <FastImage
-                      source={
-                        profileImage == ''
-                          ? require('../../assets/icons/avatar.png')
-                          : {
-                            uri: profileImage,
-                            priority: FastImage.priority.high,
-                          }
-                      }
-                      style={style.PostProfileImage}
-                      resizeMode="cover"
+                    <TextC
+                      size={ResponsiveSize(12)}
+                      text={userName}
+                      font={'Montserrat-Bold'}
                     />
                   </TouchableOpacity>
-                  <View style={style.PostProfileImageBox}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('UserProfileScreen', {
-                          user_id: user_idIn,
-                        })
-                      }>
-                      <TextC
-                        size={ResponsiveSize(12)}
-                        text={userName}
-                        font={'Montserrat-Bold'}
-                      />
-                    </TouchableOpacity>
-                    <TimeAgo
-                      style={{
-                        fontFamily: 'Montserrat-Medium',
-                        fontSize: ResponsiveSize(8),
-                        color: global.description,
-                      }}
-                      time={timeAgo}
-                    />
-                  </View>
-                </View>
-                <View>
-                  <TouchableOpacity onPress={() => setIsReportVisible(true)}>
-                    <Entypo
-                      color={global.primaryColor}
-                      size={ResponsiveSize(17)}
-                      name="dots-three-vertical"
-                    />
-                  </TouchableOpacity>
+                  <TimeAgo
+                    style={{
+                      fontFamily: 'Montserrat-Medium',
+                      fontSize: ResponsiveSize(8),
+                      color: global.description,
+                    }}
+                    time={timeAgo}
+                  />
                 </View>
               </View>
-              {content?.length > 1 ? (
-                <View style={{ position: 'relative' }}>
-                  <LinearGradient colors={['rgba(0,0,0,0.4)', 'rgba(255,255,255,0)']} style={style.ResharePostHeader}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('UserProfileScreen', {
-                          user_id: reshareUserDetails?.post_owner_user_id,
-                        })
-                      }>
-                      <FastImage
-                        source={{
-                          uri: reshareUserDetails?.profile_picture_url,
-                          priority: FastImage.priority.high,
-                        }}
-                        style={style.ResharePostHeaderDp}
-                      />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('UserProfileScreen', {
-                          user_id: reshareUserDetails?.post_owner_user_id,
-                        })
-                      }>
-                      <TextC
-                        text={reshareUserDetails?.user_name}
-                        font={'Montserrat-Bold'}
-                        style={{ marginLeft: ResponsiveSize(8), color: global.white }}
-                      />
-                      <TimeAgo
-                        style={{
-                          fontFamily: 'Montserrat-Medium',
-                          fontSize: ResponsiveSize(8),
-                          color: global.white,
-                          marginLeft: ResponsiveSize(8)
-                        }}
-                        time={reshareUserDetails?.created_at}
-                      />
-                    </TouchableOpacity>
-                  </LinearGradient>
-                  <Carousel
-                    loop={false}
-                    width={windowWidth}
-                    height={windowHeight * 0.4}
-                    autoPlay={false}
-                    data={content}
-                    scrollAnimationDuration={1000}
-                    onSnapToItem={index => setCurrentIndex(index + 1)}
-                    renderItem={({ item, index }) => {
-                      setTotolIndex(index + 1);
-                      return (
-                        <>
-                          {item?.attachment_url.endsWith('.mp4') ? (
-                            <View
-                              style={{
-                                height: windowHeight * 0.4,
-                                width: windowWidth,
-                                backgroundColor: 'red',
-                                backgroundColor: global.description,
-                              }}>
+              <View>
+                <TouchableOpacity onPress={() => setIsReportVisible(true)}>
+                  <Entypo
+                    color={global.primaryColor}
+                    size={ResponsiveSize(17)}
+                    name="dots-three-vertical"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+            {content?.length > 0 ? (
+              <>
+                {content?.length > 1 ? (
+                  <View style={{ position: 'relative' }}>
+                    <Carousel
+                      loop={false}
+                      width={windowWidth}
+                      height={windowHeight * 0.4}
+                      autoPlay={false}
+                      data={content}
+                      scrollAnimationDuration={1000}
+                      onSnapToItem={index => setCurrentIndex(index + 1)}
+                      style={{ position: 'relative' }}
+                      renderItem={({ item, index }) => {
+                        setTotolIndex(index + 1);
+                        return (
+                          <>
+                            {item?.attachment_url.endsWith('.mp4') ? (
                               <Pressable
-                                onPress={() => setPause(!paused)}
-                                style={{ position: 'relative' }}>
-                                <TouchableOpacity onPress={() => {
+                                style={{
+                                  height: windowHeight * 0.4,
+                                  width: windowWidth,
+                                  backgroundColor: 'red',
+                                  backgroundColor: global.description,
+                                }}
+                                onPress={() => {
                                   navigation.navigate('PostDetail', {
-                                    content_id: reshareUserDetails?.main_post_id,
+                                    content_id: postId,
                                   })
                                 }}>
+                                <Pressable
+                                  onPress={() => setPause(!paused)}
+                                  style={{ position: 'relative' }}>
                                   <Video
                                     repeat={true}
                                     source={{
@@ -1538,148 +1491,85 @@ const PostReshare = ({
                                       width: windowWidth,
                                     }}
                                   />
-                                </TouchableOpacity>
-                                {paused && (
-                                  <View style={style.playPaused}>
-                                    <Entypo
-                                      size={ResponsiveSize(50)}
-                                      name="controller-play"
-                                      color={'white'}
-                                    />
-                                  </View>
-                                )}
+                                  {paused && (
+                                    <View style={style.playPaused}>
+                                      <Entypo
+                                        size={ResponsiveSize(50)}
+                                        name="controller-play"
+                                        color={'white'}
+                                      />
+                                    </View>
+                                  )}
+                                </Pressable>
                               </Pressable>
-                            </View>
-                          ) : (
-                            <Pressable onPress={() => {
-                              navigation.navigate('PostDetail', {
-                                content_id: reshareUserDetails?.main_post_id,
-                              })
-                            }}>
-                              <FastImage
-                                source={{
-                                  uri: item?.attachment_thumbnail_url,
-                                  priority: FastImage.priority.high,
-                                }}
-                                resizeMode="cover"
-                                style={style.ActuallPost}
-                              />
-                            </Pressable>
-                          )}
-                        </>
-                      );
-                    }}
-                  />
-                  <View
-                    style={{
-                      position: 'absolute',
-                      height: ResponsiveSize(25),
-                      width: ResponsiveSize(50),
-                      backgroundColor: global.placeholderColor,
-                      borderRadius: ResponsiveSize(40),
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      top: ResponsiveSize(15),
-                      right: ResponsiveSize(15),
-                      zIndex: 999
-                    }}>
-                    <TextC
-                      text={currentIndex}
-                      style={{ color: global.white }}
-                      font={'Montserrat-Bold'}
+                            ) : (
+                              <Pressable
+                                onPress={() => {
+                                  navigation.navigate('PostDetail', {
+                                    content_id: postId,
+                                  })
+                                }}>
+                                <FastImage
+                                  source={{
+                                    uri: item?.attachment_thumbnail_url,
+                                    priority: FastImage.priority.high,
+                                  }}
+                                  resizeMode="cover"
+                                  style={style.ActuallPost}
+                                />
+                              </Pressable>
+                            )}
+                          </>
+                        );
+                      }}
                     />
-                    <TextC
-                      text={'/'}
-                      style={{
-                        color: global.white,
-                        marginHorizontal: ResponsiveSize(1),
-                      }}
-                      font={'Montserrat-Bold'}
-                    />
-                    <TextC
-                      text={totolIndex}
-                      style={{ color: global.white }}
-                      font={'Montserrat-Bold'}
-                    />
-                  </View>
-                  <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(0,0,0,0.4)']} style={style.ResharePostFooter}>
-                    <ReadMore
-                      seeLessStyle={{
-                        fontFamily: 'Montserrat-Bold',
-                        color: global.white,
-                      }}
-                      seeMoreStyle={{
-                        fontFamily: 'Montserrat-Bold',
-                        color: global.white,
-                      }}
-                      numberOfLines={2}
-                      style={{
-                        marginLeft: ResponsiveSize(8),
-                        color: global.white,
-                        fontFamily: 'Montserrat-SemiBold',
-                        fontSize: ResponsiveSize(11)
-                      }}
-                    >
-                      {reshareUserDetails?.old_caption}
-                    </ReadMore>
-                  </LinearGradient>
-                </View>
-              ) : (
-                <>
-                  {content[0]?.attachment_url.endsWith('.mp4') ? (
                     <View
                       style={{
-                        height: Winheight,
-                        width: windowWidth,
-                        backgroundColor: 'gray',
-                        position: 'relative',
+                        position: 'absolute',
+                        height: ResponsiveSize(25),
+                        width: ResponsiveSize(50),
+                        backgroundColor: global.placeholderColor,
+                        borderRadius: ResponsiveSize(40),
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        top: ResponsiveSize(15),
+                        right: ResponsiveSize(15),
                       }}>
-                      <LinearGradient colors={['rgba(0,0,0,0.4)', 'rgba(255,255,255,0)']} style={style.ResharePostHeader}>
-                        <TouchableOpacity
-                          onPress={() =>
-                            navigation.navigate('UserProfileScreen', {
-                              user_id: reshareUserDetails?.post_owner_user_id,
-                            })
-                          }>
-                          <FastImage
-                            source={{
-                              uri: reshareUserDetails?.profile_picture_url,
-                              priority: FastImage.priority.high,
-                            }}
-                            style={style.ResharePostHeaderDp}
-                          />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          onPress={() =>
-                            navigation.navigate('UserProfileScreen', {
-                              user_id: reshareUserDetails?.post_owner_user_id,
-                            })
-                          }>
-                          <TextC
-                            text={reshareUserDetails?.user_name}
-                            font={'Montserrat-Bold'}
-                            style={{ marginLeft: ResponsiveSize(8), color: global.white }}
-                          />
-                          <TimeAgo
-                            style={{
-                              fontFamily: 'Montserrat-Medium',
-                              fontSize: ResponsiveSize(8),
-                              color: global.white,
-                              marginLeft: ResponsiveSize(8)
-                            }}
-                            time={reshareUserDetails?.created_at}
-                          />
-                        </TouchableOpacity>
-                      </LinearGradient>
-
-
-                      <Pressable onPress={() => {
-                        navigation.navigate('PostDetail', {
-                          content_id: reshareUserDetails?.main_post_id,
-                        })
-                      }}>
+                      <TextC
+                        text={currentIndex}
+                        style={{ color: global.white }}
+                        font={'Montserrat-Bold'}
+                      />
+                      <TextC
+                        text={'/'}
+                        style={{
+                          color: global.white,
+                          marginHorizontal: ResponsiveSize(1),
+                        }}
+                        font={'Montserrat-Bold'}
+                      />
+                      <TextC
+                        text={totolIndex}
+                        style={{ color: global.white }}
+                        font={'Montserrat-Bold'}
+                      />
+                    </View>
+                  </View>
+                ) : (
+                  <>
+                    {content[0]?.attachment_url.endsWith('.mp4') ? (
+                      <Pressable
+                        style={{
+                          height: Winheight,
+                          width: windowWidth,
+                          backgroundColor: 'red',
+                        }}
+                        onPress={() => {
+                          navigation.navigate('PostDetail', {
+                            content_id: postId,
+                          })
+                        }}>
                         <Video
                           onLoad={handleSetHeight}
                           repeat={true}
@@ -1691,426 +1581,158 @@ const PostReshare = ({
                           style={{ height: Winheight, width: windowWidth }}
                         />
                       </Pressable>
-
-                      <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(0,0,0,0.4)']} style={style.ResharePostFooter}>
-                        <ReadMore
-                          seeLessStyle={{
-                            fontFamily: 'Montserrat-Bold',
-                            color: global.white,
-                          }}
-                          seeMoreStyle={{
-                            fontFamily: 'Montserrat-Bold',
-                            color: global.white,
-                          }}
-                          numberOfLines={2}
-                          style={{
-                            marginLeft: ResponsiveSize(8),
-                            color: global.white,
-                            fontFamily: 'Montserrat-SemiBold',
-                            fontSize: ResponsiveSize(11)
-                          }}
-                        >
-                          {reshareUserDetails?.old_caption}
-                        </ReadMore>
-                      </LinearGradient>
-                    </View>
-                  ) : (
-                    <View style={{ position: 'relative' }}>
-                      <LinearGradient colors={['rgba(0,0,0,0.4)', 'rgba(255,255,255,0)']} style={style.ResharePostHeader}>
-                        <TouchableOpacity
-                          onPress={() =>
-                            navigation.navigate('UserProfileScreen', {
-                              user_id: reshareUserDetails?.post_owner_user_id,
-                            })
-                          }>
-                          <FastImage
-                            source={{
-                              uri: reshareUserDetails?.profile_picture_url,
-                              priority: FastImage.priority.high,
-                            }}
-                            style={style.ResharePostHeaderDp}
-                          />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          onPress={() =>
-                            navigation.navigate('UserProfileScreen', {
-                              user_id: reshareUserDetails?.post_owner_user_id,
-                            })
-                          }>
-                          <TextC
-                            text={reshareUserDetails?.user_name}
-                            font={'Montserrat-Bold'}
-                            style={{ marginLeft: ResponsiveSize(8), color: global.white }}
-                          />
-                          <TimeAgo
-                            style={{
-                              fontFamily: 'Montserrat-Medium',
-                              fontSize: ResponsiveSize(8),
-                              color: global.white,
-                              marginLeft: ResponsiveSize(8)
-                            }}
-                            time={reshareUserDetails?.created_at}
-                          />
-                        </TouchableOpacity>
-                      </LinearGradient>
-
-
-                      <Pressable onPress={() => {
-                        navigation.navigate('PostDetail', {
-                          content_id: reshareUserDetails?.main_post_id,
-                        })
-                      }}>
+                    ) : (
+                      <Pressable
+                        style={{ position: 'relative' }}
+                        onPress={() => {
+                          navigation.navigate('PostDetail', {
+                            content_id: postId,
+                          })
+                        }}>
                         <FastImage
                           source={{
                             uri: content[0]?.attachment_thumbnail_url,
                             priority: FastImage.priority.high,
                           }}
+                          resizeMode="cover"
                           style={style.ActuallPost}
                         />
                       </Pressable>
-
-
-                      <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(0,0,0,0.4)']} style={style.ResharePostFooter}>
-                        <ReadMore
-                          seeLessStyle={{
-                            fontFamily: 'Montserrat-Bold',
-                            color: global.white,
-                          }}
-                          seeMoreStyle={{
-                            fontFamily: 'Montserrat-Bold',
-                            color: global.white,
-                          }}
-                          numberOfLines={2}
-                          style={{
-                            marginLeft: ResponsiveSize(8),
-                            color: global.white,
-                            fontFamily: 'Montserrat-SemiBold',
-                            fontSize: ResponsiveSize(11)
-                          }}
-                        >
-                          {reshareUserDetails?.old_caption}
-                        </ReadMore>
-                      </LinearGradient>
-                    </View>
-                  )}
-                </>
-              )}
-              <View style={style.postActionSection}>
-                <Pressable
-                  onPress={liked ? handleDislike : handleLike}
-                  style={style.PostIcons1}>
-                  <AntDesign
-                    name={liked ? 'heart' : 'hearto'}
-                    color={liked ? global.red : global.primaryColor}
-                    size={ResponsiveSize(22)}
-                  />
-                </Pressable>
-                {allow_comments_flag == 'Y' && (
-                  <Pressable
-                    onPress={() => toggleModal()}
-                    style={style.PostIcons}>
-                    <Image
-                      source={CommnetLight}
-                      style={{
-                        height: ResponsiveSize(20),
-                        width: ResponsiveSize(20),
-                      }}
-                    />
-                  </Pressable>
-                )}
-                <Pressable onPress={() => toggleShare()} style={style.PostIcons}>
-                  <Image
-                    source={ShareLight}
-                    style={{
-                      height: ResponsiveSize(20),
-                      width: ResponsiveSize(20),
-                      marginTop: 1,
-                    }}
-                  />
-                </Pressable>
-              </View>
-              <View style={style.PostDetail}>
-                {likes_show_flag == 'Y' && (
-                  <TextC
-                    size={ResponsiveSize(10)}
-                    text={`${likeCountPre} likes`}
-                    font={'Montserrat-Medium'}
-                  />
-                )}
-                {allow_comments_flag == 'Y' ? (
-                  <TouchableOpacity style={{ paddingVertical: ResponsiveSize(3) }}>
-                    {comments_show_flag == 'Y' ? (
-                      <TextC
-                        size={ResponsiveSize(11)}
-                        text={`View all ${commnetCount} comments`}
-                        font={'Montserrat-Medium'}
-                      />
-                    ) : (
-                      <TextC
-                        size={ResponsiveSize(11)}
-                        text={`View all comments`}
-                        font={'Montserrat-Medium'}
-                      />
                     )}
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
-                    <TextC
-                      size={ResponsiveSize(10)}
-                      text={'Comments are turned off'}
-                      font={'Montserrat-Medium'}
-                    />
-                  </TouchableOpacity>
+                  </>
                 )}
-                {description !== '' ? (
-                  <View style={{ paddingVertical: ResponsiveSize(3) }}>
-                    <ReadMore
-                      seeLessStyle={{
-                        fontFamily: 'Montserrat-Bold',
-                        color: global.primaryColor,
-                      }}
-                      seeMoreStyle={{
-                        fontFamily: 'Montserrat-Bold',
-                        color: global.primaryColor,
-                      }}
-                      numberOfLines={2}
-                      style={style.DescriptionStyle}>
-                      {description}
-                    </ReadMore>
-                  </View>
-                ) : (
-                  ''
-                )}
-              </View>
-              <View style={style.PostDate}></View>
-            </View>
-          ) : (
-            <View>
-              <View style={style.PostHeader}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('UserProfileScreen', {
-                        user_id: user_idIn,
-                      })
-                    }>
-                    <FastImage
-                      source={
-                        profileImage == ''
-                          ? require('../../assets/icons/avatar.png')
-                          : {
-                            uri: profileImage,
-                            priority: FastImage.priority.high,
-                          }
-                      }
-                      style={style.PostProfileImage}
-                      resizeMode="cover"
-                    />
-                  </TouchableOpacity>
-                  <View style={style.PostProfileImageBox}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('UserProfileScreen', {
-                          user_id: user_idIn,
-                        })
-                      }>
-                      <TextC
-                        size={ResponsiveSize(12)}
-                        text={userName}
-                        font={'Montserrat-Bold'}
-                      />
-                    </TouchableOpacity>
-                    <TimeAgo
-                      style={{
-                        fontFamily: 'Montserrat-Medium',
-                        fontSize: ResponsiveSize(8),
-                        color: global.description,
-                      }}
-                      time={timeAgo}
-                    />
-                  </View>
-                </View>
-                <View>
-                  <TouchableOpacity onPress={() => setIsReportVisible(true)}>
-                    <Entypo
-                      color={global.primaryColor}
-                      size={ResponsiveSize(17)}
-                      name="dots-three-vertical"
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View
+              </>
+            ) : (
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('PostDetail', {
+                    content_id: postId,
+                  })
+                }}
                 style={{
-                  paddingVertical: ResponsiveSize(15),
+                  paddingVertical: ResponsiveSize(5),
                   paddingHorizontal: ResponsiveSize(15),
                 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('UserProfileScreen', {
-                        user_id: reshareUserDetails?.post_owner_user_id,
-                      })
-                    }>
-                    <FastImage
-                      source={{
-                        uri: reshareUserDetails?.profile_picture_url,
-                        priority: FastImage.priority.high,
-                      }}
-                      style={style.ResharePostHeaderDp}
-                    />
-                  </TouchableOpacity>
+                <TextC
+                  size={ResponsiveSize(13)}
+                  text={description}
+                  font={'Montserrat-SemiBold'}
+                  style={{
+                    color: global.placeholderColor,
+                    width: windowWidth - ResponsiveSize(30),
+                  }}
+                />
+              </TouchableOpacity>
+            )}
 
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('UserProfileScreen', {
-                        user_id: reshareUserDetails?.post_owner_user_id,
-                      })
-                    }>
+            <View style={style.postActionSection}>
+              <Pressable
+                onPress={liked ? handleDislike : handleLike}
+                style={style.PostIcons1}>
+                <AntDesign
+                  name={liked ? 'heart' : 'hearto'}
+                  color={liked ? global.red : global.primaryColor}
+                  size={ResponsiveSize(22)}
+                />
+              </Pressable>
+              <Pressable onPress={() => toggleShare()} style={style.PostIcons}>
+                <Image
+                  source={ShareLight}
+                  style={{
+                    height: ResponsiveSize(20),
+                    width: ResponsiveSize(20),
+                    marginTop: 1,
+                  }}
+                />
+              </Pressable>
+            </View>
+            <View style={style.PostDetail}>
+              {likes_show_flag == 'Y' && (
+                <TextC
+                  size={ResponsiveSize(10)}
+                  text={`${likeCountPre} likes`}
+                  font={'Montserrat-Medium'}
+                />
+              )}
+              {allow_comments_flag == 'Y' ? (
+                <TouchableOpacity style={{ paddingVertical: ResponsiveSize(3) }}>
+                  {comments_show_flag == 'Y' ? (
                     <TextC
-                      text={reshareUserDetails?.user_name}
-                      font={'Montserrat-Bold'}
-                      style={{ marginLeft: ResponsiveSize(8), color: global.black }}
-                    />
-                    <TimeAgo
-                      style={{
-                        fontFamily: 'Montserrat-Medium',
-                        fontSize: ResponsiveSize(8),
-                        color: global.description,
-                        marginLeft: ResponsiveSize(8)
-                      }}
-                      time={reshareUserDetails?.created_at}
-                    />
-                  </TouchableOpacity>
-                </View>
-
-
-                <TouchableOpacity onPress={() => {
-                  navigation.navigate('PostDetail', {
-                    content_id: reshareUserDetails?.main_post_id,
-                  })
-                }} style={{ borderWidth: ResponsiveSize(1), borderColor: "#EEEEEE", marginTop: ResponsiveSize(10), padding: ResponsiveSize(10), borderRadius: ResponsiveSize(10) }}>
-                  <TextC
-                    size={ResponsiveSize(13)}
-                    text={reshareUserDetails?.old_caption}
-                    font={'Montserrat-SemiBold'}
-                    style={{
-                      color: global.placeholderColor,
-                      width: windowWidth - ResponsiveSize(30),
-                    }}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={style.postActionSection}>
-                <Pressable
-                  onPress={liked ? handleDislike : handleLike}
-                  style={style.PostIcons1}>
-                  <AntDesign
-                    name={liked ? 'heart' : 'hearto'}
-                    color={liked ? global.red : global.primaryColor}
-                    size={ResponsiveSize(22)}
-                  />
-                </Pressable>
-                {allow_comments_flag == 'Y' && (
-                  <Pressable
-                    onPress={() => toggleModal()}
-                    style={style.PostIcons}>
-                    <Image
-                      source={CommnetLight}
-                      style={{
-                        height: ResponsiveSize(20),
-                        width: ResponsiveSize(20),
-                      }}
-                    />
-                  </Pressable>
-                )}
-                <Pressable onPress={() => toggleShare()} style={style.PostIcons}>
-                  <Image
-                    source={ShareLight}
-                    style={{
-                      height: ResponsiveSize(20),
-                      width: ResponsiveSize(20),
-                      marginTop: 1,
-                    }}
-                  />
-                </Pressable>
-              </View>
-              <View style={style.PostDetail}>
-                {likes_show_flag == 'Y' && (
-                  <TextC
-                    size={ResponsiveSize(10)}
-                    text={`${likeCountPre} likes`}
-                    font={'Montserrat-Medium'}
-                  />
-                )}
-                {allow_comments_flag == 'Y' ? (
-                  <TouchableOpacity style={{ paddingVertical: ResponsiveSize(3) }}>
-                    {comments_show_flag == 'Y' ? (
-                      <TextC
-                        size={ResponsiveSize(11)}
-                        text={`View all ${commnetCount} comments`}
-                        font={'Montserrat-Medium'}
-                      />
-                    ) : (
-                      <TextC
-                        size={ResponsiveSize(11)}
-                        text={`View all comments`}
-                        font={'Montserrat-Medium'}
-                      />
-                    )}
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
-                    <TextC
-                      size={ResponsiveSize(10)}
-                      text={'Comments are turned off'}
+                      size={ResponsiveSize(11)}
+                      text={`View all ${commnetCount} comments`}
                       font={'Montserrat-Medium'}
                     />
-                  </TouchableOpacity>
-                )}
-                {description !== '' ? (
-                  <View style={{ paddingVertical: ResponsiveSize(3) }}>
-                    <ReadMore
-                      seeLessStyle={{
-                        fontFamily: 'Montserrat-Bold',
-                        color: global.primaryColor,
-                      }}
-                      seeMoreStyle={{
-                        fontFamily: 'Montserrat-Bold',
-                        color: global.primaryColor,
-                      }}
-                      numberOfLines={2}
-                      style={style.DescriptionStyle}>
-                      {description}
-                    </ReadMore>
-                  </View>
-                ) : (
-                  ''
-                )}
-              </View>
-              <View style={style.PostDate}></View>
+                  ) : (
+                    <TextC
+                      size={ResponsiveSize(11)}
+                      text={`View all comments`}
+                      font={'Montserrat-Medium'}
+                    />
+                  )}
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity style={{ paddingTop: ResponsiveSize(3) }}>
+                  <TextC
+                    size={ResponsiveSize(10)}
+                    text={'Comments are turned off'}
+                    font={'Montserrat-Medium'}
+                  />
+                </TouchableOpacity>
+              )}
+              {description !== '' ? (
+                <View style={{ paddingVertical: ResponsiveSize(3) }}>
+                  <ReadMore
+                    seeLessStyle={{
+                      fontFamily: 'Montserrat-Bold',
+                      color: global.primaryColor,
+                    }}
+                    seeMoreStyle={{
+                      fontFamily: 'Montserrat-Bold',
+                      color: global.primaryColor,
+                    }}
+                    numberOfLines={2}
+                    style={style.DescriptionStyle}>
+                    {description}
+                  </ReadMore>
+                </View>
+              ) : (
+                ''
+              )}
             </View>
-          )}
-        </View>
-      )}
-      <Modal
-        isVisible={isModalVisible}
-        style={{ margin: 0 }}
-        animationIn={'bounceInUp'}
-        avoidKeyboard={true}
-        onBackdropPress={() => closeCommentFunction()}
-        statusBarTranslucent={false}>
-        <View style={style.modalTopLayerComment}>
-          <View style={style.TopIndicator}>
-            <View style={style.modalIndicator}></View>
-            <TextC
-              text={'Comments'}
-              style={{ color: global.black, paddingTop: ResponsiveSize(3) }}
-              font={'Montserrat-Bold'}
-              size={ResponsiveSize(12)}
+            <View style={style.PostDate}></View>
+          </View>
+          <View
+            keyboardShouldPersistTaps="handled"
+            style={{ width: windowWidth, position: 'relative' }}>
+            <TextInput
+              editable={!commentAddLoading && !replyAddLoader}
+              value={commentInfo}
+              onChangeText={e => setCommentInfo(e)}
+              placeholder={replyComment?.comment_id?"Reply here":"Comment here"}
+              style={style.commentInput}
             />
+            <TouchableOpacity
+              disabled={
+                commentInfo === '' || commentAddLoading || replyAddLoader
+              }
+              onPress={() => {
+                if (replyComment?.comment_id) {
+                  ReplyAdder();
+                } else {
+                  commentAdder();
+                }
+              }}
+              style={style.sendCommentBtn}>
+              {replyAddLoader ? (
+                <ActivityIndicator color={'white'} size={'small'} />
+              ) : (
+                <Feather
+                  name="send"
+                  color={'white'}
+                  size={ResponsiveSize(15)}
+                />
+              )}
+            </TouchableOpacity>
           </View>
           {commentLoading ? (
             <View
@@ -2164,6 +1786,7 @@ const PostReshare = ({
                           setReplyComment={setReplyComment}
                           delCommentPostOwner={canDeleteComment}
                         />
+
                         <FlatList
                           showsVerticalScrollIndicator={false}
                           initialNumToRender={10}
@@ -2244,6 +1867,7 @@ const PostReshare = ({
                             );
                           }}
                         />
+
                       </>
                     );
                   }}
@@ -2278,65 +1902,8 @@ const PostReshare = ({
               )}
             </ScrollView>
           )}
-          <View style={style.commentAdd}>
-            {replyComment !== '' && (
-              <View style={style.replyBox}>
-                <View style={style.ProfileReplyBox}>
-                  <Image
-                    style={style.ProfileReplyBoxProfile}
-                    source={{ uri: replyComment?.user?.profile_picture_url }}
-                  />
-                  <TextC
-                    font={'Montserrat-Medium'}
-                    size={ResponsiveSize(11)}
-                    text={`Reply to ${replyComment?.user?.user_name}`}
-                  />
-                </View>
-                <TouchableOpacity onPress={() => setReplyComment('')}>
-                  <AntDesign
-                    name="close"
-                    color={global.black}
-                    size={ResponsiveSize(13)}
-                  />
-                </TouchableOpacity>
-              </View>
-            )}
-            <View
-              keyboardShouldPersistTaps="handled"
-              style={{ width: windowWidth, position: 'relative' }}>
-              <TextInput
-                editable={!commentAddLoading && !replyAddLoader}
-                value={commentInfo}
-                onChangeText={e => setCommentInfo(e)}
-                placeholder="Comment here"
-                style={style.commentInput}
-              />
-              <TouchableOpacity
-                disabled={
-                  commentInfo === '' || commentAddLoading || replyAddLoader
-                }
-                onPress={() => {
-                  if (replyComment?.comment_id) {
-                    ReplyAdder();
-                  } else {
-                    commentAdder();
-                  }
-                }}
-                style={style.sendCommentBtn}>
-                {replyAddLoader ? (
-                  <ActivityIndicator color={'white'} size={'small'} />
-                ) : (
-                  <Feather
-                    name="send"
-                    color={'white'}
-                    size={ResponsiveSize(15)}
-                  />
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
         </View>
-      </Modal>
+      )}
 
       <Modal
         isVisible={isShareModal}
@@ -2532,7 +2099,6 @@ const PostReshare = ({
           </View>
         </View>
       </Modal>
-
       <Modal
         isVisible={isReportVisible}
         style={{
@@ -2622,7 +2188,6 @@ const PostReshare = ({
           </View>
         </View>
       </Modal>
-
       <Modal
         isVisible={isReportSecondVisible}
         style={{
@@ -2684,7 +2249,6 @@ const PostReshare = ({
           </View>
         </View>
       </Modal>
-
       <Modal
         isVisible={isDeleteSecondVisible}
         style={{
@@ -2776,4 +2340,4 @@ const PostReshare = ({
 function mapStateToProps({ PostCreationReducer, GetUserProfileReducer }) {
   return { PostCreationReducer, GetUserProfileReducer };
 }
-export default connect(mapStateToProps, PostCreationAction)(PostReshare);
+export default connect(mapStateToProps, PostCreationAction)(PostDetailComponent);

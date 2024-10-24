@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StatusBar,
   StyleSheet,
@@ -12,16 +12,16 @@ import {
   Switch,
 } from 'react-native';
 import TextC from '../components/text/text';
-import {ResponsiveSize, global} from '../components/constant';
+import { ResponsiveSize, global } from '../components/constant';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {DarkTheme, useNavigation} from '@react-navigation/native';
-import {baseUrl, apiKey} from '../store/config.json';
-import {useToast} from 'react-native-toast-notifications';
+import { DarkTheme, useNavigation } from '@react-navigation/native';
+import { baseUrl, apiKey } from '../store/config.json';
+import { useToast } from 'react-native-toast-notifications';
 import * as UserProfile from '../store/actions/UserProfile/index';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 
-const Setting = ({onLogin, GetUserProfileReducer, GetProfileDataNoReload}) => {
+const Setting = ({ onLogin, GetUserProfileReducer, GetProfileDataNoReload }) => {
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const scheme = useColorScheme();
@@ -29,8 +29,6 @@ const Setting = ({onLogin, GetUserProfileReducer, GetProfileDataNoReload}) => {
   const [isEnabled1, setIsEnabled1] = useState(
     GetUserProfileReducer?.data?.isMute == 'Y' ? true : false,
   );
-  const [isEnabled2, setIsEnabled2] = useState(false);
-  const toggleSwitch2 = () => setIsEnabled2(previousState => !previousState);
   const toast = useToast();
 
   const styles = StyleSheet.create({
@@ -124,6 +122,7 @@ const Setting = ({onLogin, GetUserProfileReducer, GetProfileDataNoReload}) => {
       },
     });
     const dataRe = await response.json();
+    console.log(dataRe)
     if (dataRe.message) {
       toast.show(isEnabled1 ? 'Unmuted' : 'Muted');
       GetProfileDataNoReload()
@@ -131,7 +130,7 @@ const Setting = ({onLogin, GetUserProfileReducer, GetProfileDataNoReload}) => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
       <StatusBar
         backgroundColor={
           scheme === 'dark' ? DarkTheme.colors.background : 'white'
@@ -142,8 +141,8 @@ const Setting = ({onLogin, GetUserProfileReducer, GetProfileDataNoReload}) => {
         style={{
           flexGrow: 1,
           ...(scheme === 'dark'
-            ? {backgroundColor: DarkTheme.colors.background}
-            : {backgroundColor: 'white'}),
+            ? { backgroundColor: DarkTheme.colors.background }
+            : { backgroundColor: 'white' }),
         }}>
         <View style={styles.wrapper}>
           <Pressable
@@ -176,7 +175,7 @@ const Setting = ({onLogin, GetUserProfileReducer, GetProfileDataNoReload}) => {
             </View>
             <TextC
               size={ResponsiveSize(14)}
-              style={{color: global.secondaryColor}}
+              style={{ color: global.secondaryColor }}
               font={'Montserrat-Bold'}
               text={'Account'}
             />
@@ -243,7 +242,7 @@ const Setting = ({onLogin, GetUserProfileReducer, GetProfileDataNoReload}) => {
             </View>
             <TextC
               size={ResponsiveSize(14)}
-              style={{color: global.secondaryColor}}
+              style={{ color: global.secondaryColor }}
               font={'Montserrat-Bold'}
               text={'Sound'}
             />
@@ -254,7 +253,7 @@ const Setting = ({onLogin, GetUserProfileReducer, GetProfileDataNoReload}) => {
               <TextC text={'Mute sound effects'} font={'Montserrat-Medium'} />
               <View>
                 <Switch
-                  trackColor={{false: '#767577', true: global.secondaryColor}}
+                  trackColor={{ false: '#767577', true: global.secondaryColor }}
                   thumbColor={isEnabled1 ? 'white' : 'white'}
                   ios_backgroundColor="#3e3e3e"
                   onValueChange={toggleSwitch1}
@@ -275,13 +274,13 @@ const Setting = ({onLogin, GetUserProfileReducer, GetProfileDataNoReload}) => {
                             </View>
                         </View> */}
           </View>
-          <View style={{paddingTop: ResponsiveSize(20)}}>
+          <View style={{ paddingTop: ResponsiveSize(20) }}>
             <TouchableOpacity
               style={styles.DeleteBtn}
               onPress={() => navigation.navigate('DeleteAccount')}>
               <TextC
                 size={ResponsiveSize(14)}
-                style={{color: global.white}}
+                style={{ color: global.white }}
                 font={'Montserrat-Medium'}
                 text={'Account Delete'}
               />
@@ -295,7 +294,7 @@ const Setting = ({onLogin, GetUserProfileReducer, GetProfileDataNoReload}) => {
             <TouchableOpacity onPress={Logout} style={styles.LogoutBtn}>
               <TextC
                 size={ResponsiveSize(14)}
-                style={{color: global.white}}
+                style={{ color: global.white }}
                 font={'Montserrat-Medium'}
                 text={'Logout'}
               />
@@ -312,7 +311,7 @@ const Setting = ({onLogin, GetUserProfileReducer, GetProfileDataNoReload}) => {
   );
 };
 
-function mapStateToProps({GetUserProfileReducer}) {
-  return {GetUserProfileReducer};
+function mapStateToProps({ GetUserProfileReducer }) {
+  return { GetUserProfileReducer };
 }
 export default connect(mapStateToProps, UserProfile)(Setting);

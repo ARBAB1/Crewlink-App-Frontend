@@ -3,7 +3,7 @@ import {
   useNavigation,
   CommonActions,
 } from '@react-navigation/native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -25,18 +25,18 @@ import CityScroll from '../components/citiesScroll';
 import Post from '../components/post/index';
 import PostReshare from '../components/postReshare/index';
 import * as UserProfile from '../store/actions/UserProfile/index';
-import {connect} from 'react-redux';
-import {global, ResponsiveSize} from '../components/constant';
+import { connect } from 'react-redux';
+import { global, ResponsiveSize } from '../components/constant';
 import TextC from '../components/text/text';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import LinearGradient from 'react-native-linear-gradient';
-import {Easing} from 'react-native-reanimated';
-import {useHeaderHeight} from '@react-navigation/elements';
+import { Easing } from 'react-native-reanimated';
+import { useHeaderHeight } from '@react-navigation/elements';
 import MainHeader from '../components/mainHeader';
-import {useSWRConfig} from 'swr';
-import {useToast} from 'react-native-toast-notifications';
+import { useSWRConfig } from 'swr';
+import { useToast } from 'react-native-toast-notifications';
 
-const SkeletonPlaceholder = ({style, refreshing}) => {
+const SkeletonPlaceholder = ({ style, refreshing }) => {
   const translateX = new Animated.Value(-350);
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -109,34 +109,34 @@ const SkeletonPlaceholder = ({style, refreshing}) => {
     <View style={[styles.container, style]}>
       <View style={styles.textWrapper}>
         <View style={styles.profileImageSkelton}>
-          <Animated.View style={[styles.gradient, {transform: [{translateX}]}]}>
+          <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
             <LinearGradient
               colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-              start={{x: 0, y: 0}}
-              end={{x: 1, y: 0}}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
               style={styles.linearGradientLine}
             />
           </Animated.View>
         </View>
-        <View style={{marginLeft: ResponsiveSize(10)}}>
+        <View style={{ marginLeft: ResponsiveSize(10) }}>
           <View style={styles.titleStripe}>
             <Animated.View
-              style={[styles.gradient, {transform: [{translateX}]}]}>
+              style={[styles.gradient, { transform: [{ translateX }] }]}>
               <LinearGradient
                 colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 0}}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
                 style={styles.linearGradientLine}
               />
             </Animated.View>
           </View>
           <View style={styles.descriptionStripe}>
             <Animated.View
-              style={[styles.gradient, {transform: [{translateX}]}]}>
+              style={[styles.gradient, { transform: [{ translateX }] }]}>
               <LinearGradient
                 colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 0}}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
                 style={styles.linearGradientLine}
               />
             </Animated.View>
@@ -145,11 +145,11 @@ const SkeletonPlaceholder = ({style, refreshing}) => {
       </View>
 
       <View style={styles.imageWrapper}>
-        <Animated.View style={[styles.gradient, {transform: [{translateX}]}]}>
+        <Animated.View style={[styles.gradient, { transform: [{ translateX }] }]}>
           <LinearGradient
             colors={['#F5F5F5', '#d5d5d5', '#F5F5F5']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 0}}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
             style={styles.linearGradient}
           />
         </Animated.View>
@@ -180,7 +180,7 @@ const HomeScreen = ({
   };
   const getFeeds = async () => {
     setLoading(true);
-    const result = await GetUserPosts({city: selectedCity, page: page});
+    const result = await GetUserPosts({ city: selectedCity, page: page });
     if (result?.status == 'No_Post_Found') {
       toast.show('No Posts Found ');
       setLoading(false);
@@ -195,7 +195,7 @@ const HomeScreen = ({
         navigation.dispatch(
           CommonActions.navigate({
             index: 0,
-            routes: [{name: 'Home'}],
+            routes: [{ name: 'Home' }],
           }),
         );
       } else {
@@ -204,7 +204,7 @@ const HomeScreen = ({
         navigation.dispatch(
           CommonActions.navigate({
             index: 0,
-            routes: [{name: 'Home'}],
+            routes: [{ name: 'Home' }],
           }),
         );
       }
@@ -216,7 +216,7 @@ const HomeScreen = ({
 
   const getMoreFeeds = async () => {
     setLoadingMore(true);
-    const result = await GetUserPosts({city: selectedCity, page: page});
+    const result = await GetUserPosts({ city: selectedCity, page: page });
     if (result?.status == 'No_Post_Found') {
       toast.show('No Posts Found');
       setLoading(false);
@@ -231,7 +231,7 @@ const HomeScreen = ({
         navigation.dispatch(
           CommonActions.navigate({
             index: 0,
-            routes: [{name: 'Home'}],
+            routes: [{ name: 'Home' }],
           }),
         );
       } else {
@@ -240,7 +240,7 @@ const HomeScreen = ({
         navigation.dispatch(
           CommonActions.navigate({
             index: 0,
-            routes: [{name: 'Home'}],
+            routes: [{ name: 'Home' }],
           }),
         );
       }
@@ -297,7 +297,7 @@ const HomeScreen = ({
       setRefreshing(false);
     }, 2000);
   };
-  const {cache} = useSWRConfig();
+  const { cache } = useSWRConfig();
   const cacheloader = async loadAllFeed => {
     const preLoad = cache.get('UserFeed');
     const combinedData = [...(preLoad || []), ...(loadAllFeed || [])];
@@ -337,6 +337,8 @@ const HomeScreen = ({
             content_type={items?.item?.content_type}
             reshareUserDetails={items?.item?.reshareUserDetails}
             user_idIn={items?.item?.user_id}
+            reshared_post_id={items?.item?.reshared_post_id}
+            taggedPeople={items?.item?.taggedPeople}
           />
         ) : (
           <Post
@@ -357,20 +359,23 @@ const HomeScreen = ({
             likes_show_flag={items?.item?.likes_show_flag}
             content_type={items?.item?.content_type}
             user_idIn={items?.item?.user_id}
+            taggedPeople={items?.item?.taggedPeople}
           />
         )}
       </>
     );
   }, []);
 
+
+  console.log(post[0],'hoollsadksk')
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{flexGrow: 1}}
+      style={{ flexGrow: 1 }}
       keyboardVerticalOffset={
         Platform.OS === 'ios' ? headerHeight + StatusBar.currentHeight : 0
       }>
-      <SafeAreaView style={{flex: 1, backgroundColor: global.white}}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: global.white }}>
         <StatusBar
           backgroundColor={
             scheme === 'dark' ? DarkTheme.colors.background : 'white'
@@ -379,7 +384,7 @@ const HomeScreen = ({
         />
         <MainHeader loading={loading} />
         {loading ? (
-          <View style={{paddingTop: ResponsiveSize(10)}}>
+          <View style={{ paddingTop: ResponsiveSize(10) }}>
             <SkeletonPlaceholder />
             <SkeletonPlaceholder />
             <SkeletonPlaceholder />
@@ -387,9 +392,9 @@ const HomeScreen = ({
         ) : (
           <>
             {post !== undefined &&
-            post !== null &&
-            post !== '' &&
-            post.length > 0 ? (
+              post !== null &&
+              post !== '' &&
+              post.length > 0 ? (
               <FlatList
                 showsVerticalScrollIndicator={false}
                 initialNumToRender={10}
@@ -425,7 +430,7 @@ const HomeScreen = ({
                             text={'Finishing up'}
                             font={'Montserrat-SemiBold'}
                             size={ResponsiveSize(12)}
-                            style={{color: global.black}}
+                            style={{ color: global.black }}
                           />
                           <AntDesign
                             name="checkcircleo"
@@ -468,7 +473,7 @@ const HomeScreen = ({
                             text={'Load more'}
                             font={'Montserrat-SemiBold'}
                             size={ResponsiveSize(11)}
-                            style={{color: global.primaryColor}}
+                            style={{ color: global.primaryColor }}
                           />
                         </TouchableOpacity>
                       )}
@@ -500,7 +505,7 @@ const HomeScreen = ({
                         text={'Finishing up'}
                         font={'Montserrat-SemiBold'}
                         size={ResponsiveSize(12)}
-                        style={{color: global.black}}
+                        style={{ color: global.black }}
                       />
                       <AntDesign
                         name="checkcircleo"
@@ -531,7 +536,7 @@ const HomeScreen = ({
                     text={'No posts found'}
                     font={'Montserrat-Bold'}
                     size={ResponsiveSize(18)}
-                    style={{color: global.primaryColor}}
+                    style={{ color: global.primaryColor }}
                   />
                   <TextC
                     text={
@@ -555,7 +560,7 @@ const HomeScreen = ({
   );
 };
 
-function mapStateToProps({GetUserProfileReducer, PostCreationReducer}) {
-  return {GetUserProfileReducer, PostCreationReducer};
+function mapStateToProps({ GetUserProfileReducer, PostCreationReducer }) {
+  return { GetUserProfileReducer, PostCreationReducer };
 }
 export default connect(mapStateToProps, UserProfile)(HomeScreen);

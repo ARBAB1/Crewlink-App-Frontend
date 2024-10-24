@@ -9,13 +9,10 @@ import {
 export const getPostDetail = ({ post_id }) => async (dispatch) => {
     const Token = await AsyncStorage.getItem('Token');
     try {
-        // Dispatch the start action to indicate the loading state
         dispatch({
             type: POST_GET_DETAIL_START,
             loading: true,
         });
-
-        // Fetch the post detail from the API
         const response = await fetch(`${baseUrl.baseUrl}/posts/get-post-detail-by-post_id/${post_id}`, {
             method: "GET",
             headers: {
@@ -24,23 +21,20 @@ export const getPostDetail = ({ post_id }) => async (dispatch) => {
                 'accesstoken': `Bearer ${Token}`,
             },
         });
-
-        // If the response is successful
         if (response.ok) {
-      
             const res = await response.json();
             if (res) {
              
                 dispatch({
                     type: POST_GET_DETAIL_SUCCESS,
-                    payload: res, // Pass the fetched post detail data
+                    payload: res,
                     loading: false,
                 });
-                return res; // Optionally return the data for further use
+                return res;
             } else {
                 dispatch({
                     type: POST_GET_DETAIL_SUCCESS,
-                    payload: {}, // Empty payload if no data is received
+                    payload: {},
                     loading: false,
                 });
             }
@@ -58,3 +52,54 @@ export const getPostDetail = ({ post_id }) => async (dispatch) => {
         console.error("Error fetching post detail: ", error);
     }
 };
+
+
+
+export const LoadComments = (body) => async () => {
+    console.log(body)
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+        const response = await fetch(`${baseUrl.baseUrl}/posts/get-posts-comment/${body?.post_id}/${body?.page}/${body?.limit}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': baseUrl.apiKey,
+                'accesstoken': `Bearer ${Token}`
+            },
+        });
+        if (response.ok) {
+            const res = await response.json()
+            return res;
+        }
+        else {
+            return 'Something went wrong'
+        }
+    }
+    catch (error) {
+        return "Internal Server Error"
+    }
+}
+export const LoadReplies = (body) => async () => {
+    const Token = await AsyncStorage.getItem('Token');
+    try {
+        const response = await fetch(`${baseUrl.baseUrl}/posts/get-comment-replies/${body?.comment_id}/${body?.page}/${body?.limit}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': baseUrl.apiKey,
+                'accesstoken': `Bearer ${Token}`
+            },
+        });
+        if (response.ok) {
+            const res = await response.json()
+
+            return res;
+        }
+        else {
+            return 'Something went wrong'
+        }
+    }
+    catch (error) {
+        return "Internal Server Error"
+    }
+}

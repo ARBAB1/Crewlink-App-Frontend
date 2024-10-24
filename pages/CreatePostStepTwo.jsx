@@ -388,7 +388,8 @@ const CreatePostTwo = ({
               <View style={styles.logoSide3}>
                 <TouchableOpacity
                   // disabled={canPost}
-                  onPress={() => canPost ? (Alert.alert('Alert','Please check-in before posting')) : CreatePostFinalStep()}
+                  // onPress={() => canPost ? (Alert.alert('Alert','Please check-in before posting')) : CreatePostFinalStep()}
+                  onPress={() => CreatePostFinalStep()}
                   style={styles.NextBtn}>
                   <TextC
                     size={ResponsiveSize(11)}

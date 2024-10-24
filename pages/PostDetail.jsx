@@ -6,9 +6,9 @@ import TextC from "../components/text/text";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import * as PostDetailAction from '../store/actions/PostById/index';
 import { connect } from 'react-redux';
-import Post from "../components/post";
+import PostDetailComponent from "../components/postDetail/index";
 
-const PostDetail = ({ route, getPostDetail }) => {
+const PostDetail = ({ route, getPostDetail, LoadComments }) => {
     let params
     let type
     if (!route?.params?.content_id) {
@@ -24,6 +24,7 @@ const PostDetail = ({ route, getPostDetail }) => {
     const navigation = useNavigation();
     const windowWidth = Dimensions.get('window').width;
     const [post, setPost] = useState([]);
+    const [comment, setComment] = useState([]);
     const [loading, setLoading] = useState(false);
     const styles = StyleSheet.create({
         wrapper: {
@@ -54,20 +55,33 @@ const PostDetail = ({ route, getPostDetail }) => {
             width: '33.33%',
         },
     })
-
     const LoadUserPosts = async () => {
         setLoading(true)
         const result = await getPostDetail({
             post_id: params
         })
         setPost([result?.data])
-
-        setLoading(false)
+        LoadComment()
     }
+
+    const LoadComment = async () => {
+        const result = await LoadComments({
+            post_id: route?.params?.content_id,
+            page: 1,
+            limit: 10,
+        })
+        setLoading(false)
+        setComment(result)
+    }
+
+    console.log(comment, 'commemntnennnms')
+
 
     useEffect(() => {
         LoadUserPosts()
     }, [])
+
+
     return (
         <>
             <SafeAreaView style={{ flex: 1 }}>
@@ -82,42 +96,47 @@ const PostDetail = ({ route, getPostDetail }) => {
                     <View style={styles.logoSide3}></View>
                 </View>
                 {loading ? (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: global.white }}>
                         <ActivityIndicator size="large" color={global.primaryColor} />
                     </View>
                 ) : (
                     <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: global.white }}>
-                        {post !== undefined &&
-                            post !== null &&
-                            post !== '' &&
-                            post.length > 0 ?
-                            post?.map(data => (
-                                <Post
-                                    selfLiked={data?.selfLiked}
-                                    postId={data?.post_id}
-                                    timeAgo={data?.created_at}
-                                    userLocation={`${data?.lastCheckin?.city} | ${data?.lastCheckin?.state}`}
-                                    userName={data?.userDetails?.user_name}
-                                    profileImage={data?.userDetails?.profile_picture_url}
-                                    likeCount={data?.likes_count}
-                                    commnetCount={data?.comments_count}
-                                    description={data?.caption}
-                                    content={data?.attachments}
-                                    comments_show_flag={data?.comments_show_flag}
-                                    allow_comments_flag={data?.allow_comments_flag}
-                                    likes_show_flag={data?.likes_show_flag}
-                                    type={type}
-                                />
-                            )) :
-                            <View style={{ paddingTop: ResponsiveSize(30), flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                                <TextC
-                                    text={'No posts yet'}
-                                    font={'Montserrat-SemiBold'}
-                                    size={ResponsiveSize(18)}
-                                    style={{ color: global.primaryColor }}
-                                />
-                            </View>
+                        {
+                            post !== undefined &&
+                                post !== null &&
+                                post !== '' &&
+                                post.length > 0 ?
+                                post?.map(data => (
+                                    <PostDetailComponent
+                                        selfLiked={data?.selfLiked}
+                                        postId={data?.post_id}
+                                        timeAgo={data?.created_at}
+                                        userLocation={`${data?.lastCheckin?.city} | ${data?.lastCheckin?.state}`}
+                                        userName={data?.userDetails?.user_name}
+                                        profileImage={data?.userDetails?.profile_picture_url}
+                                        likeCount={data?.likes_count}
+                                        commnetCount={data?.comments_count}
+                                        description={data?.caption}
+                                        content={data?.attachments}
+                                        comments_show_flag={data?.comments_show_flag}
+                                        allow_comments_flag={data?.allow_comments_flag}
+                                        likes_show_flag={data?.likes_show_flag}
+                                        type={type}
+                                    />
+                                ))
+                                :
+                                <View style={{ paddingTop: ResponsiveSize(30), flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                                    <TextC
+                                        text={'No posts yet'}
+                                        font={'Montserrat-SemiBold'}
+                                        size={ResponsiveSize(18)}
+                                        style={{ color: global.primaryColor }}
+                                    />
+                                </View>
                         }
+                        <View>
+
+                        </View>
                     </ScrollView>
                 )}
             </SafeAreaView>
